@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: an entry in the sample sheet
+properties:
+  sample_name:
+    type: string
+    description: sample identifier
+  fwd_file:
+    type: string
+    description: filename of forward reads
+  rvs_file:
+    type: string
+    description: filename of reverse reads
+  run:
+    type: string
+    description: run identifier
+
+required:
+  - sample_name
+  - fwd_file
+  - rvs_file
+

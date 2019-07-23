@@ -2,9 +2,11 @@ import os
 import shutil
 import gzip
 import json
-import bz2
+#import bz2
 from copy import deepcopy
 import subprocess
+import pandas as pd
+from snakemake.utils import validate
 
 def dict_merge(a, b):
     """
@@ -22,9 +24,8 @@ def dict_merge(a, b):
 
 
 # default configuration file
-configfile:
-    srcdir("/data/project/metaamp/TOOLS/dada_pipe/config.default.json")
-
+configfile: "config.default.yaml"
+validate(config,schema="schemas/config.schema.yaml")
 
 # default executable for snakemake
 shell.executable("bash")
@@ -38,6 +39,8 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
         data = json.load(rhandle)
         config = dict_merge(config, data)
 
+samples = pd.read_table(config['samples']).set_index("sample",drop=False)
+validate(samples, schema="schemas/sample.schema.yaml")
 
 # get parameters from the command line
 OUTPUTDIR = os.environ.get("OUTPUTDIR", config['outputdir'])
@@ -61,4 +64,5 @@ if not os.path.isabs(TMPDIR):
     TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
 if not os.path.exists(TMPDIR):
     os.makedirs(TMPDIR)
+
 

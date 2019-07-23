@@ -1,0 +1,32 @@
+tmp_dir: "tmp"
+dada_root: "/data/project/metaamp/TOOLS/dada_pipe"
+dada_src: "/data/project/metaamp/TOOLS/dada_pipe/dada_scripts"
+dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env/lib"
+do_primers: true
+do_dada: true
+skip_db: false
+do_taxonomy: true
+do_postprocessing: true
+remove_chimeras: true
+primers:
+  fwd: 
+    sequence: GTGYCAGCMGCCGCGGTAA
+    name: 515F
+  rvs: 
+    sequence: GGACTACNVGGGTWTCTAAT
+    name: 806R
+sequencing_direction: "fwd_1"
+primer_cutting:
+  overlap: 10
+  count: 2
+  match: both
+  perc_mismatch: 0.2
+trunc_length: 
+  fwd: 
+  rvs:
+min_qual:
+  fwd: 
+  rvs:
+outputdir: "/data/project/metaamp/PLAYGROUND"
+db_path: "/data/project/metaamp/DBs/ampliconClone"
+tax_db: "silva132"    
