@@ -1,0 +1,64 @@
+import os
+import shutil
+import gzip
+import json
+import bz2
+from copy import deepcopy
+import subprocess
+
+def dict_merge(a, b):
+    """
+    Deep merge 2 dicts together
+    """
+    if not isinstance(b, dict):
+        return b
+    result = deepcopy(a)
+    for k, v in b.items():
+        if k in result and isinstance(result[k], dict):
+            result[k] = dict_merge(result[k], v)
+        else:
+            result[k] = deepcopy(v)
+    return result
+
+
+# default configuration file
+configfile:
+    srcdir("/data/project/metaamp/TOOLS/dada_pipe/config.default.json")
+
+
+# default executable for snakemake
+shell.executable("bash")
+
+# custom configuration file
+CUSTOM_CONFIG_PATH = os.environ.get("CONFIGFILE")
+
+# merge 2 configurations files together
+if os.path.exists(CUSTOM_CONFIG_PATH):
+    with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
+        data = json.load(rhandle)
+        config = dict_merge(config, data)
+
+
+# get parameters from the command line
+OUTPUTDIR = os.environ.get("OUTPUTDIR", config['outputdir'])
+
+PRELIM_STEPS = ''
+if config['do_primers']:
+    PRELIM_STEPS += "primers "
+if config['do_dada']:
+    PRELIM_STEPS += "dada "
+    if config['do_taxonomy']:
+        PRELIM_STEPS += "taxonomy "
+    if cofig['do_postprocessing']:
+        PRELIM_STEPS += "postprocessing "
+
+STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
+
+# temporary directory will be stored inside the OUTPUTDIR directory
+# unless an absolute path is set
+TMPDIR = os.environ.get("TMPDIR", config['tmp_dir'])
+if not os.path.isabs(TMPDIR):
+    TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
+if not os.path.exists(TMPDIR):
+    os.makedirs(TMPDIR)
+
