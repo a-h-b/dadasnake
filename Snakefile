@@ -1,4 +1,7 @@
 # include configuration file
+#default configuration file (hard-coded, not pretty for portability)
+configfile: "/data/project/metaamp/TOOLS/dada_pipe/config.default.yaml"
+
 include:
     "dada_scripts/get_config.rules"
 
@@ -27,11 +30,11 @@ if not config['skip_db']:
     inputs.append('cut_db.done')
 if 'primers' in STEPS:
     inputs.append('primers.done')
-if 'dada' in IMP_STEPS:
+if 'dada' in STEPS:
     inputs.append('dada.done')
-if 'taxonomy' in IMP_STEPS:
+if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
-if 'postprocessing' in IMP_STEPS:
+if 'postprocessing' in STEPS:
     inputs.append('postprocessing.done')
 
 

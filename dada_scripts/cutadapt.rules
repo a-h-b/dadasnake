@@ -1,13 +1,23 @@
 def get_fastq(wildcards):
-    return samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    #print(config['raw_directory']+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna())
+    return config['raw_directory']+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+
+rule primers_control:
+    input:
+        expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"])
+    output:
+        "primers.done"
+    shell:
+        """
+        touch {output}
+        """
 
 rule cut_primers_both:
     input:
         get_fastq
     output:
         "preprocessing/{run}/{library}.fwd.fastq",
-        "preprocessing/{run}/{library}.rvs.fastq",
-        "preprocessing/{run}/"
+        "preprocessing/{run}/{library}.rvs.fastq"
     threads: 1
     log: "logs/cutadapt.{run}.{library}.log"
     message: "Running cutadapt on {input}."

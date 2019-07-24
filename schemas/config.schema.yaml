@@ -1,4 +1,4 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "http://json-schema.org/draft-06/schema#"
 
 description: DADA2 pipeline Snakemake configuration file
 
@@ -13,6 +13,10 @@ properties:
     type: string
   dada_lib:
     type: string 
+  raw_directory:
+    type: string
+  sample_table:
+    type: string
   do_primers: 
     type: boolean
   do_dada:

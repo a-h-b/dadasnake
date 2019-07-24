@@ -1,7 +1,7 @@
 import os
 import shutil
 import gzip
-import json
+import yaml
 #import bz2
 from copy import deepcopy
 import subprocess
@@ -24,23 +24,28 @@ def dict_merge(a, b):
 
 
 # default configuration file
-configfile: "config.default.yaml"
-validate(config,schema="schemas/config.schema.yaml")
+#configfile: "config.default.yaml"
+# validate(config,schema="schemas/config.schema.yaml")
 
 # default executable for snakemake
 shell.executable("bash")
 
 # custom configuration file
 CUSTOM_CONFIG_PATH = os.environ.get("CONFIGFILE")
+print("read configuration from "+CUSTOM_CONFIG_PATH)
 
 # merge 2 configurations files together
 if os.path.exists(CUSTOM_CONFIG_PATH):
     with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
-        data = json.load(rhandle)
+        data = yaml.load(rhandle)
         config = dict_merge(config, data)
 
-samples = pd.read_table(config['samples']).set_index("sample",drop=False)
-validate(samples, schema="schemas/sample.schema.yaml")
+#validate(config,schema="schemas/config.schema.yaml")
+
+samples = pd.read_table(config['sample_table']).set_index(["library","run"],drop=False)
+samples.index = samples.index.set_levels([i.astype(str) for i in samples.index.levels]) 
+
+#validate(samples, schema="schemas/sample.schema.yaml")
 
 # get parameters from the command line
 OUTPUTDIR = os.environ.get("OUTPUTDIR", config['outputdir'])
