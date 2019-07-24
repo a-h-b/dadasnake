@@ -2,24 +2,81 @@ rule dada_qc1:
     input:
         "preprocessing/{run}/"
     output:
-        "stats/QC1.fwd.{run}.pdf",
-        "stats/QC1.rvs.{run}.pdf"
+        "stats/QC1.{run}.fwd.pdf",
+        "stats/QC1.{run}.rvs.pdf"
     threads: 1
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {input}."
     script:
         "{dada_src}/dada_QC.R"
 
-rule dada_qc1:
+rule dada_qc_filtered:
     input:
-        "preprocessing/{run}/"
+        "filtered/{run}/"
     output:
-        "stats/QC1.fwd.{run}.pdf",
-        "stats/QC1.rvs.{run}.pdf"
+        "stats/QC_filtered.{run}.fwd.pdf",
+        "stats/QC_filtered.{run}.rvs.pdf"
     threads: 1
-    log: "logs/DADA2_QC_filter.{run}.log"
+    log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {input}."
     script:
         "{dada_src}/dada_QC.R"
+
+rule dada_filter:
+    input:
+        "preprocessing/{run}/{sample}.fwd.fastq",
+        "preprocessing/{run}/{sample}.rvs.fastq"
+    output:
+        "filtered/{run}/",
+        "filtered/{run}/{sample}.fwd.fastq",
+        "filtered/{run}/{sample}.rvs.fastq"
+    threads: 1
+    log: "logs/DADA2_filtering.{run}.{sample}.log"
+    message: "Running filtering on {input}."
+    script:
+        "{dada_src}/dada_filter.R"
+
+rule dada_errors:
+    input:
+        "filtered/{run}/{sample}.fwd.fastq",
+        "filtered/{run}/{sample}.rvs.fastq"
+    output:
+        "errors/models.{run}.fwd.RDS",
+        "errors/models.{run}.rvs.RDS",
+        "stats/error_models.{run}.fwd.pdf",
+        "stats/error_models.{run}.rvs.pdf"
+    threads: 1
+    log: "logs/DADA2_errors.{run}.log"
+    message: "Running error models on {input}."
+    script:
+        "{dada_src}/dada_errors.R"
+
+rule dada_mergereads:
+    input:
+        "filtered/{run}/{sample}.fwd.fastq",
+        "filtered/{run}/{sample}.rvs.fastq",
+        "errors/models.{run}.fwd.RDS",
+        "errors/models.{run}.rvs.RDS"
+    output:
+        "sequenceTables/seqTab.{run}.RDS",
+        "sequenceTables/seqTab.{run}.tsv"
+    threads: 1
+    log: "logs/DADA2_mergeReads.{run}.log"
+    message: "merging reads for {wildcards.run}."
+    script:
+        "{dada_src}/dada_mergeReads.R"
+
+rule dada_mergeruns:
+    input:
+        "sequenceTables/seqTab.{run}.RDS"
+    output:
+        "sequenceTables/all.seqTab.RDS",
+        "sequenceTables/all.seqs.fasta",
+        "sequenceTables/all.seqTab.tsv"
+    threads: 1
+    log: "logs/DADA2_mergeRuns.{run}.log"
+    message: "merging runs and (if requested) removing chimeras for {input}."
+    script:
+        "{dada_src}/dada_mergeRuns.R"
 
 

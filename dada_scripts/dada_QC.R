@@ -89,7 +89,7 @@ path <- snakemake@input[[1]]
 fastqFs <- sort(list.files(path, pattern="fwd.fastq"))
 fastqRs <- sort(list.files(path, pattern="rvs.fastq"))
 
-# first QC
+# QC
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
 plotQualityProfile(paste0(path,"/",fastqFs))
