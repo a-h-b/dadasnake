@@ -2,21 +2,24 @@ $schema: "http://json-schema.org/draft-07/schema#"
 
 description: an entry in the sample sheet
 properties:
-  sample_name:
+  library:
     type: string
-    description: sample identifier
-  fwd_file:
+    description: per-library sample identifier
+  r1_file:
     type: string
     description: filename of forward reads
-  rvs_file:
+  r2_file:
     type: string
     description: filename of reverse reads
+  sample:
+    type: string
+    description: sample
   run:
     type: string
     description: run identifier
 
 required:
-  - sample_name
-  - fwd_file
-  - rvs_file
+  - library
+  - r1_file
+  - r2_file
 

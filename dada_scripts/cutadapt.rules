@@ -1,17 +1,21 @@
+def get_fastq(wildcards):
+    return samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+
 rule cut_primers_both:
     input:
+        get_fastq
     output:
-        "cut_primers/ ",
-        "cut_primers/ ",
-        "cut_primers/ ",
-        "cut_primers/ "
+        "preprocessing/{run}/{library}.fwd.fastq",
+        "preprocessing/{run}/{library}.rvs.fastq",
+        "preprocessing/{run}/"
     threads: 1
-    log: "logs/cutadapt.{SAMPLE}.log"
+    log: "logs/cutadapt.{run}.{library}.log"
     message: "Running cutadapt on {input}."
     run:
         if config['sequencing_direction'] == "fwd_1":
             shell("""
                 TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+
                 FWD_RC=`echo {config['primers']['fwd']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 RVS_RC=`echo {config['primers']['rvs']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
@@ -26,12 +30,13 @@ rule cut_primers_both:
                  --match-read-wildcards -m 1:1 \
                  -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
                  -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}
-
                   """)
             print("Assuming forward primer is in read 1.")
+
         elif config['sequencing_direction'] == "rvs_1":
             shell("""
                 TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+
                 FWD_RC=`echo {config['primers']['fwd']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 RVS_RC=`echo {config['primers']['rvs']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
@@ -45,10 +50,10 @@ rule cut_primers_both:
                  --no-indels -n {config['primer_cutting']['count']} \
                  --match-read-wildcards -m 1:1 \
                  -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-                 -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}
-                
+                 -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}                
                   """)
             print("Assuming forward primer is in read 2.")
+
         else:
             shell("""
                 TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")

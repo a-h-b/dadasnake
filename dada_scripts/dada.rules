@@ -1,0 +1,25 @@
+rule dada_qc1:
+    input:
+        "preprocessing/{run}/"
+    output:
+        "stats/QC1.fwd.{run}.pdf",
+        "stats/QC1.rvs.{run}.pdf"
+    threads: 1
+    log: "logs/DADA2_QC_1.{run}.log"
+    message: "Running QC on {input}."
+    script:
+        "{dada_src}/dada_QC.R"
+
+rule dada_qc1:
+    input:
+        "preprocessing/{run}/"
+    output:
+        "stats/QC1.fwd.{run}.pdf",
+        "stats/QC1.rvs.{run}.pdf"
+    threads: 1
+    log: "logs/DADA2_QC_filter.{run}.log"
+    message: "Running QC on {input}."
+    script:
+        "{dada_src}/dada_QC.R"
+
+
