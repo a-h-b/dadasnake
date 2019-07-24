@@ -12,95 +12,111 @@ rule primers_control:
         touch {output}
         """
 
-rule cut_primers_both:
-    input:
-        get_fastq
-    output:
-        "preprocessing/{run}/{library}.fwd.fastq",
-        "preprocessing/{run}/{library}.rvs.fastq"
-    threads: 1
-    log: "logs/cutadapt.{run}.{library}.log"
-    message: "Running cutadapt on {input}."
-    run:
-        if config['sequencing_direction'] == "fwd_1":
-            shell("TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') \
-                || echo 'yay'")
-#                FWD_RC=`echo {config['primers']['fwd']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
-#                RVS_RC=`echo {config['primers']['rvs']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+if config['sequencing_direction'] == "fwd_1":
+    rule cut_primer_both:
+        input:
+            get_fastq
+        output:
+            "preprocessing/{run}/{library}.fwd.fastq",
+            "preprocessing/{run}/{library}.rvs.fastq"
+        threads: 1
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
+        shell:
+            """
+            TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
+            FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+            RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
-#                cutadapt -g {config['primers']['fwd']['sequence']} -G {config['primers']['rvs']['sequence']} \
-#                 --no-indels -n {config['primer_cutting']['count']} -O {config['primer_cutting']['overlap']} \
-#                 --match-read-wildcards -m 1:1 --pair-filter {config['primer_cutting']['match']} \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} --trimmed-only \
-#                 -o $TMPD/{wildcards.SAMPLE}.fwd.fastq -p $TMPD/{wildcards.SAMPLE}.rvs.fastq {input} 2> {log}
+            cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
+            --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            --match-read-wildcards -m 1:1 --pair-filter {config[primer_cutting][match]} \
+            -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
+            -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
 
-#                cutadapt -a $RVS_RC -A $FWD_RC \
-#                 --no-indels -n {config['primer_cutting']['count']} \
-#                 --match-read-wildcards -m 1:1 \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-#                 -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}
-                  """)
-#            print("Assuming forward primer is in read 1.")
+            cutadapt -a $RVS_RC -A $FWD_RC \
+             --no-indels -n {config[primer_cutting][count]} \
+             --match-read-wildcards -m 1:1 \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log} 2>&1
+             """
 
-#        elif config['sequencing_direction'] == "rvs_1":
-#            shell("""
-#                TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
-#
-#                FWD_RC=`echo {config['primers']['fwd']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
-#                RVS_RC=`echo {config['primers']['rvs']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
-#
-#                cutadapt -g {config['primers']['rvs']['sequence']} -G {config['primers']['fwd']['sequence']} \
-#                 --no-indels -n {config['primer_cutting']['count']} -O {config['primer_cutting']['overlap']} \
-#                 --match-read-wildcards -m 1:1 --pair-filter {config['primer_cutting']['match']} \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} --trimmed-only \
-#                 -o $TMPD/{wildcards.SAMPLE}.rvs.fastq -p $TMPD/{wildcards.SAMPLE}.fwd.fastq {input} 2> {log}
-#
-#                cutadapt -a $RVS_RC -A $FWD_RC \
-#                 --no-indels -n {config['primer_cutting']['count']} \
-#                 --match-read-wildcards -m 1:1 \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-#                 -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}                
-#                  """)
-#            print("Assuming forward primer is in read 2.")
-#
-#        else:
-#            shell("""
-#                TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
-#
-#                FWD_RC=`echo {config['primers']['fwd']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
-#                RVS_RC=`echo {config['primers']['rvs']['sequence']} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+elif config['sequencing_direction'] == "rvs_1":
+    rule cut_primers_both:
+        input:
+            get_fastq
+        output:
+            "preprocessing/{run}/{library}.fwd.fastq",
+            "preprocessing/{run}/{library}.rvs.fastq"
+        threads: 1
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
+        shell:
+            """
+            TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
 
-#                cutadapt -g {config['primers']['fwd']['sequence']} -G {config['primers']['rvs']['sequence']} \
-#                 --no-indels -n {config['primer_cutting']['count']} -O {config['primer_cutting']['overlap']} \
-#                 --match-read-wildcards -m 1:1 --pair-filter {config['primer_cutting']['match']} \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-#                 --untrimmed-output=$TMPD/{wildcards.SAMPLE}.fwd_unt.fastq --untrimmed-paired-output=$TMPD/{wildcards.SAMPLE}.rvs_unt.fastq \
-#                 -o $TMPD/{wildcards.SAMPLE}.fwd.fastq -p $TMPD/{wildcards.SAMPLE}.rvs.fastq {input} 2> {log}
-#
-#                cutadapt -a $RVS_RC -A $FWD_RC \
-#                 --no-indels -n {config['primer_cutting']['count']} \
-#                 --match-read-wildcards -m 1:1 \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-#                 -o {output[0]} -p {output[1]} $TMPD/{wildcards.SAMPLE}.fwd.fastq $TMPD/{wildcards.SAMPLE}.rvs.fastq 2>> {log}
+            FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+            RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
-#                cutadapt -g {config['primers']['rvs']['sequence']} -G {config['primers']['fwd']['sequence']} \
-#                 --no-indels -n {config['primer_cutting']['count']} -O {config['primer_cutting']['overlap']} \
-#                 --match-read-wildcards -m 1:1 --pair-filter {config['primer_cutting']['match']} \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} --trimmed-only \
-#                 -o $TMPD/{wildcards.SAMPLE}.rvs_tr2.fastq -p $TMPD/{wildcards.SAMPLE}.fwd_tr2.fastq \
-#                 $TMPD/{wildcards.SAMPLE}.fwd_unt.fastq $TMPD/{wildcards.SAMPLE}.rvs_unt.fastq 2>> {log}
-#
-#                cutadapt -a $RVS_RC -A $FWD_RC \
-#                 --no-indels -n {config['primer_cutting']['count']} \   
-##                 --match-read-wildcards -m 1:1 \
-#                 -j {threads} -e {config['primer_cutting']['perc_mismatch']} \
-#                 -o $TMPD/{wildcards.SAMPLE}.fwd.final.fastq -p $TMPD/{wildcards.SAMPLE}.rvs.final.fastq \
-#                 $TMPD/{wildcards.SAMPLE}.fwd_tr2.fastq $TMPD/{wildcards.SAMPLE}.rvs_tr2.fastq 2>> {log}
-#
-#                cat $TMPD/{wildcards.SAMPLE}.fwd.final.fastq >> {output[0]}
-#                cat $TMPD/{wildcards.SAMPLE}.rvs.final.fastq >> {output[1]}
-#                  """)
-#            print("Checking both reads for all primers.")
+            cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
+             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             --match-read-wildcards -m 1:1 --pair-filter {config[primer_cutting][match]} \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
+             -o $TMPD/{wildcards.library}.rvs.fastq -p $TMPD/{wildcards.library}.fwd.fastq {input} &> {log}
+
+            cutadapt -a $RVS_RC -A $FWD_RC \
+             --no-indels -n {config[primer_cutting][count]} \
+             --match-read-wildcards -m 1:1 \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log}  2>&1
+            """
+
+else:
+    rule cut_primers_both:
+        input:
+            get_fastq
+        output:
+            "preprocessing/{run}/{library}.fwd.fastq",
+            "preprocessing/{run}/{library}.rvs.fastq"
+        threads: 1
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Searching for both  primers in both reads."
+        shell:
+            """
+            TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+            FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+            RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+
+            cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
+             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             --match-read-wildcards -m 1:1 --pair-filter {config[primer_cutting][match]} \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             --untrimmed-output=$TMPD/{wildcards.library}.fwd_unt.fastq --untrimmed-paired-output=$TMPD/{wildcards.library}.rvs_unt.fastq \
+             -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
+            
+            cutadapt -a $RVS_RC -A $FWD_RC \
+             --no-indels -n {config[primer_cutting][count]} \
+             --match-read-wildcards -m 1:1 \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log} 2>&1
+
+            cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
+             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             --match-read-wildcards -m 1:1 --pair-filter {config[primer_cutting][match]} \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
+             -o $TMPD/{wildcards.library}.rvs_tr2.fastq -p $TMPD/{wildcards.library}.fwd_tr2.fastq \
+             $TMPD/{wildcards.library}.fwd_unt.fastq $TMPD/{wildcards.library}.rvs_unt.fastq >> {log} 2>&1
+
+            cutadapt -a $RVS_RC -A $FWD_RC \
+             --no-indels -n {config[primer_cutting][count]} \   
+             --match-read-wildcards -m 1:1 \
+             -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             -o $TMPD/{wildcards.library}.fwd.final.fastq -p $TMPD/{wildcards.library}.rvs.final.fastq \
+             $TMPD/{wildcards.library}.fwd_tr2.fastq $TMPD/{wildcards.library}.rvs_tr2.fastq >> {log} 2>&1
+
+            cat $TMPD/{wildcards.library}.fwd.final.fastq >> {output[0]}
+            cat $TMPD/{wildcards.library}.rvs.final.fastq >> {output[1]}
+            """
 
 
 

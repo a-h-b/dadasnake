@@ -64,7 +64,7 @@ STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
 
 # temporary directory will be stored inside the OUTPUTDIR directory
 # unless an absolute path is set
-TMPDIR = os.environ.get("TMPDIR", config['tmp_dir'])
+TMPDIR = os.path.expandvars(os.environ.get("TMPDIR", config['tmp_dir']))
 if not os.path.isabs(TMPDIR):
     TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
 if not os.path.exists(TMPDIR):
