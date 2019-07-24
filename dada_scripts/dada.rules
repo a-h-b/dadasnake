@@ -1,9 +1,21 @@
+rule dada_control:
+    input:
+        "sequenceTables/all.seqTab.RDS",
+        "sequenceTables/all.seqs.fasta",
+        expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],directions=['fwd','rvs'],run=samples.run.unique())  
+    output:
+        "dada.done"
+    shell:
+        """
+        touch {output}
+        """
+
 rule dada_qc1:
     input:
         "preprocessing/{run}/"
     output:
-        "stats/QC1.{run}.fwd.pdf",
-        "stats/QC1.{run}.rvs.pdf"
+        "stats/QC_1.{run}.fwd.pdf",
+        "stats/QC_1.{run}.rvs.pdf"
     threads: 1
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {input}."
