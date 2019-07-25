@@ -17,8 +17,8 @@ if (snakemake@threads > 1) {
 }
 #register(SerialParam())
 library(dada2)
-#library(ShortRead); packageVersion("ShortRead")
-#library(ggplot2); packageVersion("ggplot2")
+library(ShortRead)
+library(ggplot2)
 
 #new QC function
 plotQualityProfile <- function(fl, n = 5e+05){

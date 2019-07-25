@@ -1,6 +1,6 @@
 tmp_dir: "/work/$USER/tmp"
 dada_root: "/data/project/metaamp/TOOLS/dada_pipe"
-dada_src: "/data/project/metaamp/TOOLS/dada_pipe/dada_scripts"
+dada_src: "../dada_scripts"
 dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env/lib"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"

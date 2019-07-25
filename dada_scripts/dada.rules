@@ -31,7 +31,7 @@ rule dada_qc1:
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{dada_src}/dada_QC.R"
+        "{config[dada_src]}/dada_QC.R"
 
 rule dada_qc_filtered:
     input:
@@ -46,7 +46,7 @@ rule dada_qc_filtered:
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{dada_src}/dada_QC.R"
+        "{config[dada_src]}/dada_QC.R"
 
 rule dada_filter:
     input:
@@ -59,7 +59,7 @@ rule dada_filter:
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
-        "{dada_src}/dada_filter.R"
+        "{config[dada_src]}/dada_filter.R"
 
 rule dada_errors:
     input:
@@ -73,7 +73,7 @@ rule dada_errors:
     log: "logs/DADA2_errors.{run}.log"
     message: "Running error models on {input}."
     script:
-        "{dada_src}/dada_errors.R"
+        "{config[dada_src]}/dada_errors.R"
 
 rule dada_mergereads:
     input:
@@ -86,7 +86,7 @@ rule dada_mergereads:
     log: "logs/DADA2_mergeReads.{run}.log"
     message: "merging reads for {wildcards.run}."
     script:
-        "{dada_src}/dada_mergeReads.R"
+        "{config[dada_src]}/dada_mergeReads.R"
 
 rule dada_mergeruns:
     input:
@@ -99,6 +99,6 @@ rule dada_mergeruns:
     log: "logs/DADA2_mergeRuns.log"
     message: "merging runs and (if requested) removing chimeras for {input}."
     script:
-        "{dada_src}/dada_mergeRuns.R"
+        "{config[dada_src]}/dada_mergeRuns.R"
 
 
