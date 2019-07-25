@@ -63,16 +63,33 @@ rule dada_filter:
     script:
         "{config[dada_src]}/dada_filter.R"
 
+#rule dada_errors:
+#    input:
+#        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
+#        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
+#    output:
+#        "errors/models.{run}.fwd.RDS",
+#        "errors/models.{run}.rvs.RDS",
+#        "stats/error_models.{run}.fwd.pdf",
+#        "stats/error_models.{run}.rvs.pdf",
+#        "errors/dada.{run}.fwd.RDS",
+#        "errors/dada.{run}.rvs.RDS"
+#    threads: 1
+#    log: "logs/DADA2_errors.{run}.log"
+#    message: "Running error models on {input}."
+#    script:
+#        "{config[dada_src]}/dada_errors.R"
+
+
 rule dada_errors:
     input:
-        expand("filtered/{sample.run}/{sample.sample}.{direction}.fastq.gz", direction=["fwd","rvs"],sample=samples.itertuples())
+        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz"),
     output:
-        "errors/models.{run}.fwd.RDS",
-        "errors/models.{run}.rvs.RDS",
-        "stats/error_models.{run}.fwd.pdf",
-        "stats/error_models.{run}.rvs.pdf"
+        "errors/models.{run}.{direction}.RDS",
+        "stats/error_models.{run}.{direction}.pdf",
+        "errors/dada.{run}.{direction}.RDS",
     threads: 1
-    log: "logs/DADA2_errors.{run}.log"
+    log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
         "{config[dada_src]}/dada_errors.R"

@@ -23,12 +23,13 @@ primer_cutting:
   count: 2
   match: both
   perc_mismatch: 0.2
-trunc_length: 
-  fwd: 
-  rvs:
-min_qual:
-  fwd: 
-  rvs:
+filtering:
+  trunc_length:
+    fwd: 200
+    rvs: 150
+  trunc_qual: 25
+  max_EE: 2
+error_seed: 100
 outputdir: "/data/project/metaamp/PLAYGROUND"
 db_path: "/data/project/metaamp/DBs/ampliconClone"
 tax_db: "silva132"    
