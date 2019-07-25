@@ -10,6 +10,8 @@ rule dada_control:
         touch {output}
         """
 
+# add rule to gather stats from filtering 
+
 #def get_processed_fastq_perRun(wildcards):
 #    runSamples=samples.loc[samples['run']==int(wildcards.run)].dropna()
 #    return "preprocessing/"+wildcards.run+"/"+samples.loc[samples['run']==int(wildcards.run), "library"].dropna()+".fwd.fastq"

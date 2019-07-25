@@ -12,6 +12,8 @@ rule primers_control:
         touch {output}
         """
 
+# add rule to gather stats from primer removal
+
 if config['sequencing_direction'] == "fwd_1":
     rule cut_primer_both:
         input:
