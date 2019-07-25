@@ -15,38 +15,8 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-#register(SerialParam())
 library(dada2)
 library(Biostrings)
-
-#new mergeSequenceTable function
-#mergeSequenceTables <- function(tables, orderBy = "abundance"){
-#    sample.names <- rownames(tables[[1]])
-#    for (i in seq(2, length(tables))) {
-#        sample.names <- c(sample.names, rownames(tables[[i]]))
-#    }
-#    if (any(duplicated(sample.names))) {
-#        stop("Duplicated sample names detected in the rownames.")
-#    }
-#    seqs <- unique(c(sapply(tables, colnames), recursive = TRUE))
-#    rval <- matrix(0L, nrow = length(sample.names), ncol = length(seqs))
-#    rownames(rval) <- sample.names
-#    colnames(rval) <- seqs
-#    for (tab in tables) {
-#        rval[rownames(tab), colnames(tab)] <- tab
-#    }
-#    if (!is.null(orderBy)) {
-#        if (orderBy == "abundance") {
-#            rval <- rval[, order(colSums(rval), decreasing = TRUE), 
-#                drop = FALSE]
-#        }
-#        else if (orderBy == "nsamples") {
-#            rval <- rval[, order(colSums(rval > 0), decreasing = TRUE), 
-#                drop = FALSE]
-#        }
-#    }
-#    rval
-#}
 
 
 print("merging runs")

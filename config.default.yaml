@@ -24,10 +24,21 @@ primer_cutting:
   perc_mismatch: 0.2
 filtering:
   trunc_length:
-    fwd: 200
-    rvs: 150
+    fwd: 0
+    rvs: 0
   trunc_qual: 25
-  max_EE: 2
+  max_EE:
+    fwd: 2
+    rvs: 2
+  minLen:
+    fwd: 200
+    rvs: 100
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
 error_seed: 100
 pair_merging:
   min_overlap: 12
@@ -38,5 +49,12 @@ chimeras:
   remove: true
   method: consensus
 outputdir: "/data/project/metaamp/PLAYGROUND"
-db_path: "/data/project/metaamp/DBs/ampliconClone"
-tax_db: "silva132"    
+taxonomy:
+  db_path: "/data/project/metaamp/DBs/decipher"
+  tax_db: "GTDB_r86-mod_September2018"
+  threshold: 60
+  strand: bottom
+  bootstraps: 100
+  look_for_species: false
+  seed: 100
+  target_taxa: .

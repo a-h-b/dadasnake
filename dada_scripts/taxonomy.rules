@@ -1,0 +1,41 @@
+rule taxonomy_control:
+    input:
+        "sequenceTables/all.seqs.taxonomy",
+        "sequenceTables/all.seqTab.tax.RDS",
+        "sequenceTables/all.seqTab.tax.tsv"
+    output:
+        "taxonomy.done"
+    shell:
+        """
+        touch {output}
+        """
+
+if config['taxonomy']['target_taxa'] == ".":
+    rule decipher_taxonomy:
+        input:
+            "sequenceTables/all.seqTab.RDS"
+        output:
+            "sequenceTables/OTUs.tax.seq.tsv",
+            "sequenceTables/OTUs.tax.seq.RDS"
+        threads: 1
+        log: "logs/decipher_taxonomy.log"
+        message: "Running decipher on {input}."
+        script:
+            "{config[dada_src]}/decipher_ID.R"
+else:
+    rule decipher_taxonomy:
+        input:
+            "sequenceTables/all.seqTab.RDS"
+        output:
+            "sequenceTables/OTUs.tax.seq.tsv",
+            "sequenceTables/OTUs.tax.seq.RDS",
+            "sequenceTables/target.OTUs.tax.seq.RDS",
+            "sequenceTables/all.OTUs.tax.seq.tsv",
+            "sequenceTables/all.OTUs.tax.seq.RDS"
+        threads: 1
+        log: "logs/decipher_taxonomy.log"
+        message: "Running decipher on {input} and filtering {config['taxonomy']['target_taxa']}."
+        script:
+            "{config[dada_src]}/decipher_ID.R"
+
+
