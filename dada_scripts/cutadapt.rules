@@ -108,11 +108,11 @@ else:
              $TMPD/{wildcards.library}.fwd_unt.fastq $TMPD/{wildcards.library}.rvs_unt.fastq >> {log} 2>&1
 
             cutadapt -a $RVS_RC -A $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \   
+             --no-indels -n {config[primer_cutting][count]} \
              --match-read-wildcards -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o $TMPD/{wildcards.library}.fwd.final.fastq -p $TMPD/{wildcards.library}.rvs.final.fastq \
-             $TMPD/{wildcards.library}.fwd_tr2.fastq $TMPD/{wildcards.library}.rvs_tr2.fastq >> {log} 2>&1
+             $TMPD/{wildcards.library}.rvs_tr2.fastq $TMPD/{wildcards.library}.fwd_tr2.fastq >> {log} 2>&1
 
             cat $TMPD/{wildcards.library}.fwd.final.fastq >> {output[0]}
             cat $TMPD/{wildcards.library}.rvs.final.fastq >> {output[1]}

@@ -85,7 +85,7 @@ plotQualityProfile <- function(fl, n = 5e+05){
 
 
 # File parsing
-path <- snakemake@input[[1]] 
+path <- snakemake@params[['path']] 
 fastqFs <- sort(list.files(path, pattern="fwd.fastq"))
 fastqRs <- sort(list.files(path, pattern="rvs.fastq"))
 

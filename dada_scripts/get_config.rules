@@ -57,7 +57,7 @@ if config['do_dada']:
     PRELIM_STEPS += "dada "
     if config['do_taxonomy']:
         PRELIM_STEPS += "taxonomy "
-    if cofig['do_postprocessing']:
+    if config['do_postprocessing']:
         PRELIM_STEPS += "postprocessing "
 
 STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
