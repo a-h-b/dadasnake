@@ -23,15 +23,16 @@ library(dada2)
 # File parsing
 filts <- unlist(snakemake@input)
 
-#sampleNames <- gsub(".+/","",gsub(".....fastq.gz","",filts))
+sampleNames <- gsub("filtered/","run.",gsub("/","",gsub(".....fastq.gz","",filts)))
 
 errfile <- snakemake@output[[1]]
+dadafile <- snakemake@output[[3]]
 errpath <- gsub("/.+","",errfile) 
 
 print("filtering")
 
 #if(!file_test("-d", errpath)) dir.create(errpath)
-#names(filts) <- sampleNames
+names(filts) <- sampleNames
 set.seed(snakemake@config[['error_seed']])
 
 print(paste0("learning error models ",snakemake@wildcards[['direction']]))
@@ -41,5 +42,17 @@ pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
     plotErrors(errs, nominalQ=TRUE)
 dev.off()
 
+
+# Dereplication and dada in for-loop (big-data workflow)
+print("make dada object, one by one")
+dadas <- vector("list", length(sampleNames))
+names(dadas) <- sampleNames
+for(sam in sampleNames) {
+  print(paste0("Processing: ", sam))
+  derep <- derepFastq(filts[[sam]])
+  dadas[[sam]] <- dada(derep, err=errs, multithread=snakemake@threads)
+}
+
+saveRDS(dadas,dadafile)
 
 print("done")

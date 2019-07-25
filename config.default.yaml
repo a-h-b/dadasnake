@@ -9,7 +9,6 @@ do_dada: true
 skip_db: false
 do_taxonomy: true
 do_postprocessing: true
-remove_chimeras: true
 primers:
   fwd: 
     sequence: GTGYCAGCMGCCGCGGTAA
@@ -30,6 +29,14 @@ filtering:
   trunc_qual: 25
   max_EE: 2
 error_seed: 100
+pair_merging:
+  min_overlap: 12
+  max_mismatch: 0
+  just_concatenate: false
+  trim_overhang: true
+chimeras:
+  remove: true
+  method: consensus
 outputdir: "/data/project/metaamp/PLAYGROUND"
 db_path: "/data/project/metaamp/DBs/ampliconClone"
 tax_db: "silva132"    
