@@ -63,4 +63,5 @@ ITSx:
   region: ITS2
   e_val: 1e-5
 Faprotax_DB: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
+Funguild_DB: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
 keep_target_taxa: .

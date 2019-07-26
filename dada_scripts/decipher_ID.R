@@ -62,7 +62,10 @@ rownames(otu) <- names(seqs)
 otu <- otu[order(rownames(otu)),] 
 if(!all(rownames(taxid)==rownames(otu))) stop("mismatch between OTU names in taxonomy and OTU table")
 
-write.table(cbind(otu,taxid,as.character(seqs)[order(names(seqs))]),snakemake@output[[1]],
-  sep="\t",col.names=NA,quote=F)
-saveRDS(cbind(otu,taxid,as.character(seqs)[order(names(seqs))]),snakemake@output[[2]])
+write.table(data.frame(otu,"taxonomy"=apply(taxid,1,function(x) paste(x[!is.na(x)],sep=";",collapse=";")),
+                       taxid,"seq"=as.character(seqs)[order(names(seqs))],stringsAsFactors=F),
+            snakemake@output[[1]],sep="\t",col.names=NA,quote=F)
+saveRDS(data.frame(otu,"taxonomy"=apply(taxid,1,function(x) paste(x[!is.na(x)],sep=";",collapse=";")),
+                       taxid,"seq"=as.character(seqs)[order(names(seqs))],stringsAsFactors=F),
+        snakemake@output[[2]])
 
