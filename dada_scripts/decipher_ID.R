@@ -21,10 +21,12 @@ library(Biostrings)
 
 print("loading training set:")
 theoPath <- paste0(snakemake@config[['taxonomy']][['db_path']],"/",snakemake@config[['taxonomy']][['tax_db']])
-if(!file.exists(theoPath)){
+if(file.exists(theoPath)){
   loadPath <- theoPath
 }else{
-  altPath <- list.files(path=snakemake@config[['taxonomy']][['db_path']],pattern=snakemake@config[['taxonomy']][['tax_db']])
+  altPath <- paste0(snakemake@config[['taxonomy']][['db_path']],"/",
+                    list.files(path=snakemake@config[['taxonomy']][['db_path']],
+                               pattern=snakemake@config[['taxonomy']][['tax_db']]))
   if(length(altPath)==1) loadPath <- altPath else stop(paste0(theoPath," not found."))
 }
 print(loadPath)
@@ -36,7 +38,7 @@ if(snakemake@config[['taxonomy']][['look_for_species']]){
 }
 
 print(paste0("loading seqTab ",snakemake@input))
-seqtab <- readRDS(snakemake@input)
+seqtab <- readRDS(snakemake@input[[1]])
 seqs <- DNAStringSet(colnames(seqtab))
 names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
 
@@ -53,7 +55,7 @@ taxid <- t(sapply(ids, function(x) {
         taxa
 }))
 colnames(taxid) <- ranks
-rownames(taxid) <- getSequences(seqtab.nochim)
+rownames(taxid) <- names(seqs)
 taxid <- taxid[order(rownames(taxid)),]
 otu <- t(seqtab)
 rownames(otu) <- names(seqs)

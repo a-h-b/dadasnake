@@ -43,18 +43,41 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
 #validate(config,schema="schemas/config.schema.yaml")
 
 samples = pd.read_table(os.path.expandvars(config['sample_table']))
-if 'run' not in samples.columns:
+if 'run' in samples.columns:
+    samples['run'] = samples['run'].astype(str)
+    for r in samples['run']:
+        if not re.match(r"[0-9a-zA-Z]",r):
+            raise Exception('please start run names with a letter or number')
+else:
     samples['run'] = ["run1"] * samples.shape[0]
     print("adding column with run info")
+if samples[['library','run']].duplicated().any():
+    raise Exception('names in library should be unique within runs.')
 samples = samples.set_index(["library","run"],drop=False)
 samples.index = samples.index.set_levels([i.astype(str) for i in samples.index.levels]) 
-samples['run'] = samples['run'].astype(str)
 samples['library'] = samples['library'].astype(str)
+for lib in samples['library']:
+    if not re.match(r"[0-9a-zA-Z]",lib):
+        raise Exception('please start library names with a letter or number')
 if 'sample' not in samples.columns:
     samples['sample'] = samples['library']
     print("adding column with sample names based on library names")
 else:
     samples['sample'] = samples['sample'].astype(str)
+    for r in samples['run'].unique():
+        tmpsr=samples[samples['run']==r]
+        for i in range(tmpsr.shape[0]):
+            csam = tmpsr['sample'][i]
+            if not re.match(r"[0-9a-zA-Z]",csam):
+                raise Exception('please start sample names with a letter or number')
+            for j in range(tmpsr.shape[0]):
+                clib = tmpsr['library'][j]
+                if csam==clib and i==j:
+                    csl = tmpsr.loc[tmpsr["sample"]==csam,"library"]
+                    if len(csl) > 1:
+                        raise Exception('names in library should differ from names of samples that have multiple libraries in the same run.')
+                elif csam==clib:
+                    raise Exception('names in library should differ from unrelated sample names.')    
 print(samples)
 
 #validate(samples, schema="schemas/sample.schema.yaml")
