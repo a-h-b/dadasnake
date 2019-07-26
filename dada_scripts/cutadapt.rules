@@ -2,9 +2,14 @@ def get_fastq(wildcards):
     #print(config['raw_directory']+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna())
     return config['raw_directory']+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
 
+def get_lib_perRunAndSample(wildcards,prefix,suffix):
+    return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
+
+#ruleorder: cut_primer_both > combine_or_rename 
+
 rule primers_control:
     input:
-        expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"])
+        expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
         "primers.done"
     shell:
@@ -14,13 +19,30 @@ rule primers_control:
 
 # add rule to gather stats from primer removal
 
+rule combine_or_rename:
+    input:
+        lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/lib.",".{direction}.lib.fastq")    
+    output:
+        "preprocessing/{run}/{sample}.{direction}.fastq"
+    wildcard_constraints:
+        direction="(fwd|rvs)"
+    threads: 1
+    log: "logs/combine_or_rename.{run}.{sample}.{direction}.log"
+    run:
+        if len(input) > 1:
+            shell("cat {input} > {output}")
+        else:
+            shell("mv {input} {output}")
+
 if config['sequencing_direction'] == "fwd_1":
     rule cut_primer_both:
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fwd.fastq",
-            "preprocessing/{run}/{library}.rvs.fastq"
+            "preprocessing/{run}/lib.{library}.fwd.lib.fastq",
+            "preprocessing/{run}/lib.{library}.rvs.lib.fastq"
+#        wildcard_constraints:
+#            library='|'.join(samples['library'])
         threads: 1
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"

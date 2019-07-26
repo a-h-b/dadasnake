@@ -42,8 +42,16 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
 
 #validate(config,schema="schemas/config.schema.yaml")
 
-samples = pd.read_table(os.path.expandvars(config['sample_table'])).set_index(["library","run"],drop=False)
+samples = pd.read_table(os.path.expandvars(config['sample_table']))
+if 'run' not in samples.columns:
+    samples['run'] = ["run1"] * samples.shape[0]
+    print("adding column with run info")
+samples = samples.set_index(["library","run"],drop=False)
 samples.index = samples.index.set_levels([i.astype(str) for i in samples.index.levels]) 
+samples['run'] = samples['run'].astype(str)
+if 'sample' not in samples.columns:
+    samples['sample'] = samples['library']
+    print("adding column with sample names based on library names")
 
 #validate(samples, schema="schemas/sample.schema.yaml")
 

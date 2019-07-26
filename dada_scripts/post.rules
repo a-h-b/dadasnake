@@ -1,0 +1,7 @@
+#ITSx
+
+#functional annotations, predictions
+
+#remove non-target, remove based on ITSx, 
+
+#if config['keep_target_taxa'] == ".":

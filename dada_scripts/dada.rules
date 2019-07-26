@@ -16,14 +16,14 @@ rule dada_control:
 #    runSamples=samples.loc[samples['run']==int(wildcards.run)].dropna()
 #    return "preprocessing/"+wildcards.run+"/"+samples.loc[samples['run']==int(wildcards.run), "library"].dropna()+".fwd.fastq"
 
-def get_lib_perRun(wildcards,prefix,suffix):
-    return prefix+samples.loc[samples['run']==int(wildcards.run), "library"].dropna()+suffix
+def get_sample_perRun(wildcards,prefix,suffix):
+    return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
 
 rule dada_qc1:
     input:
-        lambda wildcards: get_lib_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq"),
-        lambda wildcards: get_lib_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq")
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq"),
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq")
     output:
         "stats/QC_1.{run}.fwd.pdf",
         "stats/QC_1.{run}.rvs.pdf"
@@ -37,8 +37,8 @@ rule dada_qc1:
 
 rule dada_qc_filtered:
     input:
-        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
-        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
     output:
         "stats/QC_filtered.{run}.fwd.pdf",
         "stats/QC_filtered.{run}.rvs.pdf"
@@ -66,7 +66,7 @@ rule dada_filter:
 
 rule dada_errors:
     input:
-        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz"),
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz")
     output:
         "errors/models.{run}.{direction}.RDS",
         "stats/error_models.{run}.{direction}.pdf",
@@ -80,8 +80,8 @@ rule dada_mergereads:
     input:
         "errors/models.{run}.fwd.RDS",
         "errors/models.{run}.rvs.RDS",
-        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
-        lambda wildcards: get_lib_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
     output:
         "errors/dada_merged.{run}.RDS",
         "sequenceTables/seqTab.{run}.RDS",

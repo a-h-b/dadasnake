@@ -51,10 +51,10 @@ chimeras:
 outputdir: "/data/project/metaamp/PLAYGROUND"
 taxonomy:
   db_path: "/data/project/metaamp/DBs/decipher"
-  tax_db: "GTDB_r86-mod_September2018"
+  tax_db: "SILVA_SSU_r132_March2018.RData"
   threshold: 60
   strand: bottom
   bootstraps: 100
   look_for_species: false
   seed: 100
-  target_taxa: .
+keep_target_taxa: .
