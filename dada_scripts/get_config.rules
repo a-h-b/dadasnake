@@ -49,9 +49,13 @@ if 'run' not in samples.columns:
 samples = samples.set_index(["library","run"],drop=False)
 samples.index = samples.index.set_levels([i.astype(str) for i in samples.index.levels]) 
 samples['run'] = samples['run'].astype(str)
+samples['library'] = samples['library'].astype(str)
 if 'sample' not in samples.columns:
     samples['sample'] = samples['library']
     print("adding column with sample names based on library names")
+else:
+    samples['sample'] = samples['sample'].astype(str)
+print(samples)
 
 #validate(samples, schema="schemas/sample.schema.yaml")
 
