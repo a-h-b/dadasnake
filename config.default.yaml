@@ -57,4 +57,10 @@ taxonomy:
   bootstraps: 100
   look_for_species: false
   seed: 100
+ITSx:
+  run: false
+  min_regions: 1
+  region: ITS2
+  e_val: 1e-5
+Faprotax_DB: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
 keep_target_taxa: .
