@@ -2,6 +2,7 @@ tmp_dir: "/work/$USER/tmp"
 dada_root: "/data/project/metaamp/TOOLS/dada_pipe"
 dada_src: "../dada_scripts"
 dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env/lib"
+dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env/bin"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
@@ -16,7 +17,7 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-sequencing_direction: "fwd_1"
+sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
   count: 2

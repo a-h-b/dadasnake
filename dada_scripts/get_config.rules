@@ -31,11 +31,11 @@ def dict_merge(a, b):
 shell.executable("bash")
 
 # custom configuration file
-CUSTOM_CONFIG_PATH = os.environ.get("CONFIGFILE")
-print("read configuration from "+CUSTOM_CONFIG_PATH)
+CUSTOM_CONFIG_PATH = os.environ.get("CONFIGFILE","../nothing/here")
 
 # merge 2 configurations files together
 if os.path.exists(CUSTOM_CONFIG_PATH):
+    print("read configuration from "+CUSTOM_CONFIG_PATH)
     with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
         data = yaml.load(rhandle)
         config = dict_merge(config, data)

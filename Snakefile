@@ -8,6 +8,8 @@ include:
 workdir:
     OUTPUTDIR
 
+report: "schemas/workflow.rst"
+
 if not config['skip_db']:
     include:
         "dada_scripts/cut_db.rules"
