@@ -46,3 +46,11 @@ rule ALL:
         inputs
     output:
         touch('workflow.done')
+
+rule SamplesPrint:
+    input:
+        config['sample_table']
+    output:
+        "reporting/sample_table.tsv"
+    run:
+        samples.to_csv(path_or_buf=output[0],sep="\t",index=False,index_label=False)

@@ -1,0 +1,65 @@
+log <- file(snakemake@log[[1]], open="wt")
+sink(log)
+sink(log, type="message")
+
+.libPaths(paste0(snakemake@config[['dada_lib']],"/R/library"))
+
+sampleFile <- snakemake@input[[1]]
+filesOI <- unique(unlist(snakemake@input)[-1])
+
+print(paste0("reading sample table from ",sampleFile))
+sampleTab <- read.delim(sampleFile,stringsAsFactors=F)
+
+if(snakemake@params[["currentStep"]] == "raw"){
+  print("extracting read numbers")
+  readnums <- sapply(filesOI,function(x) as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4)
+  prefix <- paste0(snakemake@config[["raw_directory"]],"/")
+  names(readnums) <- gsub(prefix,"",names(readnums))
+  sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
+  sampleTab$reads_raw_r2 <- sapply(sampleTab$r2_file,function(x) readnums[x])
+  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
+}else if(snakemake@params[["currentStep"]] == "primers"){
+  print("extracting read numbers")
+  readnums <- sapply(filesOI,function(x) as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4)
+  prefix <- "preprocessing/"
+  suffix <- ".{5}fastq"
+  names(readnums) <- gsub(prefix,"",names(readnums))
+  runs_libs <- sapply(names(readnums),function(x) unlist(strsplit(x,split="/")))
+  runs_libs[2,] <- gsub(suffix,"",runs_libs[2,])
+  print(runs_libs)
+  sampleTab$reads_primers_fwd <- apply(sampleTab[,c("run","library")],1,
+                                       function(x) readnums[which(runs_libs[1,]==x[1]
+                                                                  &runs_libs[2,]==x[2]
+                                                                  &grepl("fwd.fastq",names(readnums)))])
+  sampleTab$reads_primers_rvs <- apply(sampleTab[,c("run","library")],1,
+                                       function(x) readnums[which(runs_libs[1,]==x[1]
+                                                                  &runs_libs[2,]==x[2]
+                                                                  &grepl("rvs.fastq",names(readnums)))])
+  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
+
+  tabPerSample <- aggregate(sampleTab[,c("library","run","r1_file","r2_file")],list(sampleTab$sample),function(x)paste(unique(x),collapse=",",sep=","))
+  colnames(tabPerSample)[1] <- "sample"
+  numsPerSample <- aggregate(sampleTab[,c("reads_raw_r1","reads_raw_r2","reads_primers_fwd","reads_primers_rvs")],list(sampleTab$sample),sum)
+  colnames(numsPerSample)[1] <- "sample"
+  perSample <- merge(tabPerSample,numsPerSample,by="sample")
+  write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
+}else if(snakemake@params[["currentStep"]] == "filtered"){
+  print("extracting read numbers")
+  readnums <- sapply(filesOI,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1])/4)
+  prefix <- "filtered/"
+  suffix <- ".{5}fastq.gz"
+  names(readnums) <- gsub(prefix,"",names(readnums)) 
+  runs_sams <- sapply(names(readnums),function(x) unlist(strsplit(x,split="/")))
+  runs_sams[2,] <- gsub(suffix,"",runs_sams[2,])
+  sampleTab$reads_filtered_fwd <- apply(sampleTab[,c("run","sample")],1,
+                                       function(x) readnums[which(runs_sams[1,]==x[1]
+                                                                  &runs_sams[2,]==x[2]
+                                                                  &grepl("fwd.fastq",names(readnums)))])
+  sampleTab$reads_filtered_rvs <- apply(sampleTab[,c("run","sample")],1,
+                                       function(x) readnums[which(runs_sams[1,]==x[1]
+                                                                  &runs_sams[2,]==x[2]
+                                                                  &grepl("rvs.fastq",names(readnums)))])
+  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
+}
+
+

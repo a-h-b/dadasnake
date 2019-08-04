@@ -19,6 +19,18 @@ rule dada_control:
 def get_sample_perRun(wildcards,prefix,suffix):
     return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
+rule filter_numbers:
+    input:
+        "reporting/primerNumbers_perSample.tsv",
+        expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
+    output:
+        report("reporting/filteredNumbers.tsv",category="Reads")
+    threads: 1
+    params:
+        currentStep = "filtered"
+    log: "logs/countInputReads.log"
+    script:
+        "{config[dada_src]}/report_readNumbers.R"
 
 rule dada_qc1:
     input:

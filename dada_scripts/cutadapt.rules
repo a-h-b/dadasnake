@@ -37,17 +37,36 @@ rule combine_or_rename:
 
 rule input_numbers:
     input:
-        get_fastq
+        "reporting/sample_table.tsv",
+        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=config['raw_directory']),
+        expand("{raw_directory}/{file}", file=samples.r2_file,raw_directory=config['raw_directory'])
     output:
-        report("reporting/{run}.readNumbers.{library}.fwd.txt",category="Reads")
+        report("reporting/readNumbers.tsv",category="Reads")
     threads: 1
-    log: "logs/countInputReads.{run}.{library}.fwd.log"
-    shell:
-        """
-        allLines=`wc -l {input[0]} | cut -f 1 -d " "`
-        reads=$((allLines/4))
-        echo $reads >> {output[0]}
-        """
+    params:
+        currentStep = "raw"
+    log: "logs/countInputReads.log"
+    script:
+        "{config[dada_src]}/report_readNumbers.R" 
+
+
+rule primer_numbers:
+    input:
+        "reporting/readNumbers.tsv",
+        expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"])
+    output:
+        report("reporting/primerNumbers_perLibrary.tsv",category="Reads"),
+        report("reporting/primerNumbers_perSample.tsv",category="Reads")
+    threads: 1
+    params:
+        currentStep = "primers"
+    log: "logs/countPrimerReads.log"
+    script:
+        "{config[dada_src]}/report_readNumbers.R"
+
+
+#script to visualize read numbers -> run once for all steps
+
 
 if config['sequencing_direction'] == "fwd_1":
     rule cut_primer_both:
