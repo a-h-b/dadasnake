@@ -9,18 +9,22 @@ def get_lib_perRunAndSample(wildcards,prefix,suffix):
 rule primers_control:
     input:
         expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"]),
-        expand("reporting/{samples.run}.readNumbers.{samples.library}.fwd.txt",samples=samples.itertuples())
+        "reporting/readNumbers.tsv",
+        "reporting/primerNumbers_perSample.tsv"
     output:
         "primers.done"
+    threads: 1
+    params:
+        runtime="00:10:00",
+        mem="8G"
     shell:
         """
         touch {output}
         """
 
-# add rule to gather stats from primer removal
-
 rule combine_or_rename:
     input:
+        "reporting/primerNumbers_perLibrary.tsv",
         lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq")    
     output:
         "preprocessing/{run}/{sample}.{direction}.fastq"
@@ -29,11 +33,14 @@ rule combine_or_rename:
         sample='|'.join(samples['sample'])
     threads: 1
     log: "logs/combine_or_rename.{run}.{sample}.{direction}.log"
+    params:
+        runtime="01:00:00",
+        mem="8G"
     run:
-        if len(input) > 1:
-            shell("cat {input} > {output}")
+        if len(input) > 2:
+            shell("cat {input[1:]} > {output}")
         else:
-            shell("mv {input} {output}")
+            shell("cp {input[1]} {output}")
 
 rule input_numbers:
     input:
@@ -44,7 +51,9 @@ rule input_numbers:
         report("reporting/readNumbers.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "raw"
+        currentStep = "raw",
+        runtime="12:00:00",
+        mem="8G"
     log: "logs/countInputReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R" 
@@ -59,7 +68,9 @@ rule primer_numbers:
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "primers"
+        currentStep = "primers",
+        runtime="12:00:00",
+        mem="8G"
     log: "logs/countPrimerReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R"
@@ -78,6 +89,9 @@ if config['sequencing_direction'] == "fwd_1":
 #        wildcard_constraints:
 #            library='|'.join(samples['library'])
         threads: 1
+        params:
+            runtime="12:00:00",
+            mem="8G"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
         shell:
@@ -88,7 +102,7 @@ if config['sequencing_direction'] == "fwd_1":
                 
             {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-            -m 1:1 --pair-filter {config[primer_cutting][match]} \
+            -m 1:1 --pair-filter={config[primer_cutting][match]} \
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
             -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
 
@@ -107,6 +121,9 @@ elif config['sequencing_direction'] == "rvs_1":
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
         threads: 1
+        params:
+            runtime="12:00:00",
+            mem="8G"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 2."
         shell:
@@ -118,7 +135,7 @@ elif config['sequencing_direction'] == "rvs_1":
 
             {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-              -m 1:1 --pair-filter {config[primer_cutting][match]} \
+              -m 1:1 --pair-filter={config[primer_cutting][match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs.fastq -p $TMPD/{wildcards.library}.fwd.fastq {input} &> {log}
 
@@ -137,6 +154,9 @@ else:
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
         threads: 1
+        params:
+            runtime="12:00:00",
+            mem="8G"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Searching for both  primers in both reads."
         shell:
@@ -147,7 +167,7 @@ else:
 
             {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-              -m 1:1 --pair-filter {config[primer_cutting][match]} \
+              -m 1:1 --pair-filter={config[primer_cutting][match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              --untrimmed-output=$TMPD/{wildcards.library}.fwd_unt.fastq --untrimmed-paired-output=$TMPD/{wildcards.library}.rvs_unt.fastq \
              -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
@@ -160,7 +180,7 @@ else:
 
             {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-              -m 1:1 --pair-filter {config[primer_cutting][match]} \
+              -m 1:1 --pair-filter={config[primer_cutting][match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs_tr2.fastq -p $TMPD/{wildcards.library}.fwd_tr2.fastq \
              $TMPD/{wildcards.library}.fwd_unt.fastq $TMPD/{wildcards.library}.rvs_unt.fastq >> {log} 2>&1

@@ -8,7 +8,7 @@ include:
 workdir:
     OUTPUTDIR
 
-report: "schemas/workflow.rst"
+##report: "schemas/workflow.rst"
 
 if not config['skip_db']:
     include:
@@ -46,11 +46,20 @@ rule ALL:
         inputs
     output:
         touch('workflow.done')
+    threads: 1
+    params:
+        runtime="00:10:00",
+        mem="8G"
+
 
 rule SamplesPrint:
     input:
         config['sample_table']
     output:
         "reporting/sample_table.tsv"
+    threads: 1
+    params:
+        runtime="00:10:00",
+        mem="8G"
     run:
         samples.to_csv(path_or_buf=output[0],sep="\t",index=False,index_label=False)

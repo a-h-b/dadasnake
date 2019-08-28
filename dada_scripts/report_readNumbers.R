@@ -12,7 +12,13 @@ sampleTab <- read.delim(sampleFile,stringsAsFactors=F)
 
 if(snakemake@params[["currentStep"]] == "raw"){
   print("extracting read numbers")
-  readnums <- sapply(filesOI,function(x) as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4)
+  readnums <- sapply(filesOI,function(x){
+    if(grepl(".gz$",x)){
+      as.numeric(system2("zcat",args=c(x,"| wc -l"),stdout=T))/4
+    }else{
+      as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
+    }
+  })
   prefix <- paste0(snakemake@config[["raw_directory"]],"/")
   names(readnums) <- gsub(prefix,"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
@@ -20,7 +26,13 @@ if(snakemake@params[["currentStep"]] == "raw"){
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "primers"){
   print("extracting read numbers")
-  readnums <- sapply(filesOI,function(x) as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4)
+  readnums <- sapply(filesOI,function(x) {
+    if(grepl(".gz$",x)){
+      as.numeric(system2("zcat",args=c(x,"| wc -l"),stdout=T))/4
+    }else{
+      as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
+    }
+  })
   prefix <- "preprocessing/"
   suffix <- ".{5}fastq"
   names(readnums) <- gsub(prefix,"",names(readnums))

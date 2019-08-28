@@ -4,7 +4,11 @@ rule post_control:
         "sequenceTables/all.seqs.fasta",
         expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())
     output:
-        "post_processing.done"
+        "postprocessing.done"
+    threads: 1
+    params:
+        runtime="00:10:00",
+        mem="8G"
     shell:
         """
         touch {output}
@@ -17,7 +21,10 @@ rule ITSx:
     output:
         directory("post/ITSx_out"),
         expand("post/all.seqs.{region}.fungi.fasta",region={config['ITSx']['region']})
-    threads: 1
+    threads: 20
+    params:
+        mem="8G",
+        runtime="48:00:00"
     log: "logs/ITSx.log"
     message: "Running ITSx on {input}."
     shell:
@@ -31,6 +38,9 @@ rule guilds:
     output:
         "post/all.OTUs.tax.seq.guilds.tsv"
     threads: 1
+    params:
+        mem="8G",
+        runtime="48:00:00"
     log: "logs/funguild.log"
     message: "Running funguild on {input}."
     shell:
@@ -45,7 +55,9 @@ rule fapro:
         temp("post/fapro.tsv"),
         "post/all.OTUs.tax.seq.fapro.tsv"
     threads: 1
-    params: 
+    params:
+        mem="8G",
+        runtime="48:00:00", 
         sub=7 if config['taxonomy']['look_for_species'] else 6
     log: "logs/faprotax.log"
     message: "Running faprotax on {input}."

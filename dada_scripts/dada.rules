@@ -5,6 +5,10 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())  
     output:
         "dada.done"
+    threads: 1
+    params:
+        runtime="00:10:00",
+        mem="8G"
     shell:
         """
         touch {output}
@@ -27,7 +31,9 @@ rule filter_numbers:
         report("reporting/filteredNumbers.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "filtered"
+        currentStep = "filtered",
+        mem="8G",
+        runtime="12:00:00"
     log: "logs/countInputReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R"
@@ -37,11 +43,13 @@ rule dada_qc1:
         lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq"),
         lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq")
     output:
-        "stats/QC_1.{run}.fwd.pdf",
-        "stats/QC_1.{run}.rvs.pdf"
+        report("stats/QC_1.{run}.fwd.pdf"),
+        report("stats/QC_1.{run}.rvs.pdf")
     threads: 1
     params:
-        path="preprocessing/{run}"
+        path="preprocessing/{run}",
+        mem="8G",
+        runtime="12:00:00"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -52,11 +60,13 @@ rule dada_qc_filtered:
         lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
         lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
     output:
-        "stats/QC_filtered.{run}.fwd.pdf",
-        "stats/QC_filtered.{run}.rvs.pdf"
+        report("stats/QC_filtered.{run}.fwd.pdf"),
+        report("stats/QC_filtered.{run}.rvs.pdf")
     threads: 1
     params:
-        path="filtered/{run}"
+        path="filtered/{run}",
+        mem="8G",
+        runtime="12:00:00"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -70,6 +80,9 @@ rule dada_filter:
         "filtered/{run}/{sample}.fwd.fastq.gz",
         "filtered/{run}/{sample}.rvs.fastq.gz"
     threads: 1
+    params:
+        mem="8G",
+        runtime="12:00:00"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
@@ -83,6 +96,9 @@ rule dada_errors:
         "errors/models.{run}.{direction}.RDS",
         "stats/error_models.{run}.{direction}.pdf",
     threads: 1
+    params:
+        mem="8G",
+        runtime="120:00:00"
     log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
@@ -99,6 +115,9 @@ rule dada_mergereads:
         "sequenceTables/seqTab.{run}.RDS",
         "sequenceTables/seqTab.{run}.tsv"
     threads: 1
+    params:
+        mem="30G,highmem",
+        runtime="120:00:00"
     log: "logs/DADA2_mergeReads.{run}.log"
     message: "merging reads for {wildcards.run}."
     script:
@@ -116,6 +135,9 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
+        params:
+            mem="8G",
+            runtime="120:00:00"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
@@ -129,6 +151,9 @@ else:
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
         threads: 1
+        params:
+            mem="8G",
+            runtime="120:00:00"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
