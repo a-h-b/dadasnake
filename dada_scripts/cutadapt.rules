@@ -25,7 +25,7 @@ rule primers_control:
 rule combine_or_rename:
     input:
         "reporting/primerNumbers_perLibrary.tsv",
-        lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq")    
+        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq")    
     output:
         "preprocessing/{run}/{sample}.{direction}.fastq"
     wildcard_constraints:
@@ -38,9 +38,9 @@ rule combine_or_rename:
         mem="8G"
     run:
         if len(input) > 2:
-            shell("cat {input[1:]} > {output}")
+            shell("cat {input.files} > {output}")
         else:
-            shell("cp {input[1]} {output}")
+            shell("mv {input.files} {output}")
 
 rule input_numbers:
     input:

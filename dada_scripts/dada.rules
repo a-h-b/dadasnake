@@ -2,6 +2,7 @@ rule dada_control:
     input:
         "sequenceTables/all.seqTab.RDS",
         "sequenceTables/all.seqs.fasta",
+        "reporting/finalNumbers_perSample.tsv",
         expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())  
     output:
         "dada.done"
@@ -25,16 +26,33 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perSample.tsv",
+        "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
-        report("reporting/filteredNumbers.tsv",category="Reads")
+        report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
+        report("reporting/filteredNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
         currentStep = "filtered",
         mem="8G",
         runtime="12:00:00"
-    log: "logs/countInputReads.log"
+    log: "logs/countFilteredReads.log"
+    script:
+        "{config[dada_src]}/report_readNumbers.R"
+
+rule merged_numbers:
+    input:
+        "reporting/filteredNumbers_perLibrary.tsv",
+        expand("merged/{samples.run}/{samples.sample}.RDS", samples=samples.itertuples())
+    output:
+        report("reporting/mergedNumbers_perLibrary.tsv",category="Reads"),
+        report("reporting/mergedNumbers_perSample.tsv",category="Reads")
+    threads: 1
+    params:
+        currentStep = "merged",
+        mem="8G",
+        runtime="12:00:00"
+    log: "logs/countMergedReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R"
 
@@ -156,6 +174,23 @@ if config["chimeras"]["remove"]:
         message: "merging runs and removing chimeras for {input}."
         script:
             "{config[dada_src]}/dada_mergeRuns.R"
+
+    rule nochime_numbers:
+        input:
+            "reporting/mergedNumbers_perSample.tsv",
+            "sequenceTables/pre_chimera.seqTab.RDS",
+            "sequenceTables/all.seqTab.RDS"
+        output:
+            report("reporting/finalNumbers_perSample.tsv",category="Reads")
+        threads: 1
+        params:
+            currentStep = "chimera",
+            mem="8G",
+            runtime="12:00:00"
+        log: "logs/countNonchimericReads.log"
+        script:
+            "{config[dada_src]}/report_readNumbers.R"
+
 else:
     rule dada_mergeruns:
         input:
@@ -173,4 +208,18 @@ else:
         script:
             "{config[dada_src]}/dada_mergeRuns.R"
 
+    rule tabled_numbers:
+        input:
+            "reporting/mergedNumbers_perSample.tsv",
+            "sequenceTables/all.seqTab.RDS"
+        output:
+            report("reporting/finalNumbers_perSample.tsv",category="Reads")
+        threads: 1
+        params:
+            currentStep = "table",
+            mem="8G",
+            runtime="12:00:00"
+        log: "logs/countTabledReads.log"
+        script:
+            "{config[dada_src]}/report_readNumbers.R"
 

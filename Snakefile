@@ -40,6 +40,9 @@ if 'postprocessing' in STEPS:
     inputs.append('postprocessing.done')
 
 
+onsuccess:
+    shell("mkdir job.errs.outs && mv snakejob.* job.errs.outs")
+
 # master command
 rule ALL:
     input:

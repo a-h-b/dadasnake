@@ -28,7 +28,7 @@ merges <- sort(unlist(snakemake@input))
 
 #if(length(filtFs) != length(filtRs)) stop("Forward and reverse files do not match.")
 
-sampleNames <- gsub("/","",gsub("merged/","run.",gsub(".RDS","",merges)))
+sampleNames <- gsub("/","",gsub(".+/","",gsub(".RDS","",merges)))
 #sampleNamesR <- gsub("/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtRs)))
 
 #if(!all(sampleNamesF==sampleNamesR)) stop("Forward and reverse files do not match.")
@@ -61,7 +61,7 @@ for(sam in merges) {
 #            maxMismatch=snakemake@config[['pair_merging']][['max_mismatch']],
 #            justConcatenate=snakemake@config[['pair_merging']][['just_concatenate']],
 #            trimOverhang=snakemake@config[['pair_merging']][['trim_overhang']])
-  csam <- gsub("/","",gsub("merged/","run.",gsub(".RDS","",sam)))
+  csam <- gsub("/","",gsub(".+/","",gsub(".RDS","",sam)))
   mergers[[csam]] <- readRDS(sam)
 }
 saveRDS(mergers,dadafile)

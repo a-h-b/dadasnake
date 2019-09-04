@@ -1,0 +1,79 @@
+#! /bin/bash
+
+#$ -cwd
+#$ -N dadaSnake
+#$ -l h_rt=172:00:00,h_vmem=8G
+#$ -binding linear:1
+#$ -e dadaSnake.stderr
+#$ -o dadaSnake.stdout
+
+usage() {
+    echo "Usage: $0 [-u] [-d] [-c] [-r] /absolute_path/to/config_file " 1>&2
+    echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
+    echo "       -d if set, a dryrun is performed" 1>&2
+    echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
+}
+
+while getopts udcr flag
+do
+    case $flag in
+        u)
+            UNLOCK=true;;
+        d)
+            DRYRUN=true;;
+        c)
+            CLUSTER=true;;
+        r)
+            REPORT=true;;
+        *)  
+            echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        ?)
+            usage
+            exit
+             ;;
+
+if [ -z "$1" ];
+then
+    echo "missing input"
+    usage
+    exit 1
+else
+    CONFIGFILE=$1
+fi
+
+
+#if the file cannot be found
+if [[ !  -e "$1" ]]; then
+   echo "Configfile "$1" was not found."
+   echo "Provide full path."
+   exit 1
+fi
+
+
+module load miniconda/3/4.5.12-1
+conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env
+
+if [ $UNLOCK = true ]; then
+    echo "Unlocking working directory."
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --unlock --configfile $CONFIGFILE
+fi
+
+if [ $DRYRUN = true ]; then
+    echo "Dryrun."
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
+fi
+
+if [ $CLUSTER=true ]; then
+    echo "Submitting workflow to cluster."
+    snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE
+fi
+
+if [ $REPORT=true]; then
+    echo "Writing report."
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --report report.html --configfile $CONFIGFILE
+fi
+
+conda deactivate
