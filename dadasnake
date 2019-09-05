@@ -1,21 +1,15 @@
-#! /bin/bash
-
-#$ -cwd
-#$ -N dadaSnake
-#$ -l h_rt=172:00:00,h_vmem=8G
-#$ -binding linear:1
-#$ -e dadaSnake.stderr
-#$ -o dadaSnake.stdout
+#! /bin/bash -i
 
 usage() {
     echo "Usage: $0 [-u] [-d] [-c] [-r] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
     echo "       -d if set, a dryrun is performed" 1>&2
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -n <name for main job>, only works with -c" 1>&2
     echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
 }
 
-while getopts udcr flag
+while getopts n:udcrh flag
 do
     case $flag in
         u)
@@ -24,19 +18,31 @@ do
             DRYRUN=true;;
         c)
             CLUSTER=true;;
+        n)
+            JNAME=$OPTARG;;
         r)
             REPORT=true;;
+        h)
+            usage
+            exit;;
         *)  
             echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        :) 
+            echo "Missing option argument for -$OPTARG" >&2 
             usage
             exit 1;;
         ?)
             usage
             exit
              ;;
+    esac
+done
 
-if [ -z "$1" ];
-then
+shift $((OPTIND-1))
+
+if [ -z "$1" ]; then
     echo "missing input"
     usage
     exit 1
@@ -53,27 +59,38 @@ if [[ !  -e "$1" ]]; then
 fi
 
 
-module load miniconda/3/4.5.12-1
-conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env
-
-if [ $UNLOCK = true ]; then
+if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
+    #module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env >/dev/null 2>&1
     snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --unlock --configfile $CONFIGFILE
+    conda deactivate >/dev/null 2>&1
 fi
 
-if [ $DRYRUN = true ]; then
+if [ "$DRYRUN" = true ]; then
     echo "Dryrun."
+    #module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env >/dev/null 2>&1
     snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
+    conda deactivate >/dev/null 2>&1
 fi
 
-if [ $CLUSTER=true ]; then
+if [ "$CLUSTER" = true ]; then
+    if [ -z "$JNAME" ]; then
+        $JNAME="dadasnake"
+    fi
     echo "Submitting workflow to cluster."
-    snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE
-fi
-
-if [ $REPORT=true]; then
+    if [ "$REPORT" = true ]; then
+        qsub -cwd -m beas -l h_rt=172:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dada_pipe/dada_scripts/dada_snake_submit.sh $CONFIGFILE
+    else
+       qsub -cwd -m beas -l h_rt=172:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dada_pipe/dada_scripts/dada_snake_submit_withoutReport.sh $CONFIGFILE
+#    snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE
+   fi
+elif [ "$REPORT" = true ]; then
     echo "Writing report."
+   # module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env >/dev/null 2>&1
     snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --report report.html --configfile $CONFIGFILE
+    conda deactivate >/dev/null 2>&1
 fi
 
-conda deactivate
