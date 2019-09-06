@@ -26,6 +26,7 @@ rule ITSx:
         mem="8G",
         runtime="48:00:00"
     log: "logs/ITSx.log"
+    conda: "dada_env_new.yml"
     message: "Running ITSx on {input}."
     shell:
         """
@@ -42,6 +43,7 @@ rule guilds:
         mem="8G",
         runtime="48:00:00"
     log: "logs/funguild.log"
+    conda: "dada_env_new.yml"
     message: "Running funguild on {input}."
     shell:
         """
@@ -60,6 +62,7 @@ rule fapro:
         runtime="48:00:00", 
         sub=7 if config['taxonomy']['look_for_species'] else 6
     log: "logs/faprotax.log"
+    conda: "dada_env_new.yml"
     message: "Running faprotax on {input}."
     shell:
         """

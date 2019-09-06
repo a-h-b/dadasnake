@@ -23,6 +23,7 @@ rule decipher_taxonomy:
     params:
         mem="8G",
         runtime="120:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/decipher_taxonomy.log"
     message: "Running decipher on {input}."
     script:

@@ -12,6 +12,7 @@ sampleTab <- read.delim(sampleFile,stringsAsFactors=F)
 
 if(snakemake@params[["currentStep"]] == "raw"){
   print("extracting read numbers")
+ # print(system2("which",args=c("Rscript"),stdout=T))
   readnums <- sapply(filesOI,function(x){
     if(grepl(".gz$",x)){
       as.numeric(system2("zcat",args=c(x,"| wc -l"),stdout=T))/4

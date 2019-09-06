@@ -36,6 +36,7 @@ rule filter_numbers:
         currentStep = "filtered",
         mem="8G",
         runtime="12:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/countFilteredReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R"
@@ -52,6 +53,7 @@ rule merged_numbers:
         currentStep = "merged",
         mem="8G",
         runtime="12:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/countMergedReads.log"
     script:
         "{config[dada_src]}/report_readNumbers.R"
@@ -68,6 +70,7 @@ rule dada_qc1:
         path="preprocessing/{run}",
         mem="8G",
         runtime="12:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -85,6 +88,7 @@ rule dada_qc_filtered:
         path="filtered/{run}",
         mem="8G",
         runtime="12:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -101,6 +105,7 @@ rule dada_filter:
     params:
         mem="8G",
         runtime="12:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
@@ -117,6 +122,7 @@ rule dada_errors:
     params:
         mem="8G",
         runtime="120:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
@@ -134,6 +140,7 @@ rule dada_mergeReadPairs:
     params:
         mem="8G",
         runtime="24:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
     message: "merging reads for {wildcards.run} {wildcards.sample}."
     script:
@@ -150,6 +157,7 @@ rule dada_mergeSamples:
     params:
         mem="30G,highmem",
         runtime="120:00:00"
+    conda: "dada_env_new.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"
     message: "preparing sequence table for {wildcards.run}."
     script:
@@ -170,6 +178,7 @@ if config["chimeras"]["remove"]:
         params:
             mem="8G",
             runtime="120:00:00"
+        conda: "dada_env_new.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
@@ -187,6 +196,7 @@ if config["chimeras"]["remove"]:
             currentStep = "chimera",
             mem="8G",
             runtime="12:00:00"
+        conda: "dada_env_new.yml"
         log: "logs/countNonchimericReads.log"
         script:
             "{config[dada_src]}/report_readNumbers.R"
@@ -203,6 +213,7 @@ else:
         params:
             mem="8G",
             runtime="120:00:00"
+        conda: "dada_env_new.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
@@ -219,6 +230,7 @@ else:
             currentStep = "table",
             mem="8G",
             runtime="12:00:00"
+        conda: "dada_env_new.yml"
         log: "logs/countTabledReads.log"
         script:
             "{config[dada_src]}/report_readNumbers.R"
