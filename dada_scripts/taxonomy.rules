@@ -13,7 +13,47 @@ rule taxonomy_control:
         touch {output}
         """
 
+def get_taxonomies():
+    # need to put if based on config file here
+
+rule taxonomy_to_OTUtab:
+    input:
+        "sequenceTables/all.seqTab.RDS",
+        get_taxonomies
+    output:
+        "sequenceTables/all.OTUs.tax.seq.tsv",
+        "sequenceTables/all.OTUs.tax.seq.RDS"
+    threads: 1
+    params:
+        mem="8G",
+        runtime="36:00:00"
+    conda: "dada_env_new.yml"
+    log: "logs/taxonomy.log"
+    message: "Combining taxa and OTU tables {input}."
+    script:
+        "{config[dada_src]}/add_taxonomy.R"
+
+
+
 rule decipher_taxonomy:
+    input:
+        "sequenceTables/all.seqTab.RDS"
+    output:
+        "sequenceTables/all.OTUs.tax.seq.tsv", 
+# need to replace these
+        "sequenceTables/all.OTUs.tax.seq.RDS"
+    threads: 1
+    params:
+        mem="8G",
+        runtime="36:00:00"
+    conda: "dada_env_new.yml"
+    log: "logs/decipher_taxonomy.log"
+    message: "Running decipher on {input}."
+    script:
+        "{config[dada_src]}/decipher_ID.R"
+
+
+rule mothur_taxonomy:
     input:
         "sequenceTables/all.seqTab.RDS"
     output:
@@ -22,11 +62,12 @@ rule decipher_taxonomy:
     threads: 1
     params:
         mem="8G",
-        runtime="120:00:00"
+        runtime="36:00:00"
     conda: "dada_env_new.yml"
     log: "logs/decipher_taxonomy.log"
     message: "Running decipher on {input}."
     script:
         "{config[dada_src]}/decipher_ID.R"
+
 
 

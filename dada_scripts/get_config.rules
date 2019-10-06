@@ -25,7 +25,7 @@ def dict_merge(a, b):
 
 # default configuration file
 #configfile: "config.default.yaml"
-# validate(config,schema="schemas/config.schema.yaml")
+#validate(config,schema="schemas/config.schema.yaml")
 
 # default executable for snakemake
 shell.executable("bash")
@@ -39,8 +39,12 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
     with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
         data = yaml.load(rhandle)
         config = dict_merge(config, data)
-
 #validate(config,schema="schemas/config.schema.yaml")
+
+
+
+# get parameters from the command line
+OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
 
 samples = pd.read_table(os.path.expandvars(config['sample_table']))
 if 'run' in samples.columns:
@@ -78,12 +82,18 @@ else:
                         raise Exception('names in library should differ from names of samples that have multiple libraries in the same run.')
                 elif csam==clib:
                     raise Exception('names in library should differ from unrelated sample names.')    
+if 'r1_file' not in samples.columns:
+    raise Exception("You haven't provided file names for read 1 - column should be named r1_file.")
+if config['paired'] and 'r2_file' not in samples.columns:
+    raise Exception("You haven't provided file names for read 2 - column should be named r2_file.")
 print(samples)
 
 #validate(samples, schema="schemas/sample.schema.yaml")
 
-# get parameters from the command line
-OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
+yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
+yaml.add_representer(tuple, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))
+f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
+yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
 PRELIM_STEPS = ''
 if config['do_primers']:

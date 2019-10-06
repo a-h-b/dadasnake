@@ -7,7 +7,7 @@ raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
 do_dada: true
-skip_db: false
+skip_db: true
 do_taxonomy: true
 do_postprocessing: true
 primers:
@@ -17,6 +17,7 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
+paired: true
 sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
@@ -41,6 +42,9 @@ filtering:
     fwd: 0
     rvs: 0
 error_seed: 100
+dada:
+  band_size: 16
+  homopolymer_gap_penalty: NULL
 pair_merging:
   min_overlap: 12
   max_mismatch: 0

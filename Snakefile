@@ -13,12 +13,20 @@ workdir:
 if not config['skip_db']:
     include:
         "dada_scripts/cut_db.rules"
-if 'primers' in STEPS:
-    include:
-        "dada_scripts/cutadapt.rules"
-if 'dada' in STEPS:
-    include:
-        "dada_scripts/dada.rules"
+if config['paired']:
+    if 'primers' in STEPS:
+        include:
+            "dada_scripts/cutadapt.rules"
+    if 'dada' in STEPS:
+        include:
+            "dada_scripts/dada.rules"
+else:
+    if 'primers' in STEPS:
+        include:
+            "dada_scripts/cutadapt.single.rules"
+    if 'dada' in STEPS:
+        include:
+            "dada_scripts/dada.single.rules"
 if 'taxonomy' in STEPS:
     include:
         "dada_scripts/taxonomy.rules"

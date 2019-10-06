@@ -2,7 +2,7 @@
 
 #$ -cwd
 #$ -N dadaSnake
-#$ -l h_rt=172:00:00,h_vmem=8G
+#$ -l h_rt=72:00:00,h_vmem=8G
 #$ -binding linear:1
 #$ -e $JOB_NAME.stderr
 #$ -o $JOB_NAME.stdout
