@@ -33,41 +33,98 @@ rule taxonomy_to_OTUtab:
     script:
         "{config[dada_src]}/add_taxonomy.R"
 
+if config[taxonomy][decipher][post_ITSx]:
+    rule decipher_taxonomy:
+        input:
+            "sequenceTables/ITSx.seqs.fasta"
+        output:
+            "sequenceTables/tax.decipher.tsv",
+            "sequenceTables/tax.decipher.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="36:00:00"
+        conda: "dada_env_new.yml"
+        log: "logs/decipher_taxonomy.log"
+        message: "Running decipher on {input}."
+        script:
+            "{config[dada_src]}/decipher_ID.R"
+else:
+    rule decipher_taxonomy:
+        input:
+            "sequenceTables/all.seqs.fasta"
+        output:
+            "sequenceTables/tax.decipher.tsv", 
+            "sequenceTables/tax.decipher.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="36:00:00"
+        conda: "dada_env_new.yml"
+        log: "logs/decipher_taxonomy.log"
+        message: "Running decipher on {input}."
+        script:
+            "{config[dada_src]}/decipher_ID.R"
+
+if config[taxonomy][mothur][post_ITSx]:
+    rule mothur_taxonomy:
+        input:
+            "sequenceTables/ITSx.seqs.fasta"
+        output:
+            "sequenceTables/tax.mothur.tsv"
+        threads: 6
+        params:
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_new.yml"
+        log: "logs/mothur_taxonomy.log"
+        message: "Running mothur classifier on {input}."
+        shell:
+            """
+            mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
+            classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            """
+else:
+    rule mothur_taxonomy:
+        input:
+            "sequenceTables/all.seqs.fasta"
+        output:
+            "sequenceTables/tax.mothur.tsv"
+        threads: 6
+        params:
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_new.yml"
+        log: "logs/mothur_taxonomy.log"
+        message: "Running mothur classifier on {input}."
+        shell:
+            """
+            mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
+            classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            """
 
 
-rule decipher_taxonomy:
+rule ITSx:
     input:
-        "sequenceTables/all.seqTab.RDS"
+        "sequenceTables/all.seqs.fasta"
     output:
-        "sequenceTables/all.OTUs.tax.seq.tsv", 
-# need to replace these
-        "sequenceTables/all.OTUs.tax.seq.RDS"
-    threads: 1
+        directory("sequenceTables/ITSx_out"),
+        "sequenceTables/ITSx.seqs.fasta"
+    threads: 12
     params:
         mem="8G",
-        runtime="36:00:00"
+        runtime="48:00:00"
+    log: "logs/ITSx.log"
     conda: "dada_env_new.yml"
-    log: "logs/decipher_taxonomy.log"
-    message: "Running decipher on {input}."
-    script:
-        "{config[dada_src]}/decipher_ID.R"
+    message: "Running ITSx on {input}."
+    shell:
+        """
+        export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+        ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
+        -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
+        grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
+        """
 
-
-rule mothur_taxonomy:
-    input:
-        "sequenceTables/all.seqTab.RDS"
-    output:
-        "sequenceTables/all.OTUs.tax.seq.tsv",
-        "sequenceTables/all.OTUs.tax.seq.RDS"
-    threads: 1
-    params:
-        mem="8G",
-        runtime="36:00:00"
-    conda: "dada_env_new.yml"
-    log: "logs/decipher_taxonomy.log"
-    message: "Running decipher on {input}."
-    script:
-        "{config[dada_src]}/decipher_ID.R"
 
 
 

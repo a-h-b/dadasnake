@@ -160,6 +160,7 @@ if config["chimeras"]["remove"]:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
+            "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv",
@@ -180,7 +181,7 @@ if config["chimeras"]["remove"]:
         input:
             "reporting/mergedNumbers_perSample.tsv",
             "sequenceTables/pre_chimera.seqTab.RDS",
-            "sequenceTables/all.seqTab.RDS"
+            "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
         threads: 1
@@ -198,6 +199,7 @@ else:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
+            "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
@@ -214,7 +216,7 @@ else:
     rule tabled_numbers:
         input:
             "reporting/mergedNumbers_perSample.tsv",
-            "sequenceTables/all.seqTab.RDS"
+            "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
         threads: 1

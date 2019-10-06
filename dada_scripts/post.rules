@@ -14,25 +14,6 @@ rule post_control:
         touch {output}
         """
 
-
-rule ITSx:
-    input:
-        "sequenceTables/all.seqs.fasta"
-    output:
-        directory("post/ITSx_out"),
-        expand("post/all.seqs.{region}.fungi.fasta",region={config['ITSx']['region']})
-    threads: 20
-    params:
-        mem="8G",
-        runtime="48:00:00"
-    log: "logs/ITSx.log"
-    conda: "dada_env_new.yml"
-    message: "Running ITSx on {input}."
-    shell:
-        """
-        {config[dada_root]}/dada_scripts/runITSx.q.p.sh -t post -n {config[ITSx][min_regions]} -i {config[ITSx][region]} -e {config[ITSx][e_val]} -d {input} &> {log}
-        """
-
 rule guilds:
     input:
         "sequenceTables/all.OTUs.tax.seq.tsv"

@@ -55,13 +55,22 @@ chimeras:
   method: consensus
 outputdir: "/data/project/metaamp/PLAYGROUND"
 taxonomy:
-  db_path: "/data/project/metaamp/DBs/decipher"
-  tax_db: "SILVA_SSU_r132_March2018.RData"
-  threshold: 60
-  strand: bottom
-  bootstraps: 100
+  decipher:
+    do: true
+    post_ITSx: false
+    db_path: "/data/project/metaamp/DBs/decipher"
+    tax_db: "SILVA_SSU_r132_March2018.RData"
+    threshold: 60
+    strand: bottom
+    bootstraps: 100
+    seed: 100  
   look_for_species: false
-  seed: 100
+  mothur:
+    do: true
+    post_ITSx: false
+    db_path: "/data/project/metaamp/DBs/amplicon"
+    tax_db: "ifoh_515f.iroh_806r.silva_132"
+    cutoff: 60
 ITSx:
   run: false
   min_regions: 1

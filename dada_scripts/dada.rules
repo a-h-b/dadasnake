@@ -168,6 +168,7 @@ if config["chimeras"]["remove"]:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
+            "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv",
@@ -200,12 +201,12 @@ if config["chimeras"]["remove"]:
         log: "logs/countNonchimericReads.log"
         script:
             "{config[dada_src]}/report_readNumbers.R"
-
 else:
     rule dada_mergeruns:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
+            "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
