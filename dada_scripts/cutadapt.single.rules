@@ -100,13 +100,13 @@ if config['sequencing_direction'] == "fwd_1":
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
             {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} \
-            --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
             -m 1 \
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
             -o $TMPD/{wildcards.library}.fastq {input} &> {log}
 
             {config[dada_bin]}/cutadapt -a $RVS_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
              -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
@@ -132,13 +132,13 @@ elif config['sequencing_direction'] == "rvs_1":
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
             {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.fastq {input} &> {log}
 
             {config[dada_bin]}/cutadapt -a $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log}  2>&1
@@ -163,27 +163,27 @@ else:
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
             {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              --untrimmed-output=$TMPD/{wildcards.library}.unt.fastq \
              -o $TMPD/{wildcards.library}.fastq {input} &> {log}
             
             {config[dada_bin]}/cutadapt -a $RVS_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
 
             {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.tr2.fastq \
              $TMPD/{wildcards.library}.unt.fastq >> {log} 2>&1
 
             {config[dada_bin]}/cutadapt -a $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o $TMPD/{wildcards.library}.final.fastq \
