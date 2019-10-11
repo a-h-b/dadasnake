@@ -1,6 +1,6 @@
 # include configuration file
 #default configuration file (hard-coded, not pretty for portability)
-configfile: "/data/project/metaamp/TOOLS/dada_pipe/config.default.yaml"
+configfile: srcdir("config.default.yaml")
 
 include:
     "dada_scripts/get_config.rules"
