@@ -7,7 +7,6 @@ raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
 do_dada: true
-skip_db: true
 do_taxonomy: true
 do_postprocessing: true
 primers:
