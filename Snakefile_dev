@@ -1,6 +1,6 @@
 # include configuration file
 #default configuration file (hard-coded, not pretty for portability)
-configfile: srcdir("config.default.yaml")
+configfile: srcdir("config.dev.yaml")
 
 include:
     "dada_scripts/get_config.rules"

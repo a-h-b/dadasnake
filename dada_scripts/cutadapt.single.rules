@@ -1,5 +1,5 @@
 def get_fastq(wildcards):
-    return config['raw_directory']+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file"]].dropna()
+    return os.path.expandvars(config['raw_directory'])+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file"]].dropna()
 
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
@@ -44,7 +44,7 @@ rule combine_or_rename:
 rule input_numbers:
     input:
         "reporting/sample_table.tsv",
-        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=config['raw_directory'])
+        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=os.path.expandvars(config['raw_directory']))
     output:
         report("reporting/readNumbers.tsv",category="Reads")
     threads: 1

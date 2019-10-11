@@ -63,13 +63,13 @@ if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --unlock --configfile $CONFIGFILE
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --unlock --configfile $CONFIGFILE
     conda deactivate
 elif [ "$DRYRUN" = true ]; then
     echo "Dryrun."
 #    module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --dryrun --configfile $CONFIGFILE
     conda deactivate 
 elif [ "$CLUSTER" = true ]; then
     if [ -z "$JNAME" ]; then
@@ -77,16 +77,16 @@ elif [ "$CLUSTER" = true ]; then
     fi
     echo "Submitting workflow to cluster."
     if [ "$REPORT" = true ]; then
-        qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dada_pipe/dada_scripts/dada_snake_submit.sh $CONFIGFILE
+        qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/dev_dada_snake_submit.sh $CONFIGFILE
     else
-       qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dada_pipe/dada_scripts/dada_snake_submit_withoutReport.sh $CONFIGFILE
+       qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/dev_dada_snake_submit_withoutReport.sh $CONFIGFILE
 #    snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE
    fi
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
     module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
     conda deactivate
 else
     echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."

@@ -1,0 +1,81 @@
+tmp_dir: "/work/$USER/tmp"
+dada_root: "/data/project/metaamp/TOOLS/dev_dada_pipe"
+dada_src: "../dada_scripts"
+dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/lib"
+dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/bin"
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+do_primers: true
+do_dada: true
+skip_db: true
+do_taxonomy: true
+do_postprocessing: true
+primers:
+  fwd: 
+    sequence: GTGYCAGCMGCCGCGGTAA
+    name: 515F
+  rvs: 
+    sequence: GGACTACNVGGGTWTCTAAT
+    name: 806R
+paired: true
+sequencing_direction: "unknown"
+primer_cutting:
+  overlap: 10
+  count: 2
+  match: both
+  perc_mismatch: 0.2
+filtering:
+  trunc_length:
+    fwd: 0
+    rvs: 0
+  trunc_qual: 25
+  max_EE:
+    fwd: 2
+    rvs: 2
+  minLen:
+    fwd: 200
+    rvs: 100
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+error_seed: 100
+dada:
+  band_size: 16
+  homopolymer_gap_penalty: NULL
+pair_merging:
+  min_overlap: 12
+  max_mismatch: 0
+  just_concatenate: false
+  trim_overhang: true
+chimeras:
+  remove: true
+  method: consensus
+outputdir: "/data/project/metaamp/PLAYGROUND"
+taxonomy:
+  decipher:
+    do: true
+    post_ITSx: false
+    db_path: "/data/project/metaamp/DBs/decipher"
+    tax_db: "SILVA_SSU_r132_March2018.RData"
+    threshold: 60
+    strand: bottom
+    bootstraps: 100
+    seed: 100  
+  look_for_species: false
+  mothur:
+    do: true
+    post_ITSx: false
+    db_path: "/data/project/metaamp/DBs/amplicon"
+    tax_db: "ifoh_515f.iroh_806r.silva_132"
+    cutoff: 60
+ITSx:
+  run: false
+  min_regions: 1
+  region: ITS2
+  e_val: 1e-5
+Faprotax_DB: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
+Funguild_DB: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+keep_target_taxa: .
