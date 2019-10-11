@@ -10,7 +10,7 @@
 CONFIGFILE=$1
 
 module load miniconda/3/4.5.12-1
-conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_new
+conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
 
 snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 
 
