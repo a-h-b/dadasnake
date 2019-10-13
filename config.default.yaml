@@ -72,7 +72,7 @@ taxonomy:
     tax_db: "ifoh_515f.iroh_806r.silva_132"
     cutoff: 60
 ITSx:
-  run: false
+  do: false
   min_regions: 1
   region: ITS2
   e_val: 1e-5

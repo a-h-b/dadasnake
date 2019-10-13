@@ -103,27 +103,27 @@ else:
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
             """
 
-
-rule ITSx:
-    input:
-        "sequenceTables/all.seqs.fasta"
-    output:
-        directory("sequenceTables/ITSx_out"),
-        "sequenceTables/ITSx.seqs.fasta"
-    threads: 12
-    params:
-        mem="8G",
-        runtime="48:00:00"
-    log: "logs/ITSx.log"
-    conda: "dada_env_new.yml"
-    message: "Running ITSx on {input}."
-    shell:
-        """
-        export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
-        ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
-        -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
-        grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
-        """
+if config[taxonomy][ITSx][do]:
+    rule ITSx:
+        input:
+            "sequenceTables/all.seqs.fasta"
+        output:
+            directory("sequenceTables/ITSx_out"),
+            "sequenceTables/ITSx.seqs.fasta"
+        threads: 12
+        params:
+            mem="8G",
+            runtime="48:00:00"
+        log: "logs/ITSx.log"
+        conda: "dada_env_new.yml"
+        message: "Running ITSx on {input}."
+        shell:
+            """
+            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+            ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
+            -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
+            grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
+            """
 
 
 
