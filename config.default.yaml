@@ -21,7 +21,7 @@ sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
   count: 2
-  match: both
+  filter_if_not_match: any
   perc_mismatch: 0.2
   indels: "--no-indels"
 filtering:
@@ -61,7 +61,7 @@ taxonomy:
     db_path: "/data/project/metaamp/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
     threshold: 60
-    strand: bottom
+    strand: top
     bootstraps: 100
     seed: 100  
   look_for_species: false
