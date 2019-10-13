@@ -70,6 +70,12 @@ taxonomy:
     db_path: "/data/project/metaamp/DBs/amplicon"
     tax_db: "ifoh_515f.iroh_806r.silva_132"
     cutoff: 60
+  blast:
+    do: true
+    db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+    tax_db: nt
+    e_val: 0.01
+    tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
   do: false
   min_regions: 1
