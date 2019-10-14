@@ -1,7 +1,8 @@
 rule taxonomy_control:
     input:
         "sequenceTables/all.OTUs.tax.seq.RDS",
-        "sequenceTables/all.OTUs.tax.seq.tsv"
+        "sequenceTables/all.OTUs.tax.seq.tsv",
+        expand("{blast}", blast="sequenceTables/blast_results.tsv" if config['taxonomy']['blast']['do'] else "sequenceTables/all.OTUs.tax.seq.tsv")
     output:
         "taxonomy.done"
     threads: 1
@@ -13,13 +14,19 @@ rule taxonomy_control:
         touch {output}
         """
 
-def get_taxonomies():
-    # need to put if based on config file here
+def get_taxonomies(config):
+    if config['taxonomy']['decipher']['do'] and config['taxonomy']['mothur']['do']:
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.RDS","sequenceTables/tax.mothur.tsv"]
+    elif config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']:
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.tsv"]
+    elif config['taxonomy']['mothur']['do'] and not config['taxonomy']['decipher']['do']:
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.mothur.tsv"]
+    else:
+        return "sequenceTables/all.seqTab.RDS"
 
 rule taxonomy_to_OTUtab:
     input:
-        "sequenceTables/all.seqTab.RDS",
-        get_taxonomies
+        get_taxonomies(config)
     output:
         "sequenceTables/all.OTUs.tax.seq.tsv",
         "sequenceTables/all.OTUs.tax.seq.RDS"
@@ -33,7 +40,7 @@ rule taxonomy_to_OTUtab:
     script:
         "{config[dada_src]}/add_taxonomy.R"
 
-if config[taxonomy][decipher][post_ITSx]:
+if config['taxonomy']['decipher']['post_ITSx']:
     rule decipher_taxonomy:
         input:
             "sequenceTables/ITSx.seqs.fasta"
@@ -66,7 +73,7 @@ else:
         script:
             "{config[dada_src]}/decipher_ID.R"
 
-if config[taxonomy][mothur][post_ITSx]:
+if config['taxonomy']['mothur']['post_ITSx']:
     rule mothur_taxonomy:
         input:
             "sequenceTables/ITSx.seqs.fasta"
@@ -103,7 +110,7 @@ else:
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
             """
 
-if config[taxonomy][ITSx][do]:
+if config['ITSx']['do']:
     rule ITSx:
         input:
             "sequenceTables/all.seqs.fasta"
@@ -125,11 +132,10 @@ if config[taxonomy][ITSx][do]:
             grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
             """
 
-if config[taxonomy][blast][do]:
+if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
-            "sequenceTables/all.seqs.fasta",
-            "sequenceTables/OTUs.tax.seq.RDS"
+            "sequenceTables/all.OTUs.tax.seq.RDS"
         output:
             "sequenceTables/no_anno.seqs.fasta"
         threads: 1
@@ -141,7 +147,7 @@ if config[taxonomy][blast][do]:
         message: "Preparing blast: extracting un-annotated sequences."
         script:
             "{config[dada_src]}/prepare_blastn.R"
-    if config[taxonomy][blast][tax2id] == "none":
+    if config['taxonomy']['blast']['tax2id'] == "none":
         rule blastn:
             input:
                 "sequenceTables/no_anno.seqs.fasta"

@@ -10,9 +10,9 @@ workdir:
 
 ##report: "schemas/workflow.rst"
 
-if not config['skip_db']:
-    include:
-        "dada_scripts/cut_db.rules"
+#if not config['skip_db']:
+#    include:
+#        "dada_scripts/cut_db.rules"
 if config['paired']:
     if 'primers' in STEPS:
         include:
@@ -36,8 +36,8 @@ if 'postprocessing' in STEPS:
 
 
 inputs = []
-if not config['skip_db']:
-    inputs.append('cut_db.done')
+#if not config['skip_db']:
+#    inputs.append('cut_db.done')
 if 'primers' in STEPS:
     inputs.append('primers.done')
 if 'dada' in STEPS:

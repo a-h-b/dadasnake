@@ -1,8 +1,8 @@
 tmp_dir: "/work/$USER/tmp"
 dada_root: "/data/project/metaamp/TOOLS/dada_pipe"
 dada_src: "../dada_scripts"
-dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/lib"
-dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/bin"
+dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/lib"
+dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/bin"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
