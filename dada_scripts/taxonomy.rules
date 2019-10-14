@@ -16,17 +16,16 @@ rule taxonomy_control:
 
 def get_taxonomies(config):
     if config['taxonomy']['decipher']['do'] and config['taxonomy']['mothur']['do']:
-        return ["sequenceTables/tax.decipher.RDS","sequenceTables/tax.mothur.tsv"]
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.RDS","sequenceTables/tax.mothur.tsv"]
     elif config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']:
-        return "sequenceTables/tax.decipher.tsv"
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.tsv"]
     elif config['taxonomy']['mothur']['do'] and not config['taxonomy']['decipher']['do']:
-        return "sequenceTables/tax.mothur.tsv"
+        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.mothur.tsv"]
     else:
         return "sequenceTables/all.seqTab.RDS"
 
 rule taxonomy_to_OTUtab:
     input:
-        "sequenceTables/all.seqTab.RDS",
         get_taxonomies(config)
     output:
         "sequenceTables/all.OTUs.tax.seq.tsv",
@@ -136,7 +135,6 @@ if config['ITSx']['do']:
 if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
-            "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.OTUs.tax.seq.RDS"
         output:
             "sequenceTables/no_anno.seqs.fasta"
