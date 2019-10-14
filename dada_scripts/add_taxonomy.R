@@ -27,7 +27,7 @@ if(snakemake@config[['taxonomy']][['mothur']][['do']]){
     mothTax[,i][grep("_unclassified$",mothTax[,i])] <- ""
     mothTax[,i][grep("uncultured",mothTax[,i])] <- ""
   }
-  if(grepl(prefixVec[1],mothTax[,3]){
+  if(any(grepl(prefixVec[1],mothTax[,3])){
     for(i in 1:length(prefixVec)){
       mothTax[,2+i][!grepl(prefixVec[i],mothTax[,2+i])] <- ""
       mothTax[,2+i] <- gsub(prefixVec[i],"",mothTax[,2+i])
