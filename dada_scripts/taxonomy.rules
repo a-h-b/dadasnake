@@ -28,8 +28,8 @@ rule taxonomy_to_OTUtab:
     input:
         get_taxonomies(config)
     output:
-        "sequenceTables/all.OTUs.tax.seq.tsv",
-        "sequenceTables/all.OTUs.tax.seq.RDS"
+        "sequenceTables/all.seqTab.tax.tsv",
+        "sequenceTables/all.seqTab.tax.RDS"
     threads: 1
     params:
         mem="8G",
@@ -135,7 +135,7 @@ if config['ITSx']['do']:
 if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
-            "sequenceTables/all.OTUs.tax.seq.RDS"
+            "sequenceTables/all.seqTab.tax.RDS"
         output:
             "sequenceTables/no_anno.seqs.fasta"
         threads: 1
