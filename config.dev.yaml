@@ -23,6 +23,7 @@ primer_cutting:
   count: 2
   filter_if_not_match: any
   perc_mismatch: 0.2
+  indels: "--no-indels"
 filtering:
   trunc_length:
     fwd: 0
