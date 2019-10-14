@@ -1,6 +1,6 @@
 rule taxonomy_control:
     input:
-        "sequenceTables/all.OTUs.tax.seq.RDS",
+        expand("sequenceTables/all.OTUs.{tax.}seq.RDS",
         "sequenceTables/all.OTUs.tax.seq.tsv",
         expand("{blast}", blast="sequenceTables/blast_results.tsv" if config['taxonomy']['blast']['do'] else "sequenceTables/all.OTUs.tax.seq.tsv")
     output:
