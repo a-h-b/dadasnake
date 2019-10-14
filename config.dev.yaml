@@ -1,13 +1,12 @@
 tmp_dir: "/work/$USER/tmp"
 dada_root: "/data/project/metaamp/TOOLS/dev_dada_pipe"
 dada_src: "../dada_scripts"
-dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/lib"
-dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_new/bin"
+dada_lib: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/lib"
+dada_bin: "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/bin"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
 do_dada: true
-skip_db: true
 do_taxonomy: true
 do_postprocessing: true
 primers:
@@ -22,13 +21,13 @@ sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
   count: 2
-  match: both
+  filter_if_not_match: any
   perc_mismatch: 0.2
 filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 25
+  trunc_qual: 13
   max_EE:
     fwd: 2
     rvs: 2
@@ -61,7 +60,7 @@ taxonomy:
     db_path: "/data/project/metaamp/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
     threshold: 60
-    strand: bottom
+    strand: top
     bootstraps: 100
     seed: 100  
   look_for_species: false
@@ -71,8 +70,14 @@ taxonomy:
     db_path: "/data/project/metaamp/DBs/amplicon"
     tax_db: "ifoh_515f.iroh_806r.silva_132"
     cutoff: 60
+  blast:
+    do: true
+    db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+    tax_db: nt
+    e_val: 0.01
+    tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
-  run: false
+  do: false
   min_regions: 1
   region: ITS2
   e_val: 1e-5

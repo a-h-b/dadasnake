@@ -103,28 +103,86 @@ else:
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
             """
 
+if config[taxonomy][ITSx][do]:
+    rule ITSx:
+        input:
+            "sequenceTables/all.seqs.fasta"
+        output:
+            directory("sequenceTables/ITSx_out"),
+            "sequenceTables/ITSx.seqs.fasta"
+        threads: 12
+        params:
+            mem="8G",
+            runtime="48:00:00"
+        log: "logs/ITSx.log"
+        conda: "dada_env_new.yml"
+        message: "Running ITSx on {input}."
+        shell:
+            """
+            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+            ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
+            -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
+            grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
+            """
 
-rule ITSx:
-    input:
-        "sequenceTables/all.seqs.fasta"
-    output:
-        directory("sequenceTables/ITSx_out"),
-        "sequenceTables/ITSx.seqs.fasta"
-    threads: 12
-    params:
-        mem="8G",
-        runtime="48:00:00"
-    log: "logs/ITSx.log"
-    conda: "dada_env_new.yml"
-    message: "Running ITSx on {input}."
-    shell:
-        """
-        export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
-        ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
-        -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
-        grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
-        """
-
+if config[taxonomy][blast][do]:
+    rule prepare_blastn:
+        input:
+            "sequenceTables/all.seqs.fasta",
+            "sequenceTables/OTUs.tax.seq.RDS"
+        output:
+            "sequenceTables/no_anno.seqs.fasta"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="2:00:00"
+        log: "logs/prep_blastn.log"
+        conda: "dada_env_new.yml"
+        message: "Preparing blast: extracting un-annotated sequences."
+        script:
+            "{config[dada_src]}/prepare_blastn.R"
+    if config[taxonomy][blast][tax2id] == "none":
+        rule blastn:
+            input:
+                "sequenceTables/no_anno.seqs.fasta"
+            output:
+                "sequenceTables/blast_results.tsv"
+            threads: 1
+            params:
+                mem="30G,highmem",
+                runtime="48:00:00"
+            log: "logs/blastn.log"
+            conda: "dada_env_new.yml"
+            message: "Running blastn on {input}."
+            shell:
+                """
+                blastn -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
+                 -query {input} -outfmt 7 -out {output} -max_target_seqs 10
+                """
+    else:
+        rule blastn:
+            input:
+                "sequenceTables/no_anno.seqs.fasta"
+            output:
+                "sequenceTables/blast_results.tsv"
+            threads: 1
+            params:
+                mem="30G,highmem",
+                runtime="48:00:00"
+            log: "logs/blastn.log"
+            conda: "dada_env_new.yml"
+            message: "Running blastn on {input}."
+            shell:
+                """
+                TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
+                blastn -query {input} -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
+                 -out $TMPD/blast_result.{config[taxonomy][blast][tax_db]}.tsv \
+                 -evalue {config[taxonomy][blast][e_val]} -max_target_seqs 10 \
+                 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
+                join -1 13 -2 1 -t $'\t' <(sort -k 13 $TMPD/blast_result.{config[taxonomy][blast][tax_db]}.tsv) \
+                 {config[taxonomy][blast][tax2id]} | sort -k 2 | \
+                 awk -F $'\t' 'BEGIN{{s=2;e=24;OFS=FS}} {{for(i=s;i<=e;i++) printf("%s%s",$(i),OFS);printf("%s%s",$1,"\n")}}' >> {output}
+                """
 
 
 
