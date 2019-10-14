@@ -1,7 +1,8 @@
 rule taxonomy_control:
     input:
         "sequenceTables/all.OTUs.tax.seq.RDS",
-        "sequenceTables/all.OTUs.tax.seq.tsv"
+        "sequenceTables/all.OTUs.tax.seq.tsv",
+        expand("{blast}", blast="sequenceTables/blast_results.tsv" if config['taxonomy']['blast']['do'] else "sequenceTables/all.OTUs.tax.seq.tsv")
     output:
         "taxonomy.done"
     threads: 1
@@ -136,7 +137,7 @@ if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
             "sequenceTables/all.seqs.fasta",
-            "sequenceTables/OTUs.tax.seq.RDS"
+            "sequenceTables/all.OTUs.tax.seq.RDS"
         output:
             "sequenceTables/no_anno.seqs.fasta"
         threads: 1
