@@ -1,8 +1,19 @@
+def get_taxonomyC(config):
+    if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']:
+        if config['taxonomy']['blast']['do']:
+            return ["sequenceTables/blast_results.tsv","sequenceTables/all.seqTab.tax.tsv","sequenceTables/all.seqTab.tax.RDS"]
+        else:
+            return ["sequenceTables/all.seqTab.tax.tsv","sequenceTables/all.seqTab.tax.RDS"]
+    else:
+        if config['taxonomy']['blast']['do']:
+            return ["sequenceTables/blast_results.tsv","sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
+        else:
+            return ["sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
+
+
 rule taxonomy_control:
     input:
-        expand("sequenceTables/all.OTUs.{tax.}seq.RDS",
-        "sequenceTables/all.OTUs.tax.seq.tsv",
-        expand("{blast}", blast="sequenceTables/blast_results.tsv" if config['taxonomy']['blast']['do'] else "sequenceTables/all.OTUs.tax.seq.tsv")
+        get_taxonomyC(config)
     output:
         "taxonomy.done"
     threads: 1
@@ -135,7 +146,7 @@ if config['ITSx']['do']:
 if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
-            "sequenceTables/all.seqTab.tax.RDS"
+            expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] else "")
         output:
             "sequenceTables/no_anno.seqs.fasta"
         threads: 1
