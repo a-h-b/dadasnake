@@ -198,7 +198,7 @@ if config['taxonomy']['blast']['do']:
 #                 -out sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv \
 #                 -evalue {config[taxonomy][blast][e_val]} -max_target_seqs 10 \
 #                 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
-                join -1 13 -2 1 -t $'\t' <(sort -k 13 sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv) \
+                join -1 13 -2 1 -t $'\\t' <(sort -k 13 sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv) \
                  {config[taxonomy][blast][tax2id]} | sort -k 2 | \
                  awk -F $"\\t" 'BEGIN{{s=2;e=24;OFS=FS}} {{for(i=s;i<=e;i++) printf("%s%s",$(i),OFS);printf("%s%s",$1,"\\n")}}' >> {output}
                 """

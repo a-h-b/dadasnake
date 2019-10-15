@@ -83,6 +83,20 @@ ITSx:
   min_regions: 1
   region: ITS2
   e_val: 1e-5
-Faprotax_DB: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
-Funguild_DB: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
-keep_target_taxa: .
+hand_off:
+  biome: true
+  phyloseq: true
+final_table_filtering:
+  keep_target_taxa: .
+  length_filter:
+    target_min_length: 0
+    target_max_length: Inf
+postprocessing:
+  faprotax:
+    do: false
+    faprotax_db: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
+  funguild:
+    do: false
+    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+  treeing: true
+  rarefaction_curve: true
