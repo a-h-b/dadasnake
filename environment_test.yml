@@ -28,7 +28,9 @@ dependencies:
   - biom-format=2.1.6=py36_1
   - blast=2.7.1=h4422958_6
   - blast-legacy=2.2.26=1
+  - clustalo=1.2.4=hfc679d8_2
   - cutadapt=1.18=py36_0
+  - fasttree=2.1.10=h470a237_2
   - filechunkio=1.6=py36_0
   - ftputil=3.2=py36_0
   - hmmer=3.2.1=hfc679d8_0
@@ -60,6 +62,7 @@ dependencies:
   - aioeasywebdav=2.2.0=py36_0
   - aiohttp=3.4.4=py36h470a237_0
   - appdirs=1.4.3=py_1
+  - argtable2=2.13=h470a237_1
   - asn1crypto=0.24.0=py36_1003
   - async-timeout=3.0.1=py_1000
   - attrs=18.2.0=py_0
