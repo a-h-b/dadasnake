@@ -108,10 +108,11 @@ else:
             "sequenceTables/all.seqs.fasta"
         output:
             "sequenceTables/tax.mothur.tsv"
-        threads: 6
+        threads: 1
         params:
-            mem="8G",
-            runtime="12:00:00"
+            mem="30G,highmem",
+            runtime="12:00:00",
+            outBase="sequenceTables/all.seqs"
         conda: "dada_env_new.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
@@ -119,6 +120,7 @@ else:
             """
             mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            mv {params[outBase]}.*.wang.taxonomy {output}
             """
 
 if config['ITSx']['do']:
@@ -164,9 +166,9 @@ if config['taxonomy']['blast']['do']:
                 "sequenceTables/no_anno.seqs.fasta"
             output:
                 "sequenceTables/blast_results.tsv"
-            threads: 1
+            threads: 6
             params:
-                mem="30G,highmem",
+                mem="8G",
                 runtime="48:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_new.yml"
@@ -184,21 +186,21 @@ if config['taxonomy']['blast']['do']:
                 "sequenceTables/blast_results.tsv"
             threads: 1
             params:
-                mem="30G,highmem",
+                mem="8G",
                 runtime="48:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_new.yml"
             message: "Running blastn on {input}."
             shell:
                 """
-                TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
-                blastn -query {input} -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
-                 -out $TMPD/blast_result.{config[taxonomy][blast][tax_db]}.tsv \
-                 -evalue {config[taxonomy][blast][e_val]} -max_target_seqs 10 \
-                 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
-                join -1 13 -2 1 -t $'\t' <(sort -k 13 $TMPD/blast_result.{config[taxonomy][blast][tax_db]}.tsv) \
+#                export BLASTDB={config[taxonomy][blast][db_path]}
+#                blastn -query {input} -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
+#                 -out sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv \
+#                 -evalue {config[taxonomy][blast][e_val]} -max_target_seqs 10 \
+#                 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
+                join -1 13 -2 1 -t $'\t' <(sort -k 13 sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv) \
                  {config[taxonomy][blast][tax2id]} | sort -k 2 | \
-                 awk -F $'\t' 'BEGIN{{s=2;e=24;OFS=FS}} {{for(i=s;i<=e;i++) printf("%s%s",$(i),OFS);printf("%s%s",$1,"\n")}}' >> {output}
+                 awk -F $"\\t" 'BEGIN{{s=2;e=24;OFS=FS}} {{for(i=s;i<=e;i++) printf("%s%s",$(i),OFS);printf("%s%s",$1,"\\n")}}' >> {output}
                 """
 
 
