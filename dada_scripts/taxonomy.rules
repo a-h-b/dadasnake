@@ -45,7 +45,7 @@ rule taxonomy_to_OTUtab:
     params:
         mem="8G",
         runtime="36:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
     script:
@@ -62,7 +62,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         params:
             mem="8G",
             runtime="36:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
@@ -78,7 +78,7 @@ else:
         params:
             mem="8G",
             runtime="36:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
@@ -94,7 +94,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
         shell:
@@ -113,7 +113,7 @@ else:
             mem="30G,highmem",
             runtime="12:00:00",
             outBase="sequenceTables/all.seqs"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
         shell:
@@ -135,7 +135,7 @@ if config['ITSx']['do']:
             mem="8G",
             runtime="48:00:00"
         log: "logs/ITSx.log"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         message: "Running ITSx on {input}."
         shell:
             """
@@ -156,7 +156,7 @@ if config['taxonomy']['blast']['do']:
             mem="8G",
             runtime="2:00:00"
         log: "logs/prep_blastn.log"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         message: "Preparing blast: extracting un-annotated sequences."
         script:
             "{config[dada_src]}/prepare_blastn.R"
@@ -171,7 +171,7 @@ if config['taxonomy']['blast']['do']:
                 mem="8G",
                 runtime="48:00:00"
             log: "logs/blastn.log"
-            conda: "dada_env_new.yml"
+            conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
             shell:
                 """
@@ -189,7 +189,7 @@ if config['taxonomy']['blast']['do']:
                 mem="30G,highmem",
                 runtime="48:00:00"
             log: "logs/blastn.log"
-            conda: "dada_env_new.yml"
+            conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
             shell:
                 """
@@ -201,6 +201,24 @@ if config['taxonomy']['blast']['do']:
                 awk -F $"\\t" '{{if (NR==FNR) {{val[$13] = $0; next}} if($1 in val){{print val[$1]"\\t"$0}}}}' \
                  sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv {config[taxonomy][blast][tax2id]} >> {output}
                 """
+
+if config['hand_off']['biom'] and config['do_taxonomy']:
+    rule biom_handoff:
+        input:
+            "sequenceTables/all.seqTab.tax.RDS",
+            "reporting/finalNumbers_perSample.tsv"
+        output:
+            "sequenceTables/all.seqTab.biom"
+        threads: 1
+        params:
+            currentStep = "taxonomy",
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_test.yml"
+        log: "logs/biom_hand-off.log"
+        script:
+            "{config[dada_src]}/biom_handoff.R"
+
 
 
 

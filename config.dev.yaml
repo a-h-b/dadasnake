@@ -84,7 +84,7 @@ ITSx:
   region: ITS2
   e_val: 1e-5
 hand_off:
-  biome: true
+  biom: true
   phyloseq: true
 final_table_filtering:
   keep_target_taxa: .
