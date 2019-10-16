@@ -46,10 +46,11 @@ if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
 if 'postprocessing' in STEPS:
     inputs.append('postprocessing.done')
-
+if config['hand_off']['biom']:
+    inputs.append('sequenceTables/all.seqTab.biom')
 
 onsuccess:
-    shell("mkdir job.errs.outs && mv snakejob.* job.errs.outs")
+    shell("mv snakejob.* job.errs.outs || { mkdir job.errs.outs && mv snakejob.* job.errs.outs }")
 
 # master command
 rule ALL:
