@@ -89,9 +89,8 @@ hand_off:
 final_table_filtering:
   do: true
   keep_target_taxa: "."
-  length_filter:
-    target_min_length: 0
-    target_max_length: Inf
+  target_min_length: 0
+  target_max_length: Inf
 postprocessing:
   faprotax:
     do: false

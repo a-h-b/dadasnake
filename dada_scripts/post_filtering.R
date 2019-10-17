@@ -19,7 +19,7 @@ if (snakemake@threads > 1) {
 library(Biostrings)
 
 # File parsing
-seqs <- readDNAStringSet((snakemake@input[[1]])
+seqs <- readDNAStringSet(snakemake@input[[1]])
 seqTab <- readRDS(snakemake@input[[2]])
 
 if(snakemake@config[['final_table_filtering']][['keep_target_taxa']]!="."){
@@ -55,9 +55,9 @@ if(nrow(filtTab)==0){
   system(paste0("touch ",snakemake@output[[2]]))
   system(paste0("touch ",snakemake@output[[3]]))
  }else{
-  writeRDS(filtTab,snakemake@output[[1]])
+  saveRDS(filtTab,snakemake@output[[1]])
   write.table(filtTab,snakemake@output[[2]],row.names=F,sep="\t",quote=F)
-  filtSeq <- seqs[[filtTab$OTU]]
+  filtSeq <- seqs[filtTab$OTU]
   writeXStringSet(filtSeq,snakemake@output[[3]])
  }
 }

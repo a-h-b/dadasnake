@@ -55,7 +55,7 @@ rule input_numbers:
     conda: "dada_env_test.yml"
     log: "logs/countInputReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.single.R" 
+        SRC_dir+"report_readNumbers.single.R" 
 
 
 rule primer_numbers:

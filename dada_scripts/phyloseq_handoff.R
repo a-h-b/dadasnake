@@ -30,13 +30,13 @@ sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
  row.names(taxMat) <- seqTab$Row.names
  seqPhy <- phyloseq(otu_table(seqMat,taxa_are_rows = T),
                 sample_data(sInfo),
-                tax_table(as.matrix(taxMat)))
+                tax_table(taxMat))
 
  seqs <- Biostrings::DNAStringSet(seqTab$Row.names)
  names(seqs) <- seqTab$Row.names
  seqPhy <- merge_phyloseq(seqPhy, seqs)
  taxa_names(seqPhy) <- tax_table(seqPhy)[,"OTU"]
-if(snakemake@params[["currentStep"]]=="post"&snakemake@config[['postprocessing']][['treeing']]){
+if(snakemake@params[["currentStep"]]=="post"&snakemake@config[['postprocessing']][['treeing']][['do']]){
  tree <- read.tree(snakemake@input[[3]])
  seqPhy <- phyloseq(otu_table(seqPhy),
                     sample_data(seqPhy),

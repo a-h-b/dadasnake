@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python3
 #
 # Please read the copyright notice and license agreement below before using or sharing this script.
 #
@@ -94,15 +94,15 @@ except ImportError as e:
 
 # Python 2 & 3 universality issues
 try:
-  basestring
+	basestring
 except NameError:
-  basestring = str
+	basestring = str
   
 
 try:
-    xrange
+	xrange
 except NameError:
-    xrange = range
+	xrange = range
 
 
 
@@ -151,11 +151,11 @@ def is_biom_file_based_on_extension(path):
 	
 	
 def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
+	try:
+		float(s)
+		return True
+	except ValueError:
+		return False
         
         
 	
@@ -170,19 +170,19 @@ def is_number_or_nan(s):
 	
 	
 def float_or_nan(s):
-    try:
-        f = float(s)
-        return f
-    except ValueError:
-        return NaN
+	try:
+		f = float(s)
+		return f
+	except ValueError:
+		return NaN
       
         
 def float_or_zero_if_nan(s):
-    try:
-        f = float(s)
-        return f
-    except ValueError:
-        return 0	
+	try:
+		f = float(s)
+		return f
+	except ValueError:
+		return 0	
 	
 
 
@@ -196,7 +196,7 @@ def filter_index_list(	N,
 	if(omit_items is not None):
 		items_to_keep = [i for i in items_to_keep if not (i in omit_items)]
 
-  	return items_to_keep
+		return items_to_keep
 
 
 
@@ -233,7 +233,7 @@ def filter_name_list(	names,
 	if(omit_items_with_name is not None):
 		if(not case_sensitive): omit_items_with_name = [name.lower() for name in omit_items_with_name];
 		items_to_keep = [i for i in items_to_keep if (next((w for w in omit_items_with_name if fnmatch.fnmatchcase(names[i],w)),-1)<0)]
-  	return items_to_keep
+		return items_to_keep
 
 
 def get_metadata_predicates(metadata_predicate_list_str):
@@ -1213,7 +1213,7 @@ if __name__ == '__main__':
 	if(next((g for g in group_members if len(g)>0),-1)<0): print(args.verbose_prefix+"WARNING: All groups have empty member lists")
 	duplicate_group_names = find_duplicates_in_list(group_names)
 	if(len(duplicate_group_names)>0):
-		print "%sERROR: Duplicate group names. The following %d group names were used multiple times:\n%s  %s\n"%(args.verbose_prefix,len(duplicate_group_names),args.verbose_prefix,("\n"+args.verbose_prefix+"  ").join(duplicate_group_names))
+		print("%sERROR: Duplicate group names. The following %d group names were used multiple times:\n%s  %s\n"%(args.verbose_prefix,len(duplicate_group_names),args.verbose_prefix,("\n"+args.verbose_prefix+"  ").join(duplicate_group_names)))
 		sys.exit(1)
 	
 	# Calculate effective number of members per group, taking into account set operations
@@ -1517,7 +1517,7 @@ if __name__ == '__main__':
 			if(len(group_to_records[g])!=0):
 				sub_table = table_numerical_part[list(group_to_records[g]),:]
 				if(args.avoid_creating_empty_BIOM_tables and saveSubtablesAsBIOM and numpy.all(sub_table==0)):
-					if(args.verbose): print "%sNote: Omitting empty output sub-table '%s', as requested"%(args.verbose_prefix,group_names[g])
+					if(args.verbose): print("%sNote: Omitting empty output sub-table '%s', as requested"%(args.verbose_prefix,group_names[g]))
 					continue;
 				sub_table_record_names 		= [record_names[r] for r in group_to_records[g]]
 				sub_table_data_names 		= numerical_data_names

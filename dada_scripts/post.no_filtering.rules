@@ -4,7 +4,7 @@ if config['hand_off']['phyloseq']:
 if config['postprocessing']['treeing']['do']:
     postConts.append("post/tree.newick")
 if config['postprocessing']['rarefaction_curve']:
-    postConts.append("reporting/rarefaction_curves.pdf")
+    postConts.append("stats/rarefaction_curves.pdf")
 
 rule post_control_noFilter:
     input:
@@ -20,6 +20,23 @@ rule post_control_noFilter:
         touch {output}
         """
 
+rule rarefaction_curve_noFilter:
+    input:
+        "sequenceTables/all.seqTab.RDS",
+        "reporting/finalNumbers_perSample.tsv"
+    output:
+        "stats/rarefaction_curves.pdf"
+    threads: 1
+    params:
+        mem="8G",
+        runtime="12:00:00"
+    conda: "dada_env_test.yml"
+    log: "logs/rarefaction_curve.log"
+    script:
+        srcdir("dada_scripts/rarefaction_curve.R")
+
+
+
 rule guilds_noFilter:
     input:
         "sequenceTables/all.seqTab.tax.tsv"
@@ -34,7 +51,7 @@ rule guilds_noFilter:
     message: "Running funguild on {input}."
     shell:
         """
-        {config[dada_root]}/dada_scripts/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
+        {config[dada_src]}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
         """
 
 #rule fapro_noFilter:
@@ -82,7 +99,7 @@ if config['hand_off']['phyloseq']:
         conda: "dada_env_test.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            "{config[dada_src]}/phyloseq_handoff.R"
+            srcdir("dada_scripts/phyloseq_handoff.R")
 
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
