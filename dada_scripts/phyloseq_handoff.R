@@ -24,7 +24,7 @@ library(ape)
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
 
- seqMat <- seqTab[,colnames(seqTab) %in% rownames(sInfo)]
+ seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% rownames(sInfo)])
  rownames(seqMat) <- seqTab$Row.names
  taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")])
  row.names(taxMat) <- seqTab$Row.names
@@ -43,6 +43,6 @@ if(snakemake@params[["currentStep"]]=="post"&snakemake@config[['postprocessing']
                     tax_table(seqPhy),
                     phy_tree(tree))
 }
-writeRDS(seqPhy,snakemake@output[[1]])
+saveRDS(seqPhy,snakemake@output[[1]])
 
 

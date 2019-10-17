@@ -88,7 +88,7 @@ hand_off:
   phyloseq: true
 final_table_filtering:
   do: true
-  keep_target_taxa: .
+  keep_target_taxa: "."
   length_filter:
     target_min_length: 0
     target_max_length: Inf
@@ -99,5 +99,7 @@ postprocessing:
   funguild:
     do: false
     funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
-  treeing: true
-  rarefaction_curve: true
+  treeing:
+    do: true
+    fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"
+  rarefaction_curve: false

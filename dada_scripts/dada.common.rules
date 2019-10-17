@@ -16,8 +16,8 @@ rule dada_mergeSamples:
         "{config[dada_src]}/dada_gatherMergedReads.R"
 
 
-if config['hand_off']['biom'] and not config['do_taxonomy']:
-    rule biom_handoff:
+if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do'])):
+    rule biom_handoff_preTax:
         input:
             "sequenceTables/all.seqTab.RDS",
             "reporting/finalNumbers_perSample.tsv"
@@ -36,7 +36,7 @@ if config['hand_off']['biom'] and not config['do_taxonomy']:
 if config['hand_off']['phyloseq']:
     if not config['do_taxonomy'] or (not config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']):
         if not config['do_postprocessing']:
-            rule phyloseq_handoff:
+            rule phyloseq_handoff_preTax:
                 input:
                     "sequenceTables/all.seqTab.RDS",
                     "reporting/finalNumbers_perSample.tsv"

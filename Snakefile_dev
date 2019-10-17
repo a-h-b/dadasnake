@@ -8,11 +8,9 @@ include:
 workdir:
     OUTPUTDIR
 
-##report: "schemas/workflow.rst"
+f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
+yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
-#if not config['skip_db']:
-#    include:
-#        "dada_scripts/cut_db.rules"
 if config['paired']:
     if 'primers' in STEPS:
         include:
@@ -34,13 +32,16 @@ if 'taxonomy' in STEPS:
     include:
         "dada_scripts/taxonomy.rules"
 if 'postprocessing' in STEPS:
-    include:
-        "dada_scripts/post.rules"
+    if config['final_table_filtering']['do']:
+        include:
+            "dada_scripts/post.filtering.rules"
+    else:
+        include:
+            "dada_scripts/post.no_filtering.rules"
+
 
 
 inputs = []
-#if not config['skip_db']:
-#    inputs.append('cut_db.done')
 if 'primers' in STEPS:
     inputs.append('primers.done')
 if 'dada' in STEPS:
@@ -53,7 +54,7 @@ if config['hand_off']['biom']:
     inputs.append('sequenceTables/all.seqTab.biom')
 
 onsuccess:
-    shell("mv snakejob.* job.errs.outs || {{ mkdir job.errs.outs && mv snakejob.* job.errs.outs }}")
+    shell("mv snakejob.* job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* job.errs.outs )")
 
 # master command
 rule ALL:
@@ -65,6 +66,8 @@ rule ALL:
     params:
         runtime="00:10:00",
         mem="8G"
+
+#rule ConfigPrint:
 
 
 rule SamplesPrint:

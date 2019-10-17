@@ -139,7 +139,7 @@ if config['ITSx']['do']:
 if config['taxonomy']['blast']['do']:
     rule prepare_blastn:
         input:
-            expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] else "")
+            expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) else "")
         output:
             "sequenceTables/no_anno.seqs.fasta"
         threads: 1
@@ -193,8 +193,8 @@ if config['taxonomy']['blast']['do']:
                  sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv {config[taxonomy][blast][tax2id]} >> {output}
                 """
 
-if config['hand_off']['biom']:
-    rule biom_handoff:
+if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']):
+    rule biom_handoff_tax:
         input:
             "sequenceTables/all.seqTab.tax.RDS",
             "reporting/finalNumbers_perSample.tsv"
@@ -211,7 +211,7 @@ if config['hand_off']['biom']:
             "{config[dada_src]}/biom_handoff.R"
 
 if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) and not config['do_postprocessing']:
-    rule phyloseq_handoff:
+    rule phyloseq_handoff_tax:
         input:
             "sequenceTables/all.seqTab.tax.RDS",
             "reporting/finalNumbers_perSample.tsv"
