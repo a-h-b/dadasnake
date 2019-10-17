@@ -1,6 +1,7 @@
 # include configuration file
-#default configuration file (hard-coded, not pretty for portability)
 configfile: srcdir("config.default.yaml")
+
+SRC_dir = srcdir("dada_scripts/")
 
 include:
     "dada_scripts/get_config.rules"
@@ -8,18 +9,16 @@ include:
 workdir:
     OUTPUTDIR
 
-##report: "schemas/workflow.rst"
+f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
+yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
-if not config['skip_db']:
-    include:
-        "dada_scripts/cut_db.rules"
 if config['paired']:
     if 'primers' in STEPS:
         include:
             "dada_scripts/cutadapt.rules"
     if 'dada' in STEPS:
         include:
-            "dada_scripts/dada.rules"
+            "dada_scripts/dada.paired.rules"
 else:
     if 'primers' in STEPS:
         include:
@@ -27,17 +26,23 @@ else:
     if 'dada' in STEPS:
         include:
             "dada_scripts/dada.single.rules"
+if 'dada' in STEPS:
+    include:
+        "dada_scripts/dada.common.rules"
 if 'taxonomy' in STEPS:
     include:
         "dada_scripts/taxonomy.rules"
 if 'postprocessing' in STEPS:
-    include:
-        "dada_scripts/post.rules"
+    if config['final_table_filtering']['do']:
+        include:
+            "dada_scripts/post.filtering.rules"
+    else:
+        include:
+            "dada_scripts/post.no_filtering.rules"
+
 
 
 inputs = []
-if not config['skip_db']:
-    inputs.append('cut_db.done')
 if 'primers' in STEPS:
     inputs.append('primers.done')
 if 'dada' in STEPS:
@@ -46,10 +51,11 @@ if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
 if 'postprocessing' in STEPS:
     inputs.append('postprocessing.done')
-
+if config['hand_off']['biom']:
+    inputs.append('sequenceTables/all.seqTab.biom')
 
 onsuccess:
-    shell("mkdir job.errs.outs && mv snakejob.* job.errs.outs")
+    shell("mv snakejob.* job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* job.errs.outs )")
 
 # master command
 rule ALL:
@@ -61,6 +67,8 @@ rule ALL:
     params:
         runtime="00:10:00",
         mem="8G"
+
+#rule ConfigPrint:
 
 
 rule SamplesPrint:
