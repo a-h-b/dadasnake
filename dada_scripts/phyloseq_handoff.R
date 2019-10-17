@@ -28,7 +28,7 @@ sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
  rownames(seqMat) <- seqTab$Row.names
  taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")])
  row.names(taxMat) <- seqTab$Row.names
- if(is.null(colnames(taxMat))) <- colnames(taxMat) <- "OTU"
+ if(is.null(colnames(taxMat))) colnames(taxMat) <- "OTU"
  seqPhy <- phyloseq(otu_table(seqMat,taxa_are_rows = T),
                 sample_data(sInfo),
                 tax_table(taxMat))
