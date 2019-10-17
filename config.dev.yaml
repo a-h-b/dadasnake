@@ -72,12 +72,12 @@ taxonomy:
     db_path: "/data/project/metaamp/DBs/amplicon"
     tax_db: "ifoh_515f.iroh_806r.silva_132"
     cutoff: 60
-  blast:
-    do: true
-    db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
-    tax_db: nt
-    e_val: 0.01
-    tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
+blast:
+  do: true
+  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+  tax_db: nt
+  e_val: 0.01
+  tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
   do: false
   min_regions: 1
@@ -92,6 +92,7 @@ final_table_filtering:
   target_min_length: 0
   target_max_length: Inf
 postprocessing:
+  rarefaction_curve: false
   faprotax:
     do: false
     faprotax_db: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
@@ -101,4 +102,3 @@ postprocessing:
   treeing:
     do: true
     fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"
-  rarefaction_curve: false

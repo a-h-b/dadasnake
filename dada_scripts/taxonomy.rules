@@ -1,7 +1,7 @@
 taxConts = ["sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
 if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']:
     taxConts.append("sequenceTables/all.seqTab.tax.tsv")
-if config['taxonomy']['blast']['do']:
+if config['blast']['do']:
     taxConts.append("sequenceTables/blast_results.tsv")
 if config['hand_off']['phyloseq'] and not config['do_postprocessing']:
     taxConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
@@ -136,7 +136,7 @@ if config['ITSx']['do']:
             grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
             """
 
-if config['taxonomy']['blast']['do']:
+if config['blast']['do']:
     rule prepare_blastn:
         input:
             expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) else "")
@@ -151,7 +151,7 @@ if config['taxonomy']['blast']['do']:
         message: "Preparing blast: extracting un-annotated sequences."
         script:
             "{config[dada_src]}/prepare_blastn.R"
-    if config['taxonomy']['blast']['tax2id'] == "none":
+    if config['blast']['tax2id'] == "none":
         rule blastn:
             input:
                 "sequenceTables/no_anno.seqs.fasta"
@@ -166,7 +166,7 @@ if config['taxonomy']['blast']['do']:
             message: "Running blastn on {input}."
             shell:
                 """
-                blastn -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
+                blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
                  -query {input} -outfmt 7 -out {output} -max_target_seqs 10
                 """
     else:
@@ -184,13 +184,13 @@ if config['taxonomy']['blast']['do']:
             message: "Running blastn on {input}."
             shell:
                 """
-                export BLASTDB={config[taxonomy][blast][db_path]}
-                blastn -query {input} -db {config[taxonomy][blast][db_path]}/{config[taxonomy][blast][tax_db]} \
-                 -out sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv \
-                 -evalue {config[taxonomy][blast][e_val]} -max_target_seqs 10 \
+                export BLASTDB={config[blast][db_path]}
+                blastn -query {input} -db {config[blast][db_path]}/{config[blast][tax_db]} \
+                 -out sequenceTables/blast_output.{config[blast][tax_db]}.tsv \
+                 -evalue {config[blast][e_val]} -max_target_seqs 10 \
                  -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
                 awk -F $"\\t" '{{if (NR==FNR) {{val[$13] = $0; next}} if($1 in val){{print val[$1]"\\t"$0}}}}' \
-                 sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv {config[taxonomy][blast][tax2id]} >> {output}
+                 sequenceTables/blast_output.{config[blast][tax_db]}.tsv {config[blast][tax2id]} >> {output}
                 """
 
 if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']):
