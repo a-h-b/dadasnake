@@ -15,12 +15,6 @@ rule dada_control:
         touch {output}
         """
 
-# add rule to gather stats from filtering 
-
-#def get_processed_fastq_perRun(wildcards):
-#    runSamples=samples.loc[samples['run']==int(wildcards.run)].dropna()
-#    return "preprocessing/"+wildcards.run+"/"+samples.loc[samples['run']==int(wildcards.run), "library"].dropna()+".fwd.fastq"
-
 def get_sample_perRun(wildcards,prefix,suffix):
     return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
@@ -36,10 +30,10 @@ rule filter_numbers:
         currentStep = "filtered",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/countFilteredReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 rule merged_numbers:
     input:
@@ -53,10 +47,10 @@ rule merged_numbers:
         currentStep = "merged",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/countMergedReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 rule dada_qc1:
     input:
@@ -70,11 +64,11 @@ rule dada_qc1:
         path="preprocessing/{run}",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{config[dada_src]}/dada_QC.R"
+        SRC_dir+"dada_QC.R"
 
 rule dada_qc_filtered:
     input:
@@ -88,11 +82,11 @@ rule dada_qc_filtered:
         path="filtered/{run}",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{config[dada_src]}/dada_QC.R"
+        SRC_dir+"dada_QC.R"
 
 rule dada_filter:
     input:
@@ -105,11 +99,11 @@ rule dada_filter:
     params:
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
-        "{config[dada_src]}/dada_filter.R"
+        SRC_dir+"dada_filter.R"
 
 
 rule dada_errors:
@@ -122,11 +116,11 @@ rule dada_errors:
     params:
         mem="8G",
         runtime="64:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
-        "{config[dada_src]}/dada_errors.R"
+        SRC_dir+"dada_errors.R"
 
 rule dada_mergeReadPairs:
     input:
@@ -140,28 +134,12 @@ rule dada_mergeReadPairs:
     params:
         mem="8G",
         runtime="24:00:00"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
     message: "merging reads for {wildcards.run} {wildcards.sample}."
     script:
-        "{config[dada_src]}/dada_onlyMergeReads.R"
+        SRC_dir+"dada_onlyMergeReads.R"
 
-rule dada_mergeSamples:
-    input:
-        lambda wildcards: get_sample_perRun(wildcards,"merged/{run}/",".RDS"),
-    output:
-        "merged/dada_merged.{run}.RDS",
-        "sequenceTables/seqTab.{run}.RDS",
-        "sequenceTables/seqTab.{run}.tsv"
-    threads: 1
-    params:
-        mem="30G,highmem",
-        runtime="64:00:00"
-    conda: "dada_env_new.yml"
-    log: "logs/DADA2_mergeSamples.{run}.log"
-    message: "preparing sequence table for {wildcards.run}."
-    script:
-        "{config[dada_src]}/dada_gatherMergedReads.R"
 
 if config["chimeras"]["remove"]:
     rule dada_mergeruns:
@@ -179,11 +157,11 @@ if config["chimeras"]["remove"]:
         params:
             mem="8G",
             runtime="64:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
-            "{config[dada_src]}/dada_mergeRuns.R"
+            SRC_dir+"dada_mergeRuns.R"
 
     rule nochime_numbers:
         input:
@@ -197,10 +175,10 @@ if config["chimeras"]["remove"]:
             currentStep = "chimera",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/countNonchimericReads.log"
         script:
-            "{config[dada_src]}/report_readNumbers.R"
+            SRC_dir+"report_readNumbers.R"
 else:
     rule dada_mergeruns:
         input:
@@ -214,11 +192,11 @@ else:
         params:
             mem="8G",
             runtime="64:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
-            "{config[dada_src]}/dada_mergeRuns.R"
+            SRC_dir+"dada_mergeRuns.R"
 
     rule tabled_numbers:
         input:
@@ -231,8 +209,8 @@ else:
             currentStep = "table",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_new.yml"
+        conda: "dada_env_test.yml"
         log: "logs/countTabledReads.log"
         script:
-            "{config[dada_src]}/report_readNumbers.R"
+            SRC_dir+"report_readNumbers.R"
 

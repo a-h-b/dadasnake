@@ -130,6 +130,13 @@ if(snakemake@params[["currentStep"]] == "raw"){
   sampleTab$reads_chimera_removed <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
+}else if(snakemake@params[["currentStep"]] == "post"){
+  print("extracting read numbers")
+  tmpOTU <- readRDS(filesOI)
+  readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+  sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
+                                       function(x) readnums[names(readnums)==x])
+  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }
 
 
