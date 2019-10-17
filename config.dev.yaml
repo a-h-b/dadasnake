@@ -93,9 +93,9 @@ final_table_filtering:
   target_max_length: Inf
 postprocessing:
   rarefaction_curve: false
-  faprotax:
+  funguild:
     do: false
-    faprotax_db: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
+    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
     do: true
