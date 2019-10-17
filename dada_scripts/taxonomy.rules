@@ -40,7 +40,7 @@ rule taxonomy_to_OTUtab:
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
     script:
-        "{config[dada_src]}/add_taxonomy.R"
+        SRC_dir+"add_taxonomy.R"
 
 if config['taxonomy']['decipher']['post_ITSx']:
     rule decipher_taxonomy:
@@ -57,7 +57,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
-            "{config[dada_src]}/decipher_ID.R"
+            SRC_dir+"decipher_ID.R"
 else:
     rule decipher_taxonomy:
         input:
@@ -73,7 +73,7 @@ else:
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
-            "{config[dada_src]}/decipher_ID.R"
+            SRC_dir+"decipher_ID.R"
 
 if config['taxonomy']['mothur']['post_ITSx']:
     rule mothur_taxonomy:
@@ -150,7 +150,7 @@ if config['blast']['do']:
         conda: "dada_env_test.yml"
         message: "Preparing blast: extracting un-annotated sequences."
         script:
-            "{config[dada_src]}/prepare_blastn.R"
+            SRC_dir+"prepare_blastn.R"
     if config['blast']['tax2id'] == "none":
         rule blastn:
             input:
@@ -208,7 +208,7 @@ if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or confi
         conda: "dada_env_test.yml"
         log: "logs/biom_hand-off.log"
         script:
-            "{config[dada_src]}/biom_handoff.R"
+            SRC_dir+"biom_handoff.R"
 
 if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) and not config['do_postprocessing']:
     rule phyloseq_handoff_tax:
@@ -225,7 +225,7 @@ if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or c
         conda: "dada_env_test.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            "{config[dada_src]}/phyloseq_handoff.R"
+            SRC_dir+"phyloseq_handoff.R"
 
 
 

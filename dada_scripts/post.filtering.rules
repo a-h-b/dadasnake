@@ -39,7 +39,7 @@ rule filtering_table:
     log: "logs/post_filtering_table.log"
     conda: "dada_env_test.yml"
     script:
-        "{config[dada_src]}/post_filtering.R"
+        SRC_dir+"post_filtering.R"
 
 rule table_filter_numbers:
     input:
@@ -55,7 +55,7 @@ rule table_filter_numbers:
     conda: "dada_env_test.yml"
     log: "logs/countPostfilteredReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 
 rule rarefaction_curve_Filter:
@@ -71,7 +71,7 @@ rule rarefaction_curve_Filter:
     conda: "dada_env_test.yml"
     log: "logs/rarefaction_curve.log"
     script:
-        "{config[dada_src]}/rarefaction_curve.R"
+        SRC_dir+"rarefaction_curve.R"
 
 
 rule guilds_Filter:
@@ -82,13 +82,14 @@ rule guilds_Filter:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00"
+        runtime="48:00:00",
+        src_path=SRC_dir
     log: "logs/funguild.log"
     conda: "dada_env_test.yml"
     message: "Running funguild on {input}."
     shell:
         """
-        {config[dada_src]}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
+        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
         """
 
 rule fapro:
@@ -100,7 +101,8 @@ rule fapro:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00" 
+        runtime="48:00:00",
+        src_path=SRC_dir
     log: "logs/faprotax.log"
     conda: "dada_env_test.yml"
     message: "Running faprotax on {input}."
@@ -109,7 +111,7 @@ rule fapro:
         NCOL=$((`awk '{{print NF}}' {input} | sort -nu | tail -n 1` -1))
         ICOL=$((NCOL-{params.sub}))
         IGCOLS=`eval echo {{$ICOL..$NCOL}} | sed 's/ /,/g'`
-        {config[dada_bin]}/python3 {config[dada_root]}/dada_scripts/collapse_table.py -i {input} \
+        {config[dada_bin]}/python3 {params.src_path}collapse_table.py -i {input} \
          --omit_unrepresented_groups --out_groups2records_table {output[0]} -g {config[Faprotax_DB]}\
          -d taxonomy --column_names_are_in first_data_line --omit_columns 0,$IGCOLS
         paste {input} <(awk '{{if($1 !~ /^#/){{if($1 ~ /^record$/) {{for (i = 2; i <= NF; ++i) {{a[i]=$i}};\
@@ -136,7 +138,7 @@ if config['hand_off']['phyloseq']:
         conda: "dada_env_test.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            "{config[dada_src]}/phyloseq_handoff.R"
+            SRC_dir+"phyloseq_handoff.R"
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
     rule treeing_Filter_fasttreeMP:
@@ -186,4 +188,3 @@ else:
 
 #label non-target, non-ITSx, 
 
-#if config['keep_target_taxa'] == ".":

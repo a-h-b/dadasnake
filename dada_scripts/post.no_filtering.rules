@@ -33,7 +33,7 @@ rule rarefaction_curve_noFilter:
     conda: "dada_env_test.yml"
     log: "logs/rarefaction_curve.log"
     script:
-        srcdir("dada_scripts/rarefaction_curve.R")
+        SRC_dir+"rarefaction_curve.R"
 
 
 
@@ -45,13 +45,14 @@ rule guilds_noFilter:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00"
+        runtime="48:00:00",
+        src_path=SRC_dir
     log: "logs/funguild.log"
     conda: "dada_env_test.yml"
     message: "Running funguild on {input}."
     shell:
         """
-        {config[dada_src]}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
+        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
         """
 
 #rule fapro_noFilter:
@@ -63,7 +64,8 @@ rule guilds_noFilter:
 #    threads: 1
 #    params:
 #        mem="8G",
-#        runtime="48:00:00", 
+#        runtime="48:00:00",
+#        src_path=SRC_dir, 
 #        sub=7 if config['taxonomy']['look_for_species'] else 6
 #    log: "logs/faprotax.log"
 #    conda: "dada_env_test.yml"
@@ -73,7 +75,7 @@ rule guilds_noFilter:
 #        NCOL=$((`awk '{{print NF}}' {input} | sort -nu | tail -n 1` -1))
 #        ICOL=$((NCOL-{params.sub}))
 #        IGCOLS=`eval echo {{$ICOL..$NCOL}} | sed 's/ /,/g'`
-#        {config[dada_root]}/dada_scripts/collapse_table.py -i {input} \
+#        {params.src_path}collapse_table.py -i {input} \
 #         --omit_unrepresented_groups --out_groups2records_table {output[0]} -g {config[Faprotax_DB]}\
 #         -d taxonomy --column_names_are_in first_data_line --omit_columns 0,$IGCOLS
 #        paste {input} <(awk '{{if($1 !~ /^#/){{if($1 ~ /^record$/) {{for (i = 2; i <= NF; ++i) {{a[i]=$i}};\
@@ -99,7 +101,7 @@ if config['hand_off']['phyloseq']:
         conda: "dada_env_test.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            srcdir("dada_scripts/phyloseq_handoff.R")
+            SRC_dir+"phyloseq_handoff.R"
 
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
@@ -152,4 +154,3 @@ else:
 
 #label non-target, non-ITSx, 
 
-#if config['keep_target_taxa'] == ".":

@@ -33,7 +33,7 @@ rule filter_numbers:
     conda: "dada_env_test.yml"
     log: "logs/countFilteredReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 rule merged_numbers:
     input:
@@ -50,7 +50,7 @@ rule merged_numbers:
     conda: "dada_env_test.yml"
     log: "logs/countMergedReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 rule dada_qc1:
     input:
@@ -68,7 +68,7 @@ rule dada_qc1:
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{config[dada_src]}/dada_QC.R"
+        SRC_dir+"dada_QC.R"
 
 rule dada_qc_filtered:
     input:
@@ -86,7 +86,7 @@ rule dada_qc_filtered:
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        "{config[dada_src]}/dada_QC.R"
+        SRC_dir+"dada_QC.R"
 
 rule dada_filter:
     input:
@@ -103,7 +103,7 @@ rule dada_filter:
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
-        "{config[dada_src]}/dada_filter.R"
+        SRC_dir+"dada_filter.R"
 
 
 rule dada_errors:
@@ -120,7 +120,7 @@ rule dada_errors:
     log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
-        "{config[dada_src]}/dada_errors.R"
+        SRC_dir+"dada_errors.R"
 
 rule dada_mergeReadPairs:
     input:
@@ -138,7 +138,7 @@ rule dada_mergeReadPairs:
     log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
     message: "merging reads for {wildcards.run} {wildcards.sample}."
     script:
-        "{config[dada_src]}/dada_onlyMergeReads.R"
+        SRC_dir+"dada_onlyMergeReads.R"
 
 
 if config["chimeras"]["remove"]:
@@ -161,7 +161,7 @@ if config["chimeras"]["remove"]:
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
-            "{config[dada_src]}/dada_mergeRuns.R"
+            SRC_dir+"dada_mergeRuns.R"
 
     rule nochime_numbers:
         input:
@@ -178,7 +178,7 @@ if config["chimeras"]["remove"]:
         conda: "dada_env_test.yml"
         log: "logs/countNonchimericReads.log"
         script:
-            "{config[dada_src]}/report_readNumbers.R"
+            SRC_dir+"report_readNumbers.R"
 else:
     rule dada_mergeruns:
         input:
@@ -196,7 +196,7 @@ else:
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
-            "{config[dada_src]}/dada_mergeRuns.R"
+            SRC_dir+"dada_mergeRuns.R"
 
     rule tabled_numbers:
         input:
@@ -212,5 +212,5 @@ else:
         conda: "dada_env_test.yml"
         log: "logs/countTabledReads.log"
         script:
-            "{config[dada_src]}/report_readNumbers.R"
+            SRC_dir+"report_readNumbers.R"
 
