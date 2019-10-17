@@ -96,9 +96,7 @@ postprocessing:
   faprotax:
     do: false
     faprotax_db: "/data/project/metaamp/DBs/amplicon/FAPROTAX.txt"
-  funguild:
-    do: false
-    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+    classifier: mothur
   treeing:
     do: true
     fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"

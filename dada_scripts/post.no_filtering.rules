@@ -5,6 +5,9 @@ if config['postprocessing']['treeing']['do']:
     postConts.append("post/tree.newick")
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
+if config['postprocessing']['funguild']['do']:
+    postConts.append("post/all.seqTab.guilds.tsv")
+
 
 rule post_control_noFilter:
     input:
@@ -52,37 +55,9 @@ rule guilds_noFilter:
     message: "Running funguild on {input}."
     shell:
         """
-        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} &> {log}
+        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]}&> {log}
         """
 
-#rule fapro_noFilter:
-#    input:
-#        "sequenceTables/all.seqTab.tax.tsv"
-#    output:
-#        temp("post/fapro.tsv"),
-#        "post/all.seqTab.fapro.tsv"
-#    threads: 1
-#    params:
-#        mem="8G",
-#        runtime="48:00:00",
-#        src_path=SRC_dir, 
-#        sub=7 if config['taxonomy']['look_for_species'] else 6
-#    log: "logs/faprotax.log"
-#    conda: "dada_env_test.yml"
-#    message: "Running faprotax on {input}."
-#    shell:
-#        """
-#        NCOL=$((`awk '{{print NF}}' {input} | sort -nu | tail -n 1` -1))
-#        ICOL=$((NCOL-{params.sub}))
-#        IGCOLS=`eval echo {{$ICOL..$NCOL}} | sed 's/ /,/g'`
-#        {params.src_path}collapse_table.py -i {input} \
-#         --omit_unrepresented_groups --out_groups2records_table {output[0]} -g {config[Faprotax_DB]}\
-#         -d taxonomy --column_names_are_in first_data_line --omit_columns 0,$IGCOLS
-#        paste {input} <(awk '{{if($1 !~ /^#/){{if($1 ~ /^record$/) {{for (i = 2; i <= NF; ++i) {{a[i]=$i}};\
-#         print "FAPROTAX"}}else {{ b = "";\
-#         for (i = 2; i <= NF; ++i) {{if($i == "1") {{b = b a[i] ";" }}}};\
-#         print b}}}}}}' {output[0]}) >> {output[1]}
-#        """
 
 if config['hand_off']['phyloseq']:
     physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]

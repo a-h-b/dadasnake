@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 #
 # Please read the copyright notice and license agreement below before using or sharing this script.
 #
@@ -415,7 +415,7 @@ def read_table(	file,
 				# interpret data line as header
 				all_column_names = (line.split() if (delimiter=="") else line.split(delimiter))
 				all_column_names = [name.strip() for name in all_column_names] # remove flanking whitespace
-				if(len(all_column_names)<=max_column_needed):
+				if( max_column_needed is not None and len(all_column_names)<=max_column_needed):
 					print(verbose_prefix+"ERROR: Need at least %d columns, but only found %d in line %d" % (max_column_needed+1,len(all_column_names),linecount)); 
 					sys.exit(1)
 				else:
@@ -429,7 +429,7 @@ def read_table(	file,
 			rowcount+=1
 			
 			parts = (line.split(delimiter) if (delimiter!="") else line.split())
-			if(len(parts)<=max_column_needed):
+			if(max_column_needed is not None and len(parts)<=max_column_needed):
 				print(verbose_prefix+"ERROR: Need at least %d columns, but only found %d in line %d" % (max_column_needed+1,len(parts),linecount)); sys.exit(1)
 						
 			# figure out where row names are
@@ -1172,14 +1172,14 @@ if __name__ == '__main__':
 													"",
 													"",
 													args.case_sensitive)
-	if(len(records_to_keep)<len(record_names)):
+	if(records_to_keep is not None and len(records_to_keep)<len(record_names)):
 		if(args.verbose): print("%sFiltering out %d records.."%(args.verbose_prefix,len(record_names)-len(records_to_keep)));
 		record_names 	= (None if (record_names is None) else [record_names[r] for r in records_to_keep])
 		record_metadata = (None if (record_metadata is None) else [record_metadata[r] for r in records_to_keep])
 		record_labels 	= [record_labels[r] for r in records_to_keep]
 		full_records	= [full_records[r] for r in records_to_keep]
 		table 			= [table[r] for r in records_to_keep]
-	input_table_summary += "\nAfter (potentially) filtering out records based on name, obtained a table comprising %d records & %d data entries per record"%(len(records_to_keep),len(data_names))
+	#input_table_summary += "\nAfter (potentially) filtering out records based on name, obtained a table comprising %d records & %d data entries per record"%(len(records_to_keep),len(data_names))
 		
 	
 	NR = len(record_names)
