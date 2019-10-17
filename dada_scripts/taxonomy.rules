@@ -1,19 +1,14 @@
-def get_taxonomyC(config):
-    if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']:
-        if config['taxonomy']['blast']['do']:
-            return ["sequenceTables/blast_results.tsv","sequenceTables/all.seqTab.tax.tsv","sequenceTables/all.seqTab.tax.RDS"]
-        else:
-            return ["sequenceTables/all.seqTab.tax.tsv","sequenceTables/all.seqTab.tax.RDS"]
-    else:
-        if config['taxonomy']['blast']['do']:
-            return ["sequenceTables/blast_results.tsv","sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
-        else:
-            return ["sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
-
+taxConts = ["sequenceTables/all.seqTab.tsv","sequenceTables/all.seqTab.RDS"]
+if config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']:
+    taxConts.append("sequenceTables/all.seqTab.tax.tsv")
+if config['taxonomy']['blast']['do']:
+    taxConts.append("sequenceTables/blast_results.tsv")
+if config['hand_off']['phyloseq'] and not config['do_postprocessing']:
+    taxConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
 
 rule taxonomy_control:
     input:
-        get_taxonomyC(config)
+        taxConts
     output:
         "taxonomy.done"
     threads: 1
@@ -25,19 +20,15 @@ rule taxonomy_control:
         touch {output}
         """
 
-def get_taxonomies(config):
-    if config['taxonomy']['decipher']['do'] and config['taxonomy']['mothur']['do']:
-        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.RDS","sequenceTables/tax.mothur.tsv"]
-    elif config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']:
-        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.decipher.tsv"]
-    elif config['taxonomy']['mothur']['do'] and not config['taxonomy']['decipher']['do']:
-        return ["sequenceTables/all.seqTab.RDS","sequenceTables/tax.mothur.tsv"]
-    else:
-        return "sequenceTables/all.seqTab.RDS"
+taxTabs = ["sequenceTables/all.seqTab.RDS"]
+if config['taxonomy']['decipher']['do']:
+    taxTabs.append("sequenceTables/tax.decipher.RDS")
+if config['taxonomy']['mothur']['do']:
+    taxTabs.append("sequenceTables/tax.mothur.tsv")
 
 rule taxonomy_to_OTUtab:
     input:
-        get_taxonomies(config)
+        taxTabs
     output:
         "sequenceTables/all.seqTab.tax.tsv",
         "sequenceTables/all.seqTab.tax.RDS"
@@ -202,7 +193,7 @@ if config['taxonomy']['blast']['do']:
                  sequenceTables/blast_output.{config[taxonomy][blast][tax_db]}.tsv {config[taxonomy][blast][tax2id]} >> {output}
                 """
 
-if config['hand_off']['biom'] and config['do_taxonomy']:
+if config['hand_off']['biom']:
     rule biom_handoff:
         input:
             "sequenceTables/all.seqTab.tax.RDS",
@@ -219,6 +210,22 @@ if config['hand_off']['biom'] and config['do_taxonomy']:
         script:
             "{config[dada_src]}/biom_handoff.R"
 
+if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) and not config['do_postprocessing']:
+    rule phyloseq_handoff:
+        input:
+            "sequenceTables/all.seqTab.tax.RDS",
+            "reporting/finalNumbers_perSample.tsv"
+        output:
+            "sequenceTables/all.seqTab.phyloseq.RDS"
+        threads: 1
+        params:
+            currentStep = "taxonomy",
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_test.yml"
+        log: "logs/phyloseq_hand-off.log"
+        script:
+            "{config[dada_src]}/phyloseq_handoff.R"
 
 
 

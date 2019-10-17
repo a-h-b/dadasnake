@@ -35,7 +35,7 @@ if(snakemake@config[['taxonomy']][['mothur']][['do']]){
       mothTax[,2+i] <- gsub(prefixVec[i],"",mothTax[,2+i])
     }
   }
-  colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("domain","phylum","class","order","family","genus","species"),
+  colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
                                                             ".mothur")
   seqTab <- merge(seqTab,mothTax,by="OTU",all=T)
 }

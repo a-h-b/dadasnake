@@ -19,7 +19,7 @@ if config['paired']:
             "dada_scripts/cutadapt.rules"
     if 'dada' in STEPS:
         include:
-            "dada_scripts/dada.rules"
+            "dada_scripts/dada.paired.rules"
 else:
     if 'primers' in STEPS:
         include:
@@ -27,6 +27,9 @@ else:
     if 'dada' in STEPS:
         include:
             "dada_scripts/dada.single.rules"
+if 'dada' in STEPS:
+    include:
+        "dada_scripts/dada.common.rules"
 if 'taxonomy' in STEPS:
     include:
         "dada_scripts/taxonomy.rules"
@@ -50,7 +53,7 @@ if config['hand_off']['biom']:
     inputs.append('sequenceTables/all.seqTab.biom')
 
 onsuccess:
-    shell("mv snakejob.* job.errs.outs || { mkdir job.errs.outs && mv snakejob.* job.errs.outs }")
+    shell("mv snakejob.* job.errs.outs || {{ mkdir job.errs.outs && mv snakejob.* job.errs.outs }}")
 
 # master command
 rule ALL:

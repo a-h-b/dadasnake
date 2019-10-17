@@ -87,6 +87,7 @@ hand_off:
   biom: true
   phyloseq: true
 final_table_filtering:
+  do: true
   keep_target_taxa: .
   length_filter:
     target_min_length: 0

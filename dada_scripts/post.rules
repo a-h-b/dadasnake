@@ -1,8 +1,19 @@
+postConts = []
+if config['post']['hand_off']['phyloseq']
+    if config['final_table_filtering']['do']:
+        postConts.append("post/filtered.seqTab.phyloseq.RDS")
+    else:
+        postConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
+if config['final_table_filtering']['do']:
+    postConts.append("post/filtered.seqTab.RDS")
+if config['postprocessing']['treeing']:
+    postConts.append("post/tree.newick")
+if config['postprocessing']['rarecurve']:
+    postConts.append("reporting/rarefaction_curves.pdf")
+
 rule post_control:
     input:
-        "sequenceTables/all.seqTab.RDS",
-        "sequenceTables/all.seqs.fasta",
-        expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())
+        postConts
     output:
         "postprocessing.done"
     threads: 1
@@ -13,6 +24,28 @@ rule post_control:
         """
         touch {output}
         """
+
+if config['final_table_filtering']['do']:
+    filtTabs = ["sequenceTables/all.seqs.fasta"]]
+    if config['do_taxonomy'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']):
+        filtTabs.append("sequenceTables/all.seqTab.tax.RDS")
+    else:
+        filtTabs.append("sequenceTables/all.seqTab.RDS")
+    rule filtering_table:
+        input:
+            filtTabs
+        output:
+            "post/filtered.seqTab.RDS",
+            "post/filtered.seqTab.tsv",
+            "post/filtered.seqs.fasta" 
+        threads: 1
+        params:
+            mem="8G",
+            runtime="2:00:00"
+        log: "logs/post_filtering_table.log"
+        conda: "dada_env_test.yml"
+        script:
+            "{config[dada_src]}/post_filtering.R"
 
 rule guilds:
     input:
@@ -58,6 +91,40 @@ rule fapro:
          for (i = 2; i <= NF; ++i) {{if($i == "1") {{b = b a[i] ";" }}}};\
          print b}}}}}}' {output[0]}) >> {output[1]}
         """
+
+if config['hand_off']['phyloseq']:
+    physInputs = []
+    if config['final_table_filtering']['do']:
+        physInputs.append("post/filtered.seqTab.RDS")
+        physInputs.append("reporting/post_finalNumbers_perSample.tsv")
+        physOutputs = "post/filtered.seqTab.phyloseq.RDS"
+    else:
+        physInputs.append("sequenceTables/all.seqTab.RDS")
+        physInputs.append("reporting/finalNumbers_perSample.tsv")
+        physOutputs = "sequenceTables/all.seqTab.phyloseq.RDS"
+    if config['postprocessing']['treeing']:
+        "post/tree.newick"
+    rule phyloseq_handoff:
+        input:
+            physInputs
+        output:
+            physOutputs
+        threads: 1
+        params:
+            currentStep = "post",
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_test.yml"
+        log: "logs/phyloseq_hand-off.log"
+        script:
+            "{config[dada_src]}/phyloseq_handoff.R"
+
+
+rule treeing:
+    input:
+
+
+
 
 #rule panFP:
 

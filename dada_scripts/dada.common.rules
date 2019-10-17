@@ -1,0 +1,54 @@
+rule dada_mergeSamples:
+    input:
+        lambda wildcards: get_sample_perRun(wildcards,"merged/{run}/",".RDS"),
+    output:
+        "merged/dada_merged.{run}.RDS",
+        "sequenceTables/seqTab.{run}.RDS",
+        "sequenceTables/seqTab.{run}.tsv"
+    threads: 1
+    params:
+        mem="30G,highmem",
+        runtime="64:00:00"
+    conda: "dada_env_test.yml"
+    log: "logs/DADA2_mergeSamples.{run}.log"
+    message: "preparing sequence table for {wildcards.run}."
+    script:
+        "{config[dada_src]}/dada_gatherMergedReads.R"
+
+
+if config['hand_off']['biom'] and not config['do_taxonomy']:
+    rule biom_handoff:
+        input:
+            "sequenceTables/all.seqTab.RDS",
+            "reporting/finalNumbers_perSample.tsv"
+        output:
+            "sequenceTables/all.seqTab.biom"
+        threads: 1
+        params:
+            currentStep = "dada",
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env_test.yml"
+        log: "logs/biom_hand-off.log"
+        script:
+            "{config[dada_src]}/biom_handoff.R"
+
+if config['hand_off']['phyloseq']:
+    if not config['do_taxonomy'] or (not config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']):
+        if not config['do_postprocessing']:
+            rule phyloseq_handoff:
+                input:
+                    "sequenceTables/all.seqTab.RDS",
+                    "reporting/finalNumbers_perSample.tsv"
+                output:
+                    "sequenceTables/all.seqTab.phyloseq.RDS"
+                threads: 1
+                params:
+                    currentStep = "dada",
+                    mem="8G",
+                    runtime="12:00:00"
+                conda: "dada_env_test.yml"
+                log: "logs/phyloseq_hand-off.log"
+                script:
+                    "{config[dada_src]}/phyloseq_handoff.R"
+

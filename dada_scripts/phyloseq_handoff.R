@@ -18,17 +18,16 @@ if (snakemake@threads > 1) {
 #register(SerialParam())
 library(phyloseq)
 library(Biostrings)
+library(ape)
 
 # File parsing
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
 
-if(snakemake@params[["currentStep"]]=="taxonomy"){
  seqMat <- seqTab[,colnames(seqTab) %in% rownames(sInfo)]
  rownames(seqMat) <- seqTab$Row.names
  taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")])
  row.names(taxMat) <- seqTab$Row.names
-
  seqPhy <- phyloseq(otu_table(seqMat,taxa_are_rows = T),
                 sample_data(sInfo),
                 tax_table(as.matrix(taxMat)))
@@ -37,11 +36,12 @@ if(snakemake@params[["currentStep"]]=="taxonomy"){
  names(seqs) <- seqTab$Row.names
  seqPhy <- merge_phyloseq(seqPhy, seqs)
  taxa_names(seqPhy) <- tax_table(seqPhy)[,"OTU"]
-
-}else if(snakemake@params[["currentStep"]]=="post"&snakemake@config[['postprocessing']][['treeing']]){
- seqMat <- seqTab[,colnames(seqTab) %in% rownames(sInfo)]
- rownames(seqMat) <- seqTab$Row.names
- seqMeta <- seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")]
+if(snakemake@params[["currentStep"]]=="post"&snakemake@config[['postprocessing']][['treeing']]){
+ tree <- read.tree(snakemake@input[[3]])
+ seqPhy <- phyloseq(otu_table(seqPhy),
+                    sample_data(seqPhy),
+                    tax_table(seqPhy),
+                    phy_tree(tree))
 }
 writeRDS(seqPhy,snakemake@output[[1]])
 
