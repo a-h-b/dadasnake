@@ -64,7 +64,8 @@ taxonomy:
     strand: top
     bootstraps: 100
     seed: 100  
-  look_for_species: false
+    look_for_species: false
+    spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
   mothur:
     do: true
     post_ITSx: false

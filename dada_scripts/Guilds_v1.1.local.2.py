@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''
 Copyright (C) 2014-2015 Zewei Song
@@ -83,6 +83,7 @@ parser.add_argument("-otu", help="Path and file name of the OTU table. The scrip
 					"in the file, but tab or csv are preferred formats.")
 parser.add_argument("-output", help="Path and file name of the output table.")
 parser.add_argument("-path_to_db", help="Path and file name of the database.")
+parser.add_argument("-taxonomy_name", help="Name of the taxonomy column.")
 parser.add_argument("-m", "--matched", action="store_true", help="Ask the script to output a otu table with function assigned OTUs")
 parser.add_argument("-u", "--unmatched", action="store_true", help="Ask the script to output a otu table with function assigned OTUs")
 parser.add_argument("-db", choices=['fungi','nematode'], default='fungi', help="Assign a specified database to the script")
@@ -181,12 +182,13 @@ with open(otu_file, 'r') as otu:
 #Attach all columns of database file to the header of the new OTU table
 for item in funguild_header:
 	header.append(item)
-lookup = 'taxonomy'
+lookup = args.taxonomy_name #AHB for dada_snake
 #look for Taxonomy or taxonomy
-if 'taxonomy' in header:
-    lookup = 'taxonomy'
-elif 'Taxonomy' in header:
-    lookup = 'Taxonomy'
+#if 'taxonomy' in header:
+#    lookup = 'taxonomy'
+#elif 'Taxonomy' in header:
+#    lookup = 'Taxonomy'
+#last four lines removed by AHB for dada_snake
 
 # get the positions of the taxonomy column and Notes column
 #print(header)
@@ -286,7 +288,7 @@ for new_rec in unique_list:
         if new_rec[0] == rec[0]:
             new_rec[index_tax] = rec[index_tax]
 #Sort the new otu table by the total sequence number of each OTU.
-unique_list.sort(key=lambda x: float(sum(map(float,x[1:index_tax]))), reverse=True)
+#unique_list.sort(key=lambda x: float(sum(map(float,x[1:index_tax]))), reverse=True) #removed by AHB for dada_snake
 ################################################################################################
 
 #Write to output files##############################################################################
@@ -341,7 +343,7 @@ if os.path.isfile(total_file) == True:
 	os.remove(total_file)
 
 total_list = unique_list + unmatched_list #Combine the two OTU tables
-total_list.sort(key=lambda x: float(sum(map(float,x[1:index_tax]))), reverse=True) #Sorted the combined OTU table
+#total_list.sort(key=lambda x: float(sum(map(float,x[1:index_tax]))), reverse=True) #Sorted the combined OTU table #removed by AHB for dadasnake
 
 count_total = 0
 #print(total_list)

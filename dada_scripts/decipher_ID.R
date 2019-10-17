@@ -31,11 +31,7 @@ if(file.exists(theoPath)){
 }
 print(loadPath)
 load(loadPath)
-if(snakemake@config[['taxonomy']][['look_for_species']]){
-  ranks <- c("domain","phylum","class","order","family","genus","species")
-}else{
-  ranks <- c("domain","phylum","class","order","family","genus")
-}
+ranks <- c("Domain","Phylum","Class","Order","Family","Genus")
 
 print(paste0("loading sequence ",snakemake@input))
 seqs <- readDNAStringSet(snakemake@input[[1]])
@@ -54,11 +50,10 @@ taxid <- t(sapply(ids, function(x) {
 }))
 colnames(taxid) <- ranks
 rownames(taxid) <- names(seqs)
+if(snakemake@config[['taxonomy']][['decipher']][['look_for_species']]){
+  taxid <- addSpecies(taxid,snakemake@config[['taxonomy']][['decipher']][['spec_db']])
+}
 taxid <- taxid[order(rownames(taxid)),]
-#otu <- t(seqtab)
-#rownames(otu) <- names(seqs)
-#otu <- otu[order(rownames(otu)),] 
-#if(!all(rownames(taxid)==rownames(otu))) stop("mismatch between OTU names in taxonomy and OTU table")
 
 write.table(data.frame("taxonomy"=apply(taxid,1,function(x) paste(x[!is.na(x)],sep=";",collapse=";")),
                        taxid,"seq"=as.character(seqs)[order(names(seqs))],stringsAsFactors=F),

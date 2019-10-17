@@ -54,10 +54,10 @@ rule input_numbers:
         currentStep = "raw",
         runtime="12:00:00",
         mem="8G"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     log: "logs/countInputReads.log"
     script:
-        "{config[dada_src]}/report_readNumbers.R" 
+        SRC_dir+"report_readNumbers.R" 
 
 
 rule primer_numbers:
@@ -73,9 +73,9 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env_new.yml"
+    conda: "dada_env_test.yml"
     script:
-        "{config[dada_src]}/report_readNumbers.R"
+        SRC_dir+"report_readNumbers.R"
 
 
 #script to visualize read numbers -> run once for all steps
@@ -88,12 +88,11 @@ if config['sequencing_direction'] == "fwd_1":
         output:
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
-#        wildcard_constraints:
-#            library='|'.join(samples['library'])
         threads: 1
         params:
             runtime="12:00:00",
             mem="8G"
+        conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
         shell:
@@ -102,13 +101,13 @@ if config['sequencing_direction'] == "fwd_1":
             FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
-            {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
+            cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
             -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
             -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
 
-            {config[dada_bin]}/cutadapt -a $RVS_RC -A $FWD_RC \
+            cutadapt -a $RVS_RC -A $FWD_RC \
              --no-indels -n {config[primer_cutting][count]} \
              -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
@@ -126,6 +125,7 @@ elif config['sequencing_direction'] == "rvs_1":
         params:
             runtime="12:00:00",
             mem="8G"
+        conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 2."
         shell:
@@ -135,13 +135,13 @@ elif config['sequencing_direction'] == "rvs_1":
             FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
-            {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
+            cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs.fastq -p $TMPD/{wildcards.library}.fwd.fastq {input} &> {log}
 
-            {config[dada_bin]}/cutadapt -a $RVS_RC -A $FWD_RC \
+            cutadapt -a $RVS_RC -A $FWD_RC \
              --no-indels -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
@@ -159,6 +159,7 @@ else:
         params:
             runtime="12:00:00",
             mem="8G"
+        conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running {config[dada_bin]}/cutadapt on {input}. Searching for both  primers in both reads."
         shell:
@@ -167,27 +168,27 @@ else:
             FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
-            {config[dada_bin]}/cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
+            cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              --untrimmed-output=$TMPD/{wildcards.library}.fwd_unt.fastq --untrimmed-paired-output=$TMPD/{wildcards.library}.rvs_unt.fastq \
              -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
             
-            {config[dada_bin]}/cutadapt -a $RVS_RC -A $FWD_RC \
+            cutadapt -a $RVS_RC -A $FWD_RC \
              --no-indels -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log} 2>&1
 
-            {config[dada_bin]}/cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
+            cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
              --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs_tr2.fastq -p $TMPD/{wildcards.library}.fwd_tr2.fastq \
              $TMPD/{wildcards.library}.fwd_unt.fastq $TMPD/{wildcards.library}.rvs_unt.fastq >> {log} 2>&1
 
-            {config[dada_bin]}/cutadapt -a $RVS_RC -A $FWD_RC \
+            cutadapt -a $RVS_RC -A $FWD_RC \
              --no-indels -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
