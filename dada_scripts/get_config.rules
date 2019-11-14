@@ -46,7 +46,11 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
 # get parameters from the command line
 OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
 
-samples = pd.read_table(os.path.expandvars(config['sample_table']))
+try:
+    samples = pd.read_table(os.path.expandvars(config['sample_table']))
+except:
+    print("Sample table was not found. Please enter the absolute path and file name in the config file.")
+    raise
 if 'run' in samples.columns:
     samples['run'] = samples['run'].astype(str)
     for r in samples['run']:

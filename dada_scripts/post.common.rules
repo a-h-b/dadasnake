@@ -55,7 +55,7 @@ rule guilds:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00"
+        runtime="12:00:00"
     log: "logs/funguild.log"
     conda: "dada_env_test.yml"
     message: "Running funguild on {input}."
@@ -73,7 +73,7 @@ rule fapro:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00", 
+        runtime="12:00:00", 
         sub=7 if config['taxonomy']['look_for_species'] else 6
     log: "logs/faprotax.log"
     conda: "dada_env_test.yml"

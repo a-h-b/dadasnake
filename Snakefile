@@ -16,6 +16,9 @@ if config['paired']:
     if 'primers' in STEPS:
         include:
             "dada_scripts/cutadapt.rules"
+    else:
+        include:
+            "dada_scripts/copying.rules"
     if 'dada' in STEPS:
         include:
             "dada_scripts/dada.paired.rules"
@@ -55,7 +58,7 @@ if config['hand_off']['biom']:
     inputs.append('sequenceTables/all.seqTab.biom')
 
 onsuccess:
-    shell("mv snakejob.* job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* job.errs.outs )")
+    shell("mv snakejob.* *log *logfile job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log *logfile job.errs.outs )")
 
 # master command
 rule ALL:

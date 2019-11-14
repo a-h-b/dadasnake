@@ -8,7 +8,7 @@ rule dada_mergeSamples:
     threads: 1
     params:
         mem="30G,highmem",
-        runtime="64:00:00"
+        runtime="12:00:00"
     conda: "dada_env_test.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"
     message: "preparing sequence table for {wildcards.run}."

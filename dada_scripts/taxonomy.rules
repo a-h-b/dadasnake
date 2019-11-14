@@ -35,7 +35,7 @@ rule taxonomy_to_OTUtab:
     threads: 1
     params:
         mem="8G",
-        runtime="36:00:00"
+        runtime="12:00:00"
     conda: "dada_env_test.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
@@ -52,7 +52,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
+            runtime="12:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -68,7 +68,7 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
+            runtime="12:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -124,7 +124,7 @@ if config['ITSx']['do']:
         threads: 12
         params:
             mem="8G",
-            runtime="48:00:00"
+            runtime="12:00:00"
         log: "logs/ITSx.log"
         conda: "dada_env_test.yml"
         message: "Running ITSx on {input}."
@@ -160,7 +160,7 @@ if config['blast']['do']:
             threads: 6
             params:
                 mem="8G",
-                runtime="48:00:00"
+                runtime="12:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
@@ -178,7 +178,7 @@ if config['blast']['do']:
             threads: 2
             params:
                 mem="30G,highmem",
-                runtime="48:00:00"
+                runtime="12:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
