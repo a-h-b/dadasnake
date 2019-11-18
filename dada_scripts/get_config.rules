@@ -3,6 +3,7 @@ import shutil
 import gzip
 import yaml
 #import bz2
+from re import match
 from copy import deepcopy
 import subprocess
 import pandas as pd
@@ -45,6 +46,12 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
 
 # get parameters from the command line
 OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
+
+EMAIL = config['email']
+if EMAIL != "":
+    if not re.fullmatch(r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$", EMAIL):
+        EMAIL = ""
+        print("Your email address is not valid, you will not receive notifications.")
 
 try:
     samples = pd.read_table(os.path.expandvars(config['sample_table']))

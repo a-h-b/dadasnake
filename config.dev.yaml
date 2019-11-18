@@ -1,3 +1,4 @@
+email: ""
 tmp_dir: "/work/$USER/tmp"
 dada_root: "/data/project/metaamp/TOOLS/dev_dada_pipe"
 dada_src: "../dada_scripts"

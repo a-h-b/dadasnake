@@ -57,8 +57,17 @@ if 'postprocessing' in STEPS:
 if config['hand_off']['biom']:
     inputs.append('sequenceTables/all.seqTab.biom')
 
-onsuccess:
-    shell("mv snakejob.* *log *logfile job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log *logfile job.errs.outs )")
+if EMAIL == "":
+    onsuccess:
+        shell("mv snakejob.* *log job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log job.errs.outs )")
+else:
+    onsuccess:
+        shell("mv snakejob.* *log job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log job.errs.outs ); date | mail -s 'dadasnake finished' {EMAIL} ")
+    onerror:
+        shell("date | mail -s 'dadasnake exited with error' {EMAIL} ")
+    onstart:
+        shell("date | mail -s 'dadasnake started' {EMAIL} ")
+
 
 # master command
 rule ALL:
