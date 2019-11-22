@@ -84,7 +84,8 @@ if config['taxonomy']['mothur']['post_ITSx']:
         threads: 6
         params:
             mem="8G",
-            runtime="12:00:00"
+            runtime="12:00:00",
+            outBase="sequenceTables/ITSx.seqs"
         conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
@@ -92,6 +93,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
             """
             mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            mv {params[outBase]}.*.wang.taxonomy {output}
             """
 else:
     rule mothur_taxonomy:
@@ -130,7 +132,9 @@ if config['ITSx']['do']:
         message: "Running ITSx on {input}."
         shell:
             """
-            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+            PL5=${{PERL5LIB:-}}
+            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PL5
+            mkdir {output[0]}
             ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
             -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
             grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}

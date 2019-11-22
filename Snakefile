@@ -59,10 +59,10 @@ if config['hand_off']['biom']:
 
 if EMAIL == "":
     onsuccess:
-        shell("mv snakejob.* *log job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log job.errs.outs )")
+        shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs")
 else:
     onsuccess:
-        shell("mv snakejob.* *log job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* *log job.errs.outs ); date | mail -s 'dadasnake finished' {EMAIL} ")
+        shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; date | mail -s 'dadasnake finished' {EMAIL} ")
     onerror:
         shell("date | mail -s 'dadasnake exited with error' {EMAIL} ")
     onstart:

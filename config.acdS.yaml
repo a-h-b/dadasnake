@@ -1,3 +1,4 @@
+email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: false
