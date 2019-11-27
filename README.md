@@ -1,6 +1,8 @@
 # What is dadasnake?
 Dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow to process amplicon sequencing data, from raw fastq-files to taxonomically assigned OTU tables, based on the [DADA2](http://benjjneb.github.io/dada2/) method. It is designed to run on a computing cluster using a single conda environment in multiple jobs triggered by Snakemake.
 
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
+
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data. The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled run and sample to indicate libraries that should be combined into one final column and different sequencing runs. All raw data (usually fastq files) need to be in the same directory (which has to be given in the config file). 
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
