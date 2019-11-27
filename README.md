@@ -54,11 +54,11 @@ do_taxonomy||| true|true or false|all|should taxonomic classification be done?|
 do_postprocessing||| true|true or false|all|should some more steps be done (e.g. functional annotation)|
 primers|||||primers||information on primers
  |  fwd| |||primers||information on forward primer
- ||    sequence| GTGYCAGCMGCCGCGGTAA|any sequence of IUPAC DNA code|primers|sequence of forward primer|
- ||    name| 515F|anything|primers|name of forward primer|for your reference only
+ | |    sequence| GTGYCAGCMGCCGCGGTAA|any sequence of IUPAC DNA code|primers|sequence of forward primer|
+ | |    name| 515F|anything|primers|name of forward primer|for your reference only
  |  rvs| |||primers||information on reverse primer
- ||    sequence| GGACTACNVGGGTWTCTAAT|any sequence of IUPAC DNA code|primers|sequence of reverse primer|
- ||    name| 806R|anything|primers|name of reverse primer|
+ | |    sequence| GGACTACNVGGGTWTCTAAT|any sequence of IUPAC DNA code|primers|sequence of reverse primer|
+ | |    name| 806R|anything|primers|name of reverse primer|
 paired||| true|true or false|primers and dada|do you want to use paired-end sequencing data?|if true, you have to give r1_file and r2_file in the samples table, if false only r1_file is read (if you want to use only R2 files from a paired-end sequencing run, put them in the r1_file column)
 sequencing_direction|||"unknown"|fwd_1, rvs_1 or unknown|primers|fwd_1: fwd primer in read 1; rvs_1: rvs primer in read 1; unknown: you don't know the sequencing direction or (for paired-end sequencing) the direction is mixed|if you want to run single-end data and don't know the direction, you have to establish this first, because the dadasnake will not help you
 primer_cutting|||||primers||arguments for primer cutting by cutadapt
@@ -69,21 +69,21 @@ primer_cutting|||||primers||arguments for primer cutting by cutadapt
  |  indels||"--no-indels"|"--no-indels" or "|primers|whether indels in the primer sequence are allowed|
 filtering|||||dada||"settings for quality / length filtering| note on terminology: for paired sequencing fwd read refers to reads that had fwd primer or were declared as such (if no primer cutting was done)| for single-end workflow, only the fwd setting is used, no matter the sequencing direction"
  |  trunc_length||||dada||length to truncate to (shorter reads are discarded)
- ||    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
- ||    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
+ | |    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
+ | |    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
  |  trunc_qual||13|0-40|dada|reads are cut before the first position with this quality|
  |  max_EE||||dada||filtering by maximum expected error after truncation: _ Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
- ||    fwd|2|a positive number|dada|"After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded"| use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
- ||    rvs|2|a positive number|dada|"After truncation, read pairs with higher than maxEE "expected errors" in rvs read will be discarded"|ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
+ | |    fwd|2|a positive number|dada|"After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded"| use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
+ | |    rvs|2|a positive number|dada|"After truncation, read pairs with higher than maxEE "expected errors" in rvs read will be discarded"|ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
  |  minLen||||dada||filtering by mimum length
- ||    fwd|200|a positive integer|dada|Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.|use with truncQ
- ||    rvs|100|a positive integer|dada|Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.| ignored in single-ende mode; use with truncQ
+ | |    fwd|200|a positive integer|dada|Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.|use with truncQ
+ | |    rvs|100|a positive integer|dada|Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.| ignored in single-ende mode; use with truncQ
  |  maxLen||||dada||filtering by maximum length
- ||    fwd| Inf|a positive integer or Inf|dada|Remove reads with length of fwd read greater than maxLen. maxLen is enforced before trimming and truncation.|
- ||    rvs| Inf|a positive integer or Inf|dada|Remove reads with length of rvs read greater than maxLen. maxLen is enforced before trimming and truncation.|ignored in single-ende mode
+ | |    fwd| Inf|a positive integer or Inf|dada|Remove reads with length of fwd read greater than maxLen. maxLen is enforced before trimming and truncation.|
+ | |    rvs| Inf|a positive integer or Inf|dada|Remove reads with length of rvs read greater than maxLen. maxLen is enforced before trimming and truncation.|ignored in single-ende mode
  |  minQ||||dada||filtering by minimum quality after tuncation
- ||    fwd|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the fwd read after truncation will be discarded|use with trunc_length
- ||    rvs|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the rvs read after truncation will be discarded|ignored in single-ende mode; use with trunc_length
+ | |    fwd|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the fwd read after truncation will be discarded|use with trunc_length
+ | |    rvs|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the rvs read after truncation will be discarded|ignored in single-ende mode; use with trunc_length
 error_seed|||100|any positive integer|dada|seed for error models|keep constant in re-runs
 dada|||||dada||special DADA2 settings - default is good for Illumina
  |  band_size||16|a positive integer|dada| Banding restricts the net cumulative number of insertion of one sequence relative to the other. |default is good for Illumina; set to 32 for 454 or PacBio
@@ -98,22 +98,22 @@ chimeras|||||dada||settings for chimera removal
  |  method|| consensus|consensus, pooled or per-sample|dada|how chimeras are detected| consensus: samples are checked individually and sequences are removed by consensus; pooled: the samples are pooled and chimeras are inferred from pool; samples are checked individually and sequence counts of chimeras are set to 0 in individual samples
 taxonomy|||||taxonomy||settings for taxonomic annotation
  |  decipher||||taxonomy||settings for DECIPHER
- ||    do| true|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation|DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
- ||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
- ||    db_path|"/data/project/metaamp/DBs/decipher"||taxonomy|directory where the database sits|don't change
- ||    tax_db|"SILVA_SSU_r132_March2018.RData"||taxonomy|decipher database name|
- ||    threshold|60|1-100|taxonomy|threshold for classification|see DECIPHER documentation for details
- ||    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
- ||    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
- ||    seed|100|a positive integer|taxonomy|seed for DECIPHER run|keep constant in re-runs
- ||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
- ||    spec_db|"/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
+ | |    do| true|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation|DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
+ | |    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
+ | |    db_path|"/data/project/metaamp/DBs/decipher"||taxonomy|directory where the database sits|don't change
+ | |    tax_db|"SILVA_SSU_r132_March2018.RData"||taxonomy|decipher database name|
+ | |    threshold|60|1-100|taxonomy|threshold for classification|see DECIPHER documentation for details
+ | |    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
+ | |    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
+ | |    seed|100|a positive integer|taxonomy|seed for DECIPHER run|keep constant in re-runs
+ | |    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
+ | |    spec_db|"/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
  |  mothur||||taxonomy||settings for Bayesian classifier (mothur implementation)
- ||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
- ||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
- ||    db_path|"/data/project/metaamp/DBs/amplicon"||taxonomy|directory where the database sits|don't change
- ||    tax_db|"ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|
- ||    cutoff|60|1-100|taxonomy|cut-off for classification|
+ | |    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
+ | |    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
+ | |    db_path|"/data/project/metaamp/DBs/amplicon"||taxonomy|directory where the database sits|don't change
+ | |    tax_db|"ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|
+ | |    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
  |    do|true||true or false|taxonomy|whether blast should be run on all non-annotated sequences|
  |    db_path|"/data/db/ncbi/blast/db/nt/2018-09-07"|||taxonomy|path to blast database|
@@ -131,17 +131,17 @@ hand_off|||||dada, taxonomy, postprocessing||settings deciding if additional for
 final_table_filtering|||||postprocessing||settings for filtering the final OTU table (before postprocessing, if postprocessing is done)
  |do||true|true or false|postprocessing|whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps|
  |  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings|done based on mothur and DECIPHER result; "." means all are kept; both taxstrings are searched, if both classifiers were used
- |  length_filter||||postprocessing||settings for length filter
- ||target_min_length|0||postprocessing|minimal length sequence|doesn't care for ITSx results
- ||target_max_length|Inf||postprocessing|maximum length of sequence|doesn't care for ITSx results
+ |   length_filter||||postprocessing||settings for length filter
+ | |target_min_length|0||postprocessing|minimal length sequence|doesn't care for ITSx results
+ | |target_max_length|Inf||postprocessing|maximum length of sequence|doesn't care for ITSx results
 postprocessing|||||postprocessing||settings for postprocessinf
  |  funguild||||postprocessing||settings for funguild
- ||    do|false|true or false|postprocessing|whether funguild should be run|
- ||    funguild_db|"/data/project/metaamp/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
- ||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
+ | |    do|false|true or false|postprocessing|whether funguild should be run|
+ | |    funguild_db|"/data/project/metaamp/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
+ | |    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
  |  treeing|||true or false|postprocessing||
- ||    do|true||postprocessing|whether a phylogenetic tree should be made|
- ||    fasttreeMP|"/data/project/metaamp/TOOLS/FastTreeMP"||postprocessing|path to fasttreeMP executable|don't change
+ | |    do|true||postprocessing|whether a phylogenetic tree should be made|
+ | |    fasttreeMP|"/data/project/metaamp/TOOLS/FastTreeMP"||postprocessing|path to fasttreeMP executable|don't change
  |  rarefaction_curve||true|true or false|postprocessing|whether a rarefaction curve should be made|
 
 
