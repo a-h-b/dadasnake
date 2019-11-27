@@ -35,3 +35,8 @@ Depending on your dataset and settings, and your cluster's queue, the workflow w
 
 ## The configuration
 The config file must be in .yaml format. 
+
+## The samples table
+Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If several fastq files should end up in the same column of the OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from the same run are combined after primer-processing. Libraries from different runs are combined in the final OTU table.
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
