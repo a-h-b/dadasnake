@@ -36,7 +36,9 @@ Depending on your dataset and settings, and your cluster's queue, the workflow w
 ## The configuration
 The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Here are some explanations.
 
+
 top-level parameters|sub-parameters|subsub-parameters|default value|possible values|used in stage|explanation|comments / recommendations
+---|---|---|---|---|---|---|---
 email|||""""""|""""" or a valid email address"|all|email address for mail notification|keep empty if you don't want emails. Check spelling, it's not tested.
 tmp_dir|||" ""/work/$USER/tmp"""|any path that you have permissions for writing to|all|directory for temporary, intermediate files that shouldn't be kept|keep this in your /work so you don't need to worry about removing its contents
 dada_root|||" ""/data/project/metaamp/TOOLS/dada_pipe"""||all|directory where dadasnake is installed|don't change
