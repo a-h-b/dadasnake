@@ -20,5 +20,18 @@ snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={pa
 ```
 Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish. It can be helpful to run the Snakemake command in tmux. An example for this is provided in the dadasnake script in this repository.
 
-## The configuration
+## What does the dadasnake do?
+* primer removal - using cutadapt
+* quality filtering and trimming - using DADA2
+* error estimation & denoising - using DADA2
+* paired-ends assembly - using DADA2
+* OTU table generation - using DADA2
+* chimera removal - using DADA2
+* taxonomic classification - using mothur and/or DECIPHER (& ITS detection - using ITSx & blastn)
+* length check - in R
+* treeing - using clustal omega and fasttree
+* hand-off in biom-format, as R object, as R phyloseq object, and as fasta and tab-separated tables
+* keeping tabs on number of reads in each step
 
+## The configuration
+The config file must be in .yaml format. 
