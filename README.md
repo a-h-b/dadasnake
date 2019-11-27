@@ -67,7 +67,7 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;||    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;||    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;|  trunc_qual||13|0-40|dada|reads are cut before the first position with this quality|
-&nbsp;|  max_EE||||dada||filtering by maximum expected error after truncation: _ Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
+&nbsp;|  max_EE||||dada||filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
 &nbsp;| |    fwd | 2 | a positive number | dada | After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded | use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;||    rvs|2|a positive number|dada| After truncation, read pairs with higher than maxEE "expected errors" in rvs read will be discarded|ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;|  minLen||||dada||filtering by mimum length
@@ -101,13 +101,13 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;||    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
 &nbsp;||    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
 &nbsp;||    seed|100|a positive integer|taxonomy|seed for DECIPHER run|keep constant in re-runs
-&nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|"species is an overkill for 16S data| if you set this, you need to have a specialised database (currently available for 16S silva 132)"
-&nbsp;||    spec_db|" "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
+&nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
+&nbsp;||    spec_db|"/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
 &nbsp;|  mothur||||taxonomy||settings for Bayesian classifier (mothur implementation)
-&nbsp;||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|"we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct| you can run both mothur and DECIPHER (in parallel)"
-&nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|"if you set this to true, you also have to set ITSx[do] to true| use an ITSx-cut database if run afterwards"
-&nbsp;||    db_path|" "/data/project/metaamp/DBs/amplicon"||taxonomy|directory where the database sits|don't change
-&nbsp;||    tax_db|" "ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|
+&nbsp;||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
+&nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
+&nbsp;||    db_path|"/data/project/metaamp/DBs/amplicon"||taxonomy|directory where the database sits|don't change
+&nbsp;||    tax_db|"ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|
 &nbsp;||    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
 &nbsp;|    do|true||true or false|taxonomy|whether blast should be run on all non-annotated sequences|
@@ -121,18 +121,18 @@ ITSx|||||taxonomy||settings for ITSx
 &nbsp;|  region|| ITS2|ITS1 or ITS2|taxonomy|which region to extract|
 &nbsp;|  e_val||1.00E-05|0-1|taxonomy|e-value for ITS detection|
 hand_off|||||dada, taxonomy, postprocessing||settings deciding if additional formats should be given
-&nbsp;|  biom||true|true or false|dada, taxonomy|whether a biome format output should be written|"biome contains OTU table or OTU table and taxonomy (if taxonomy was run)| biome table is never filtered"
-&nbsp;|  phyloseq||true|true or false|taxonomy, postprocessing|whether a phyloseq object should be returned|"contains OTU table and taxonomy and tree (if each was run| if tree is run on pruned OTU table, phyloseq object contains filtered dataset)"
+&nbsp;|  biom||true|true or false|dada, taxonomy|whether a biome format output should be written|biome contains OTU table or OTU table and taxonomy (if taxonomy was run); biome table is never filtered
+&nbsp;|  phyloseq||true|true or false|taxonomy, postprocessing|whether a phyloseq object should be returned|contains OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU table, phyloseq object contains filtered dataset)
 final_table_filtering|||||postprocessing||settings for filtering the final OTU table (before postprocessing, if postprocessing is done)
 &nbsp;|do||true|true or false|postprocessing|whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps|
-&nbsp;|  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings|"done based on mothur and DECIPHER result| "." means all are kept| both taxstrings are searched, if both classifiers were used"
+&nbsp;|  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings| done based on mothur and DECIPHER result; "." means all are kept; both taxstrings are searched, if both classifiers were used
 &nbsp;|  length_filter||||postprocessing||settings for length filter
 &nbsp;||target_min_length|0||postprocessing|minimal length sequence|doesn't care for ITSx results
 &nbsp;||target_max_length|Inf||postprocessing|maximum length of sequence|doesn't care for ITSx results
 postprocessing|||||postprocessing||settings for postprocessinf
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
-&nbsp;||    funguild_db|" "/data/project/metaamp/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
+&nbsp;||    funguild_db|"/data/project/metaamp/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
 &nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
 &nbsp;|  treeing|||true or false|postprocessing||
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
