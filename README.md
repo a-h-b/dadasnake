@@ -48,12 +48,12 @@ do_dada |  |  | true | true or false | all | should DADA2 be run? |
 do_taxonomy |  |  | true | true or false | all | should taxonomic classification be done? |
 do_postprocessing |  |  | true | true or false | all | should some more steps be done (e.g. functional annotation) | 
 primers |  |  |  |  | primers |  | information on primers
-  | fwd |  |  |  | primers |  | information on forward primer
-  |  | sequence | GTGYCAGCMGCCGCGGTAA | any sequence of IUPAC DNA code | primers | sequence of forward primer |
-  |  | name | 515F | anything | primers | name of forward primer | for your reference only
-  | rvs |  |  |  | primers |  | information on reverse primer
-||    sequence| GGACTACNVGGGTWTCTAAT|any sequence of IUPAC DNA code|primers|sequence of reverse primer|
-||    name| 806R|anything|primers|name of reverse primer|
+  &nbsp;| fwd |  |  |  | primers |  | information on forward primer
+  .|  | sequence | GTGYCAGCMGCCGCGGTAA | any sequence of IUPAC DNA code | primers | sequence of forward primer |
+  .|  | name | 515F | anything | primers | name of forward primer | for your reference only
+  .| rvs |  |  |  | primers |  | information on reverse primer
+.||    sequence| GGACTACNVGGGTWTCTAAT|any sequence of IUPAC DNA code|primers|sequence of reverse primer|
+.||    name| 806R|anything|primers|name of reverse primer|
 paired||| true|true or false|primers and dada|do you want to use paired-end sequencing data?|if true, you have to give r1_file and r2_file in the samples table, if false only r1_file is read (if you want to use only R2 files from a paired-end sequencing run, put them in the r1_file column)
 sequencing_direction|||" "unknown"|fwd_1, rvs_1 or unknown|primers|"fwd_1: fwd primer in read 1| rvs_1: rvs primer in read 1| unknown: you don't know the sequencing direction or (for paired-end sequencing) the direction is mixed"|if you want to run single-end data and don't know the direction, you have to establish this first, because the dadasnake will not help you
 primer_cutting|||||primers||arguments for primer cutting by cutadapt
