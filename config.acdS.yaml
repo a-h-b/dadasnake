@@ -43,7 +43,7 @@ taxonomy:
 blast:
   do: true
   db_path: "/data/project/metaamp/DBs/amplicon/"
-  tax_db: acdSgene.shortname.uniq.fastq
+  tax_db: acdSgene.shortname.new.fasta
   e_val: 0.01
   tax2id: ""
 hand_off:

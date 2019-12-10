@@ -9,7 +9,7 @@ usage() {
     echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
 }
 
-while getopts n:udcrh flag
+while getopts n:udfcrh flag
 do
     case $flag in
         u)
@@ -22,6 +22,8 @@ do
             JNAME=$OPTARG;;
         r)
             REPORT=true;;
+        f)
+            FRONTEND=true;;
         h)
             usage
             exit;;
@@ -84,9 +86,26 @@ elif [ "$CLUSTER" = true ]; then
     tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     if [ "$REPORT" = true ]; then
-        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
     else
-        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
+elif [ "$FRONTEND" = true ]; then
+    echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
+    if [ -z "$JNAME" ]; then
+        START_TIME=`date +%s`
+        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
     fi
 elif [ "$REPORT" = true ]; then
     echo "Writing report."

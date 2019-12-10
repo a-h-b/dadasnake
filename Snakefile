@@ -62,11 +62,11 @@ if EMAIL == "":
         shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs")
 else:
     onsuccess:
-        shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; date | mail -s 'dadasnake finished' {EMAIL} ")
+        shell('mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
     onerror:
-        shell("date | mail -s 'dadasnake exited with error' {EMAIL} ")
+        shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake exited with error" {EMAIL} ')
     onstart:
-        shell("date | mail -s 'dadasnake started' {EMAIL} ")
+        shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake started" {EMAIL} ')
 
 
 # master command

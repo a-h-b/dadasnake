@@ -16,14 +16,14 @@ paired: true
 sequencing_direction: "unknown"
 filtering:
   trunc_length:
-    fwd: 0
-    rvs: 0
-  trunc_qual: 11
+    fwd: 170
+    rvs: 130
+  trunc_qual: 9
   max_EE:
-    fwd: 5
-    rvs: 5
+    fwd: 0.5
+    rvs: 0.5
   minLen:
-    fwd: 180
+    fwd: 100
     rvs: 100
   maxLen:
     fwd: Inf
@@ -52,7 +52,7 @@ hand_off:
 final_table_filtering:
   do: true
   keep_target_taxa: "."
-  target_min_length: 250
+  target_min_length: 245
   target_max_length: 265
 postprocessing:
   rarefaction_curve: true

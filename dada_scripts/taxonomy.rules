@@ -52,7 +52,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         threads: 1
         params:
             mem="8G",
-            runtime="12:00:00"
+            runtime="48:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -68,7 +68,7 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="12:00:00"
+            runtime="48:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -84,7 +84,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
         threads: 6
         params:
             mem="8G",
-            runtime="12:00:00",
+            runtime="48:00:00",
             outBase="sequenceTables/ITSx.seqs"
         conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
@@ -104,7 +104,7 @@ else:
         threads: 1
         params:
             mem="30G,highmem",
-            runtime="12:00:00",
+            runtime="48:00:00",
             outBase="sequenceTables/all.seqs"
         conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
@@ -164,7 +164,7 @@ if config['blast']['do']:
             threads: 6
             params:
                 mem="8G",
-                runtime="12:00:00"
+                runtime="48:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
@@ -182,7 +182,7 @@ if config['blast']['do']:
             threads: 2
             params:
                 mem="30G,highmem",
-                runtime="12:00:00"
+                runtime="48:00:00"
             log: "logs/blastn.log"
             conda: "dada_env_test.yml"
             message: "Running blastn on {input}."
