@@ -1,0 +1,223 @@
+#! /bin/bash -i
+
+usage() {
+    echo "Usage: $0 [-t taxname] [-x region] [-e evalue] [-p primer] [-q primer2] [-m mismatches] -i /absolute_path/to/inputs -o /absolute_path/to/outputs " 1>&2
+    echo "       -t <taxname>, filters database by a pattern in the taxonomy file" 1>&2
+    echo "       -x <ITSx region>, filters database by ITSx region (fungi only)" 1>&2
+    echo "       -e <evalue for ITS>, only works with -x" 1>&2
+    echo "       -p <forward primer>, filters database by primer presence, only works with -q" 1>&2
+    echo "       -q <reverse primer>, filters database by primer presence, only works with -p" 1>&2
+    echo "       -m <mismatch proportion>, only works with -q and -p" 1>&2
+
+}
+
+while getopts t:x:e:p:q:m:h flag
+do
+    case $flag in
+        i)
+            INPUT=$OPTARG;;
+        o)
+            OUTPUT=$OPTARG;;
+        t)
+            TAXNAME=$OPTARG;;
+        x)
+            REGION=$OPTARG;;
+        e)
+            EVALUE=$OPTARG;;
+        p)
+            FWD=$OPTARG;;
+        q)
+            RVS=$OPTARG;;
+        m)
+            MISM=$OPTARG;;
+        h)
+            usage
+            exit;;
+        *)  
+            echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        :) 
+            echo "Missing option argument for -$OPTARG" >&2 
+            usage
+            exit 1;;
+        ?)
+            usage
+            exit
+             ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+#missing input
+if [ -z "$INPUT" ]; then
+    echo "missing input"
+    usage
+    exit 1
+else
+    DB=$INPUT.fasta
+    TAX=$INPUT.taxonomy
+fi
+
+#if the file cannot be found
+if [[ !  -e "$DB" ]]; then
+   echo "Database "$DB" was not found."
+   echo "Provide full path without suffix."
+   exit 1
+fi
+if [[ !  -e "$TAX" ]]; then
+   echo "Taxonomy "$TAX" was not found."
+   echo "Provide full path without suffix."
+   exit 1
+fi
+
+if [ ! -z $TAXNAME ] && [ ! -z $REGION ]
+  then
+  echo "-t and -x given, can only do one thing at a time"
+  exit 1
+elif [ ! -z $TAXNAME ] && [ ! -z $FWD ]
+  then
+  echo "-t and -x given, can only do one thing at a time"
+  exit 1
+elif [ ! -z $REGION ] && [ ! -z $FWD ]
+  then
+  echo "-t and -x given, can only do one thing at a time"
+  exit 1
+fi
+
+#missing output
+if [ -z "$OUTPUT" ]; then
+    echo "missing output"
+    if [ ! -z $TAXNAME ]
+    then
+      NAMER=$TAXNAME
+    elif [ ! -z $REGION ]
+      then
+      NAMER=$REGION
+    else
+      NAMER=$FWD.$RVS
+    fi
+    OUTPUT=$INPUT.$NAMER
+    if [ -f $OUTPUT.fasta ]
+       then
+       echo "The database $OUTPUT.fasta already exist."
+       usage
+       exit 1
+    elif [ -f $OUTPUT.taxonomy ]
+       then
+       echo "The taxonomy file $OUTPUT.taxonomy already exists."
+       usage
+       exit 0
+    fi
+else
+    DB_OUT=$OUTPUT.fasta
+    TAX_OUT=$OUTPUT.taxonomy
+fi
+
+TMP_DIR=$(mktemp -dt "DB_XXXXXX")
+
+#taxonomy filter:
+#grep in taxonomy
+#select sequences in mothur
+
+if [ ! -z $TAXNAME ]
+then
+  grep $TAXNAME $TAX >> $DB
+  cut -f 1 $TAX_OUT >> $TMP_DIR/seqIDs
+  cp $DB $TMP_DIR/seqs.fasta
+  mothur "#set.dir(tempdefault=$TMP_DIR;
+          get.seqs(fasta=seqs.fasta,accnos=seqIDs)"
+  mv $TMP_DIR/seqs.pick.fasta $DB_OUT
+fi
+
+#ITSx filter:
+#do ITSx, get fasta headers
+#join taxonomy file
+
+if [ ! -z $REGION ]
+then
+  if [ -z $EVALUE ]
+    then
+    EVALUE=0.01
+  fi
+  PL5=${PERL5LIB:-}
+  export PERL5LIB=$CONDA_PREFIX/site_perl/5.26.2/x86_64-linux-thread-multi:$PL5
+  ITSx -i $DB --cpu $NSLOTS --detailed_results T --save_regions $REGION --graphical F -o $TMP_DIR/ITSx -N 1 -E $EVALUE
+  grep '|F|$REGION' -A 1 --no-group-separator $TMP_DIR/ITSx.$REGION.fasta | sed 's/|.*//' > $DB_OUT
+  
+  awk 'FNR==NR { a[$NF]; next } !($NF in a)' other main
+fi
+
+#primer filter:
+# do tr on primers
+# do cutadapt
+# join taxonomy file
+
+if [ ! -z $FWD ] && [ -z $RVS ]
+then
+  echo "missing input -q, need two primers"
+  exit 1
+elif [ -z $FWD ] && [ ! -z $RVS ]
+  then
+  echo "missing input -p, need two primers"
+  exit 1
+fi
+
+
+module load miniconda/3/4.5.12-1
+conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+
+
+
+elif [ "$DRYRUN" = true ]; then
+    echo "Dryrun."
+#    module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
+    conda deactivate 
+elif [ "$CLUSTER" = true ]; then
+    if [ -z "$JNAME" ]; then
+        START_TIME=`date +%s`
+        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
+elif [ "$FRONTEND" = true ]; then
+    echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
+    if [ -z "$JNAME" ]; then
+        START_TIME=`date +%s`
+        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
+elif [ "$REPORT" = true ]; then
+    echo "Writing report."
+    module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
+    conda deactivate
+else
+    echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."
+fi
+
+

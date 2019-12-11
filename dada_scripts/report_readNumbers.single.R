@@ -127,7 +127,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   readnums <- rowSums(readRDS(filesOI[2]))
-  sampleTab$reads_chimera_removed <- sapply(sampleTab$sample,
+  sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }
