@@ -21,6 +21,8 @@ rule taxonomy_control:
         """
 
 taxTabs = ["sequenceTables/all.seqTab.RDS"]
+if config['ITSx']['do']:
+    taxTabs.append("sequenceTables/ITSx.seqs.fasta")
 if config['taxonomy']['decipher']['do']:
     taxTabs.append("sequenceTables/tax.decipher.RDS")
 if config['taxonomy']['mothur']['do']:
@@ -155,7 +157,7 @@ if config['blast']['do']:
         message: "Preparing blast: extracting un-annotated sequences."
         script:
             SRC_dir+"prepare_blastn.R"
-    if config['blast']['tax2id'] == "":
+    if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         rule blastn:
             input:
                 "sequenceTables/no_anno.seqs.fasta"
