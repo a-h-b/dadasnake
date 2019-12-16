@@ -21,6 +21,8 @@ rule taxonomy_control:
         """
 
 taxTabs = ["sequenceTables/all.seqTab.RDS"]
+if config['ITSx']['do']:
+    taxTabs.append("sequenceTables/ITSx.seqs.fasta")
 if config['taxonomy']['decipher']['do']:
     taxTabs.append("sequenceTables/tax.decipher.RDS")
 if config['taxonomy']['mothur']['do']:
@@ -35,7 +37,7 @@ rule taxonomy_to_OTUtab:
     threads: 1
     params:
         mem="8G",
-        runtime="36:00:00"
+        runtime="12:00:00"
     conda: "dada_env_test.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
@@ -52,7 +54,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
+            runtime="48:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -68,7 +70,7 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
+            runtime="48:00:00"
         conda: "dada_env_test.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -84,7 +86,8 @@ if config['taxonomy']['mothur']['post_ITSx']:
         threads: 6
         params:
             mem="8G",
-            runtime="12:00:00"
+            runtime="48:00:00",
+            outBase="sequenceTables/ITSx.seqs"
         conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
@@ -92,6 +95,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
             """
             mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            mv {params[outBase]}.*.wang.taxonomy {output}
             """
 else:
     rule mothur_taxonomy:
@@ -102,7 +106,7 @@ else:
         threads: 1
         params:
             mem="30G,highmem",
-            runtime="12:00:00",
+            runtime="48:00:00",
             outBase="sequenceTables/all.seqs"
         conda: "dada_env_test.yml"
         log: "logs/mothur_taxonomy.log"
@@ -124,13 +128,15 @@ if config['ITSx']['do']:
         threads: 12
         params:
             mem="8G",
-            runtime="48:00:00"
+            runtime="12:00:00"
         log: "logs/ITSx.log"
         conda: "dada_env_test.yml"
         message: "Running ITSx on {input}."
         shell:
             """
-            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+            PL5=${{PERL5LIB:-}}
+            export PERL5LIB=$CONDA_PREFIX/lib/site_perl/5.26.2/x86_64-linux-thread-multi:$PL5
+            mkdir {output[0]}
             ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
             -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
             grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
@@ -151,7 +157,7 @@ if config['blast']['do']:
         message: "Preparing blast: extracting un-annotated sequences."
         script:
             SRC_dir+"prepare_blastn.R"
-    if config['blast']['tax2id'] == "none":
+    if config['blast']['tax2id'] == "":
         rule blastn:
             input:
                 "sequenceTables/no_anno.seqs.fasta"
@@ -166,6 +172,10 @@ if config['blast']['do']:
             message: "Running blastn on {input}."
             shell:
                 """
+                if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" ]
+                  then
+                  makeblastdb -dbtype nucl -in {config[blast][db_path]}/{config[blast][tax_db]} -out {config[blast][db_path]}/{config[blast][tax_db]}
+                fi
                 blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
                  -query {input} -outfmt 7 -out {output} -max_target_seqs 10
                 """

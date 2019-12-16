@@ -109,7 +109,7 @@ rule dada_errors:
     threads: 1
     params:
         mem="8G",
-        runtime="64:00:00"
+        runtime="12:00:00"
     conda: "dada_env_test.yml"
     log: "logs/DADA2_errors.{run}.log"
     message: "Running error models on {input}."
@@ -148,7 +148,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         params:
             mem="8G",
-            runtime="64:00:00"
+            runtime="12:00:00"
         conda: "dada_env_test.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
@@ -184,7 +184,7 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="64:00:00"
+            runtime="12:00:00"
         conda: "dada_env_test.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."

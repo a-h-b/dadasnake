@@ -86,7 +86,7 @@ rule guilds_Filter:
     threads: 1
     params:
         mem="8G",
-        runtime="48:00:00",
+        runtime="12:00:00",
         src_path=SRC_dir
     log: "logs/funguild.log"
     conda: "dada_env_test.yml"
@@ -145,7 +145,7 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="48:00:00"
+            runtime="12:00:00"
         conda: "dada_env_test.yml"
         log: "logs/treeing.log"
         shell:

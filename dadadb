@@ -1,0 +1,191 @@
+#! /bin/bash -i
+
+usage() {
+    echo "Usage: $0 [-a emailAddress] [-t taxname] [-x region] [-e evalue] [-p primer] [-q primer2] [-m mismatches] -i /absolute_path/to/inputs -o /absolute_path/to/outputs " 1>&2
+    echo "       -a <emailAddress>, address to send email about start and end to" 1>&2
+    echo "       -t <taxname>, filters database by a pattern in the taxonomy file" 1>&2
+    echo "       -x <ITSx region>, filters database by ITSx region (fungi only)" 1>&2
+    echo "       -e <evalue for ITS>, only works with -x" 1>&2
+    echo "       -p <forward primer>, filters database by primer presence, only works with -q" 1>&2
+    echo "       -q <reverse primer>, filters database by primer presence, only works with -p" 1>&2
+    echo "       -m <mismatch proportion>, only works with -q and -p" 1>&2
+
+}
+
+while getopts i:o:a:t:x:e:p:q:m:h flag
+do
+    case $flag in
+        i)
+            INPUT=$OPTARG;;
+        o)
+            OUTPUT=$OPTARG;;
+        a)
+            EMAIL=$OPTARG;;
+        t)
+            TAXNAME=$OPTARG;;
+        x)
+            REGION=$OPTARG;;
+        e)
+            EVALUE=$OPTARG;;
+        p)
+            FWD=$OPTARG;;
+        q)
+            RVS=$OPTARG;;
+        m)
+            MISM=$OPTARG;;
+        h)
+            usage
+            exit;;
+        *)  
+            echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        :) 
+            echo "Missing option argument for -$OPTARG" >&2 
+            usage
+            exit 1;;
+        ?)
+            usage
+            exit
+             ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+#missing input
+if [ -z "$INPUT" ]; then
+    echo "missing input"
+    usage
+    exit 1
+else
+    DB=$INPUT.fasta
+    TAX=$INPUT.taxonomy
+fi
+
+#if the file cannot be found
+if [[ !  -e "$DB" ]]; then
+   echo "Database "$DB" was not found."
+   echo "Provide full path without suffix."
+   exit 1
+fi
+if [[ !  -e "$TAX" ]]; then
+   echo "Taxonomy "$TAX" was not found."
+   echo "Provide full path without suffix."
+   exit 1
+fi
+
+if [ ! -z $TAXNAME ] && [ ! -z $REGION ]
+  then
+  echo "-t and -x given, can only do one thing at a time"
+  exit 1
+elif [ ! -z $TAXNAME ] && [ ! -z $FWD ]
+  then
+  echo "-t and -p given, can only do one thing at a time"
+  exit 1
+elif [ ! -z $REGION ] && [ ! -z $FWD ]
+  then
+  echo "-x and -p given, can only do one thing at a time"
+  exit 1
+fi
+
+if [ -z "$EMAIL" ]; then
+    echo "no email address given, you will not be notified about progress"
+    EMAIL=""
+fi
+
+#missing output
+if [ -z "$OUTPUT" ]; then
+    echo "missing output"
+    if [ ! -z $TAXNAME ]
+    then
+      NAMER=$TAXNAME
+    elif [ ! -z $REGION ]
+      then
+      NAMER=$REGION
+    else
+      NAMER=$FWD.$RVS
+    fi
+    OUTPUT=$INPUT.$NAMER
+    echo "outputs named $OUTPUT.fasta and $OUTPUT.taxonomy"
+    if [ -f $OUTPUT.fasta ]
+       then
+       echo "The database $OUTPUT.fasta already exist."
+       usage
+       exit 1
+    elif [ -f $OUTPUT.taxonomy ]
+       then
+       echo "The taxonomy file $OUTPUT.taxonomy already exists."
+       usage
+       exit 0
+    fi
+fi
+DB_OUT=$OUTPUT.fasta
+TAX_OUT=$OUTPUT.taxonomy
+
+if [ ! -z $TAXNAME ]
+then
+  WF="tax"
+elif [ ! -z $REGION ]
+then
+  WF="ITSx"
+  if [ -z $EVALUE ]
+    then
+    EVALUE=0.01
+  fi
+elif [ ! -z $FWD ] || [ ! -z $RVS ]
+then
+  if [ ! -z $FWD ] && [ -z $RVS ]
+  then
+    echo "missing input -q, need two primers"
+    exit 1
+  elif [ -z $FWD ] && [ ! -z $RVS ]
+  then
+    echo "missing input -p, need two primers"
+    exit 1
+  fi
+  WF="primers"
+  FWD_RC=`echo $FWD | tr ["ATCGUatcguRYKMBDHVrykmbdhv"] ["TAGCATAGCAYRMKVHDBYRMKVHDB"] | rev`
+  RVS_RC=`echo $RVS | tr ["ATCGUatcguRYKMBDHVrykmbdhv"] ["TAGCATAGCAYRMKVHDBYRMKVHDB"] | rev`
+  if [ -z $MISM ]
+  then
+    MISM=0.2
+  fi
+else
+  echo "nothing to be done"
+  exit 0
+fi
+
+if [ -z $REGION ]
+then
+  REGION=""
+fi
+if [ -z $EVALUE ]
+then
+  EVALUE=""
+fi
+if [ -z $FWD ]
+then
+  FWD=""
+  RVS=""
+fi
+if [ -z $MISM ]
+then
+  MISM=""
+fi
+
+
+START_TIME=`date +%s`
+NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+INPUT_BASE_t=$(basename $INPUT)
+INPUT_BASE=${INPUT_BASE_t//./_}
+JNAME="DBfilter_${INPUT_BASE}_${WF}_${NAMEHASH}"
+
+echo "Submitting DB job ${JNAME} to cluster - snakemake stays on the frontend, via tmux."
+tmux new -s $JNAME -d
+tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+#echo "snakemake -j 10 -s /data/project/metaamp/TOOLS/dada_pipe/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=anna.heintz-buschart@ufz.de sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --dryrun $DB_OUT $TAX_OUT"
+tmux send-keys -t $JNAME "snakemake -j 10 -s /data/project/metaamp/TOOLS/dada_pipe/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+
+

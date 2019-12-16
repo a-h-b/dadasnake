@@ -16,6 +16,9 @@ if config['paired']:
     if 'primers' in STEPS:
         include:
             "dada_scripts/cutadapt.rules"
+    else:
+        include:
+            "dada_scripts/copying.rules"
     if 'dada' in STEPS:
         include:
             "dada_scripts/dada.paired.rules"
@@ -54,8 +57,17 @@ if 'postprocessing' in STEPS:
 if config['hand_off']['biom']:
     inputs.append('sequenceTables/all.seqTab.biom')
 
-onsuccess:
-    shell("mv snakejob.* job.errs.outs || (  mkdir job.errs.outs && mv snakejob.* job.errs.outs )")
+if EMAIL == "":
+    onsuccess:
+        shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs")
+else:
+    onsuccess:
+        shell('mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
+    onerror:
+        shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake exited with error" {EMAIL} ')
+    onstart:
+        shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake started" {EMAIL} ')
+
 
 # master command
 rule ALL:

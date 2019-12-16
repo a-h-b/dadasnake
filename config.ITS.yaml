@@ -1,5 +1,4 @@
 email: ""
-tmp_dir: "/work/$USER/tmp"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
@@ -8,11 +7,11 @@ do_taxonomy: true
 do_postprocessing: true
 primers:
   fwd: 
-    sequence: GTGYCAGCMGCCGCGGTAA
-    name: 515F
+    sequence: TCCTCCGCTTATTGATATGC
+    name: ITS4
   rvs: 
-    sequence: GGACTACNVGGGTWTCTAAT
-    name: 806R
+    sequence: GTGARTCATCGAATCTTTG
+    name: fITS7
 paired: true
 sequencing_direction: "unknown"
 primer_cutting:
@@ -25,28 +24,22 @@ filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 13
+  trunc_qual: 11
   max_EE:
-    fwd: 2
-    rvs: 2
+    fwd: 5
+    rvs: 5
   minLen:
-    fwd: 200
-    rvs: 100
+    fwd: 50
+    rvs: 50
   maxLen:
     fwd: Inf
     rvs: Inf
   minQ:
     fwd: 0
     rvs: 0
-error_seed: 100
-dada:
-  band_size: 16
-  homopolymer_gap_penalty: NULL
 pair_merging:
   min_overlap: 12
   max_mismatch: 0
-  just_concatenate: false
-  trim_overhang: true
 chimeras:
   remove: true
   method: consensus
@@ -56,19 +49,13 @@ taxonomy:
     do: true
     post_ITSx: false
     db_path: "/data/project/metaamp/DBs/decipher"
-    tax_db: "SILVA_SSU_r132_March2018.RData"
-    threshold: 60
-    strand: top
-    bootstraps: 100
-    seed: 100  
-    look_for_species: false
-    spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
+    tax_db: "UNITE_v2014_March2018.RData"
+    strand: both
   mothur:
     do: true
-    post_ITSx: false
+    post_ITSx: true
     db_path: "/data/project/metaamp/DBs/amplicon"
-    tax_db: "ifoh_515f.iroh_806r.silva_132"
-    cutoff: 60
+    tax_db: "unite_01.12.2017_dynamic.ITS2"
 blast:
   do: true
   db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
@@ -76,7 +63,7 @@ blast:
   e_val: 0.01
   tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
-  do: false
+  do: true
   min_regions: 1
   region: ITS2
   e_val: 1e-5
@@ -84,16 +71,12 @@ hand_off:
   biom: true
   phyloseq: true
 final_table_filtering:
-  do: true
-  keep_target_taxa: "."
-  target_min_length: 0
-  target_max_length: Inf
+  do: false
 postprocessing:
-  rarefaction_curve: false
+  rarefaction_curve: true
   funguild:
-    do: false
+    do: true
     funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
     do: true
-    fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"

@@ -2,7 +2,8 @@ log <- file(snakemake@log[[1]], open="wt")
 sink(log)
 sink(log, type="message")
 
-.libPaths(paste0(snakemake@config[['dada_lib']],"/R/library"))
+condap <- Sys.getenv("CONDA_PREFIX")
+.libPaths(paste0(condap,"/lib/R/library"))
 
 sampleFile <- snakemake@input[[1]]
 filesOI <- unique(unlist(snakemake@input)[-1])
@@ -127,7 +128,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   readnums <- rowSums(readRDS(filesOI[2]))
-  sampleTab$reads_chimera_removed <- sapply(sampleTab$sample,
+  sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "post"){

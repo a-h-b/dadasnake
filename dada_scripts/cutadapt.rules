@@ -4,8 +4,6 @@ def get_fastq(wildcards):
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
 
-#ruleorder: cut_primer_both > combine_or_rename 
-
 rule primers_control:
     input:
         expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"]),
@@ -78,9 +76,6 @@ rule primer_numbers:
         SRC_dir+"report_readNumbers.R"
 
 
-#script to visualize read numbers -> run once for all steps
-
-
 if config['sequencing_direction'] == "fwd_1":
     rule cut_primer_both:
         input:
@@ -94,7 +89,7 @@ if config['sequencing_direction'] == "fwd_1":
             mem="8G"
         conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
+        message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
@@ -127,7 +122,7 @@ elif config['sequencing_direction'] == "rvs_1":
             mem="8G"
         conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read 2."
+        message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
@@ -161,7 +156,7 @@ else:
             mem="8G"
         conda: "dada_env_test.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Searching for both  primers in both reads."
+        message: "Running cutadapt on {input}. Searching for both  primers in both reads."
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")

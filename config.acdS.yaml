@@ -1,0 +1,59 @@
+email: ""
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+do_primers: false
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
+primers:
+  fwd: 
+    sequence: GGCAACAAGMYSCGCAAGCT
+    name: acdSF5
+  rvs: 
+    sequence: CTGCACSAGSACGCACTTCA
+    name: acdSR8
+paired: true
+sequencing_direction: "unknown"
+filtering:
+  trunc_length:
+    fwd: 0
+    rvs: 0
+  trunc_qual: 11
+  max_EE:
+    fwd: 5
+    rvs: 5
+  minLen:
+    fwd: 100
+    rvs: 100
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+chimeras:
+  remove: true
+  method: consensus
+outputdir: "/data/project/metaamp/PLAYGROUND"
+taxonomy:
+  decipher:
+    do: false
+  mothur:
+    do: false
+blast:
+  do: true
+  db_path: "/data/project/metaamp/DBs/amplicon/"
+  tax_db: acdSgene.shortname.new.fasta
+  e_val: 0.01
+  tax2id: ""
+hand_off:
+  biom: true
+  phyloseq: false
+final_table_filtering:
+  do: false
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: false
+  treeing:
+    do: false
