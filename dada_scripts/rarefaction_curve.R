@@ -63,6 +63,12 @@ print("formatting OTU table")
 seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% rownames(sInfo)])
 rownames(seqMat) <- seqTab$Row.names
 
+if(any(colSums(seqMat)<1)){
+  seqMat <- seqMat[,colSums(seqMat)>0]
+  print("Some samples contained no reads and are omitted from rarefaction curve:")
+  print(colnames(seqMat)[colSums(seqMat)<1])
+}
+
 print("plotting rarefaction curves")
 pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
 dadasnake_rarecurve(t(seqMat),label=F,lty=1)
