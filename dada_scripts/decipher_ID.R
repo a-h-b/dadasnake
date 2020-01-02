@@ -18,6 +18,7 @@ if (snakemake@threads > 1) {
 #register(SerialParam())
 library(DECIPHER)
 library(Biostrings)
+library(dada2)
 
 print("loading training set:")
 theoPath <- paste0(snakemake@config[['taxonomy']][['decipher']][['db_path']],"/",snakemake@config[['taxonomy']][['decipher']][['tax_db']])

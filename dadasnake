@@ -74,9 +74,9 @@ elif [ "$DRYRUN" = true ]; then
     snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
     conda deactivate 
 elif [ "$CLUSTER" = true ]; then
+  START_TIME=`date +%s`
+  NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
     if [ -z "$JNAME" ]; then
-        START_TIME=`date +%s`
-        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
         JNAME="dadasnake_${NAMEHASH}"
     else
         JNAME="${JNAME}_${NAMEHASH}"
@@ -92,9 +92,9 @@ elif [ "$CLUSTER" = true ]; then
     fi
 elif [ "$FRONTEND" = true ]; then
     echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
-    if [ -z "$JNAME" ]; then
-        START_TIME=`date +%s`
-        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+    START_TIME=`date +%s`
+    NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
+   if [ -z "$JNAME" ]; then
         JNAME="dadasnake_${NAMEHASH}"
     else
         JNAME="${JNAME}_${NAMEHASH}"
