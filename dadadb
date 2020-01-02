@@ -55,6 +55,8 @@ done
 
 shift $((OPTIND-1))
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 #missing input
 if [ -z "$INPUT" ]; then
     echo "missing input"
@@ -186,14 +188,13 @@ JNAME="DBfilter_${INPUT_BASE}_${WF}_${NAMEHASH}"
 if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     module load miniconda/3/4.5.12-1
-    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/DB_snakefile --unlock --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT
+    conda activate $DIR/dada_env
+    snakemake -j 1 -s $DIR/DB_snakefile --unlock --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT
 else
   echo "Submitting DB job ${JNAME} to cluster - snakemake stays on the frontend, via tmux."
   tmux new -s $JNAME -d
   tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-  tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-#echo "snakemake -j 10 -s /data/project/metaamp/TOOLS/dada_pipe/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=anna.heintz-buschart@ufz.de sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --dryrun $DB_OUT $TAX_OUT"
-  tmux send-keys -t $JNAME "snakemake -j 5 -s /data/project/metaamp/TOOLS/dada_pipe/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+  tmux send-keys -t $JNAME "conda activate $DIR/dada_env >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+  tmux send-keys -t $JNAME "snakemake -j 5 -s $DIR/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/dada_env_common_2 $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
 fi
 

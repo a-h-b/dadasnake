@@ -52,7 +52,7 @@ rule input_numbers:
         currentStep = "raw",
         runtime="12:00:00",
         mem="8G"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
         SRC_dir+"report_readNumbers.single.R" 
@@ -71,7 +71,7 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     script:
         SRC_dir+"report_readNumbers.single.R"
 
@@ -89,9 +89,9 @@ if config['sequencing_direction'] == "fwd_1":
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
+        message: "Running cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
@@ -120,9 +120,9 @@ elif config['sequencing_direction'] == "rvs_1":
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Assuming reverse primer is in read."
+        message: "Running cutadapt on {input}. Assuming reverse primer is in read."
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
@@ -153,9 +153,9 @@ else:
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
-        message: "Running {config[dada_bin]}/cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
+        message: "Running cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")

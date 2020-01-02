@@ -54,7 +54,7 @@ rule input_numbers:
         currentStep = "raw",
         runtime="12:00:00",
         mem="8G"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
         SRC_dir+"report_readNumbers.R" 
@@ -73,7 +73,7 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     script:
         SRC_dir+"report_readNumbers.R"
 

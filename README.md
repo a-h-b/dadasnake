@@ -138,10 +138,6 @@ postprocessing|||||postprocessing||settings for postprocessinf
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
 &nbsp;||    fasttreeMP|"/data/project/metaamp/TOOLS/FastTreeMP"||postprocessing|path to fasttreeMP executable|don't change
 &nbsp;|  rarefaction_curve||true|true or false|postprocessing|whether a rarefaction curve should be made|
-dada_root |  |  | "/data/project/metaamp/TOOLS/dada_pipe" | a path | all | directory where dadasnake is installed | don't change
-dada_src |  |  | "../dada_scripts" | a path | all | directory relative to dada environment that keeps the scripts | don't change
-dada_lib |  |  | "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/lib" | a path | all | directory with libs | don't change
-dada_bin |  |  | "/data/project/metaamp/TOOLS/dada_pipe/dada_env_test/bin" | a path | all | directory with executables | don't change
 
 
 ## The samples table

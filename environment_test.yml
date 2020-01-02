@@ -281,5 +281,5 @@ dependencies:
     - tqdm==4.28.1
     - uncertainties==3.0.3
     - unicycler==0.4.8b0
-prefix: /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+prefix: /data/project/metaamp/TOOLS/dada_pipe/dada_env
 

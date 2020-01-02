@@ -2,7 +2,8 @@ log <- file(snakemake@log[[1]], open="wt")
 sink(log)
 sink(log, type="message")
 
-.libPaths(paste0(snakemake@config[['dada_lib']],"/R/library"))
+condap <- Sys.getenv("CONDA_PREFIX")
+.libPaths(paste0(condap,"/lib/R/library"))
 
 library(Biostrings)
 
