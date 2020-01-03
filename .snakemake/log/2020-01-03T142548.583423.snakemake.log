@@ -1,0 +1,55 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job counts:
+	count	jobs
+	1	ALL
+	1	biom_handoff_preTax
+	1	dada_control
+	4	dada_errors
+	3	dada_mergeReadPairs
+	2	dada_mergeSamples
+	1	dada_mergeruns
+	2	dada_qc_filtered
+	1	merged_numbers
+	1	nochime_numbers
+	17
+
+[Fri Jan  3 14:25:49 2020]
+Job 16: Running QC on filtered/B.
+
+Error submitting jobscript (exit code 1):
+
+
+[Fri Jan  3 14:25:49 2020]
+Job 32: Running error models on filtered/A/OTU_Nh_II.rvs.fastq.gz filtered/A/OTU_NhP_II.rvs.fastq.gz.
+
+Error submitting jobscript (exit code 1):
+
+
+[Fri Jan  3 14:25:49 2020]
+Job 33: Running error models on filtered/B/OTU_NhP_III.fwd.fastq.gz.
+
+Error submitting jobscript (exit code 1):
+
+
+[Fri Jan  3 14:25:49 2020]
+Job 31: Running error models on filtered/A/OTU_Nh_II.fwd.fastq.gz filtered/A/OTU_NhP_II.fwd.fastq.gz.
+
+Error submitting jobscript (exit code 1):
+
+
+[Fri Jan  3 14:25:49 2020]
+Job 34: Running error models on filtered/B/OTU_NhP_III.rvs.fastq.gz.
+
+Error submitting jobscript (exit code 1):
+
+
+[Fri Jan  3 14:25:49 2020]
+Job 15: Running QC on filtered/A.
+
+Error submitting jobscript (exit code 1):
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /mnt/irisgpfs/users/aheintzbuschart/dadasnake/.snakemake/log/2020-01-03T142548.583423.snakemake.log

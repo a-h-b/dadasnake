@@ -53,8 +53,12 @@ if EMAIL != "":
         EMAIL = ""
         print("Your email address is not valid, you will not receive notifications.")
 
+if os.path.isabs(os.path.expandvars(config['sample_table'])):
+    sam_path = os.path.expandvars(config['sample_table'])
+else:
+    sam_path = OUTPUTDIR + "/" + config['sample_table']
 try:
-    samples = pd.read_table(os.path.expandvars(config['sample_table']))
+    samples = pd.read_table(sam_path)
 except:
     print("Sample table was not found. Please enter the absolute path and file name in the config file.")
     raise

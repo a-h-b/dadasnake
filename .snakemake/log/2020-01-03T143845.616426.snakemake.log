@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job counts:
+	count	jobs
+	1	ALL
+	1
+
+[Fri Jan  3 14:38:46 2020]
+localrule ALL:
+    input: primers.done, dada.done, sequenceTables/all.seqTab.biom
+    output: workflow.done
+    jobid: 0
+
+Touching output file workflow.done.
+[Fri Jan  3 14:38:46 2020]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /mnt/irisgpfs/users/aheintzbuschart/dadasnake/.snakemake/log/2020-01-03T143845.616426.snakemake.log

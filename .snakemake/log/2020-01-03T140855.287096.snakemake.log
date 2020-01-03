@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 86 of /home/users/aheintzbuschart/dadasnake/Snakefile:
+Missing input files for rule SamplesPrint:
+$DIR/testdata/samples.small.tsv

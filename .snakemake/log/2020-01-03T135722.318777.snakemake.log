@@ -1,0 +1,11 @@
+FileNotFoundError in line 57 of /home/users/aheintzbuschart/dadasnake/dada_scripts/get_config.rules:
+File b'../testdata/samples.small.tsv' does not exist
+  File "/home/users/aheintzbuschart/dadasnake/Snakefile", line 7, in <module>
+  File "/home/users/aheintzbuschart/dadasnake/dada_scripts/get_config.rules", line 57, in <module>
+  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/site-packages/pandas/io/parsers.py", line 678, in parser_f
+  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/site-packages/pandas/io/parsers.py", line 440, in _read
+  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/site-packages/pandas/io/parsers.py", line 787, in __init__
+  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/site-packages/pandas/io/parsers.py", line 1014, in _make_engine
+  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/site-packages/pandas/io/parsers.py", line 1708, in __init__
+  File "pandas/_libs/parsers.pyx", line 384, in pandas._libs.parsers.TextReader.__cinit__
+  File "pandas/_libs/parsers.pyx", line 695, in pandas._libs.parsers.TextReader._setup_parser_source
