@@ -1,0 +1,16 @@
+__default__: 
+  call: "sbatch"
+  mem_per_cpu: "--mem-per-cpu "
+  partition: "-p batch -qos qos-batch"
+  runtime: "-t"
+  threads: "-n"
+
+dada_mergeSamples:
+  partition: "-p bigmem -qos qos-bigmem"
+
+mothur_taxonomy:
+  partition: "-p bigmem -qos qos-bigmem"
+
+blastn:
+  partition: "-p bigmem -qos qos-bigmem"
+

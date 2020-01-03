@@ -7,7 +7,7 @@ rule dada_mergeSamples:
         "sequenceTables/seqTab.{run}.tsv"
     threads: 1
     params:
-        mem="30G,highmem",
+        mem="30G",
         runtime="12:00:00"
     conda: "dada_env.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"

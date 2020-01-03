@@ -78,7 +78,7 @@ else:
             SRC_dir+"decipher_ID.R"
 
 if config['taxonomy']['mothur']['post_ITSx']:
-    rule mothur_taxonomy:
+    rule mothur_taxonomy_postITSx:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
@@ -105,7 +105,7 @@ else:
             "sequenceTables/tax.mothur.tsv"
         threads: 1
         params:
-            mem="30G,highmem",
+            mem="30G",
             runtime="48:00:00",
             outBase="sequenceTables/all.seqs"
         conda: "dada_env.yml"
@@ -169,7 +169,7 @@ if config['blast']['do']:
                 "sequenceTables/blast_results.tsv"
             threads: 6
             params:
-                mem="8G",
+                mem="30G",
                 runtime="48:00:00"
             log: "logs/blastn.log"
             conda: "dada_env.yml"

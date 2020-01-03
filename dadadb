@@ -187,13 +187,13 @@ JNAME="DBfilter_${INPUT_BASE}_${WF}_${NAMEHASH}"
 
 if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
-    module load miniconda/3/4.5.12-1
+    module load Anaconda3/5.3.0
     conda activate $DIR/dada_env
     snakemake -j 1 -s $DIR/DB_snakefile --unlock --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT
 else
   echo "Submitting DB job ${JNAME} to cluster - snakemake stays on the frontend, via tmux."
   tmux new -s $JNAME -d
-  tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+  tmux send-keys -t $JNAME "module load Anaconda3/5.3.0 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
   tmux send-keys -t $JNAME "conda activate $DIR/dada_env >> $JNAME.stdout 2>> $JNAME.stderr" C-m
   tmux send-keys -t $JNAME "snakemake -j 5 -s $DIR/DB_snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/dada_env_common_2 $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
 fi
