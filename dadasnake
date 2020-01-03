@@ -64,7 +64,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
-    module load Anaconda3/5.3.0
+#    module load Anaconda3/5.3.0
     conda activate $DIR/dada_env
     snakemake -j 1 -s $DIR/Snakefile --unlock --configfile $CONFIGFILE
     conda deactivate
@@ -84,7 +84,7 @@ elif [ "$CLUSTER" = true ]; then
     fi
     echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
     tmux new -s $JNAME -d
-    tmux send-keys -t $JNAME "module load Anaconda3/5.3.0 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+#    tmux send-keys -t $JNAME "module load Anaconda3/5.3.0 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     tmux send-keys -t $JNAME "conda activate $DIR/dada_env >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     if [ "$REPORT" = true ]; then
         tmux send-keys -t $JNAME "snakemake -j 50 -s $DIR/Snakefile --cluster-config $DIR/dada_scripts/uge.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu}{params.mem} {cluster.threads}{threads} {cluster.partition}\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
@@ -101,7 +101,7 @@ elif [ "$FRONTEND" = true ]; then
         JNAME="${JNAME}_${NAMEHASH}"
     fi
     tmux new -s $JNAME -d
-    tmux send-keys -t $JNAME "module load Anaconda3/5.3.0 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+#    tmux send-keys -t $JNAME "module load Anaconda3/5.3.0 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     tmux send-keys -t $JNAME "conda activate $DIR/dada_env >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     if [ "$REPORT" = true ]; then
         tmux send-keys -t $JNAME "snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
@@ -110,7 +110,7 @@ elif [ "$FRONTEND" = true ]; then
     fi
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
-    module load Anaconda3/5.3.0
+#    module load Anaconda3/5.3.0
     conda activate $DIR/dada_env
     snakemake -j 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common
     conda deactivate
