@@ -25,12 +25,31 @@ Only do one of the two:
 * if you want to submit the top snakemake call to the cluster:
 ```
 cp aux/dadasnake_allSubmit dadasnake
-chmod 744 dadasnake
 ```
 * if you want to keep snakemake on the frontend:
 ```
 cp aux/dadasnake_tmux dadasnake
 ```
+
+4) **optional**: Install snakemake via conda:
+If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
+```
+conda env create -f snakemake_env.yml --prefix $PWD/snakemake_env
+```
+
+5) Set permissions / PATH:
+Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path.
+
+6) Test run:
+The test run does not need any databases. You should be able to start it by running 
+```
+./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
+```
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/<someHashKey>/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+
+7) Databases:
+The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
+**You need to set the path to the database of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation.
 
 
 ## How to run dadasnake
