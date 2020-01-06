@@ -1,0 +1,53 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job counts:
+	count	jobs
+	1	ALL
+	1	SamplesPrint
+	1	biom_handoff_preTax
+	4	combine_or_rename
+	4	cut_primers_both
+	1	dada_control
+	4	dada_errors
+	3	dada_filter
+	3	dada_mergeReadPairs
+	2	dada_mergeSamples
+	1	dada_mergeruns
+	2	dada_qc1
+	2	dada_qc_filtered
+	1	filter_numbers
+	1	input_numbers
+	1	merged_numbers
+	1	nochime_numbers
+	1	primer_numbers
+	1	primers_control
+	35
+
+[Mon Jan  6 14:39:13 2020]
+Job 18: Running cutadapt on /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_tail_R1_001.fastq /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_tail_R2_001.fastq. Searching for both  primers in both reads.
+
+Submitted job 18 with external jobid 'Submitted batch job 1489272'.
+
+[Mon Jan  6 14:39:14 2020]
+rule SamplesPrint:
+    input: /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/samples.small.tsv
+    output: reporting/sample_table.tsv
+    jobid: 20
+
+Submitted job 20 with external jobid 'Submitted batch job 1489273'.
+
+[Mon Jan  6 14:39:14 2020]
+Job 19: Running cutadapt on /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_III_15_head_R1_001.fastq /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_III_15_head_R2_001.fastq. Searching for both  primers in both reads.
+
+Submitted job 19 with external jobid 'Submitted batch job 1489274'.
+
+[Mon Jan  6 14:39:15 2020]
+Job 17: Running cutadapt on /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_head_R1_001.fastq /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_head_R2_001.fastq. Searching for both  primers in both reads.
+
+Submitted job 17 with external jobid 'Submitted batch job 1489275'.
+
+[Mon Jan  6 14:39:16 2020]
+Job 6: Running cutadapt on /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_NhP_II_15_head_R1_001.fastq /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_NhP_II_15_head_R2_001.fastq. Searching for both  primers in both reads.
+
+Submitted job 6 with external jobid 'Submitted batch job 1489276'.

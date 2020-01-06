@@ -43,25 +43,21 @@ pair_merging:
 chimeras:
   remove: true
   method: consensus
-outputdir: "/data/project/metaamp/PLAYGROUND"
+outputdir: "outputITS"
 taxonomy:
   decipher:
     do: false
-    post_ITSx: false
-    db_path: "/data/project/metaamp/DBs/decipher"
-    tax_db: "UNITE_v2014_March2018.RData"
-    strand: both
   mothur:
     do: true
     post_ITSx: true
-    db_path: "/data/project/metaamp/DBs/amplicon"
+    db_path: "/work/$USER/DBs/amplicon"
     tax_db: "unite_01.12.2017_dynamic_s.ITS2"
 blast:
   do: true
-  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+  db_path: "/work/$USER/nt/2018-09-07"
   tax_db: nt
   e_val: 0.00001
-  tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
+  tax2id: "/work/$USER/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
   do: true
   min_regions: 1
@@ -77,7 +73,7 @@ postprocessing:
   rarefaction_curve: true
   funguild:
     do: true
-    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+    funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
     do: false

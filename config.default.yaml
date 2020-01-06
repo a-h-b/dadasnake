@@ -50,31 +50,31 @@ pair_merging:
 chimeras:
   remove: true
   method: consensus
-outputdir: "/data/project/metaamp/PLAYGROUND"
+outputdir: "/work/$USER/dadasnake_output"
 taxonomy:
   decipher:
     do: true
     post_ITSx: false
-    db_path: "/data/project/metaamp/DBs/decipher"
+    db_path: "/work/$USER/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
     threshold: 60
     strand: top
     bootstraps: 100
     seed: 100  
     look_for_species: false
-    spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
+    spec_db: "/work/$USER/DBs/decipher/silva_species_assignment_v132.fa.gz"
   mothur:
     do: true
     post_ITSx: false
-    db_path: "/data/project/metaamp/DBs/amplicon"
+    db_path: "/work/$USER/DBs/amplicon"
     tax_db: "ifoh_515f.iroh_806r.silva_132"
     cutoff: 60
 blast:
-  do: true
-  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+  do: false
+  db_path: "/work/$USER/nt/2018-09-07"
   tax_db: nt
   e_val: 0.01
-  tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
+  tax2id: "/work/$USER/tax2ID.sorted.tsv"
   all: false
 ITSx:
   do: false
@@ -93,8 +93,8 @@ postprocessing:
   rarefaction_curve: false
   funguild:
     do: false
-    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+    funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
-    do: true
-    fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"
+    do: false
+    fasttreeMP: "FastTreeMP"

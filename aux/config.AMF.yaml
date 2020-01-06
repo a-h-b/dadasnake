@@ -1,29 +1,29 @@
 email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
-do_primers: false
+do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
 primers:
   fwd: 
-    sequence: GGCAACAAGMYSCGCAAGCT
-    name: acdSF5
+    sequence: TTGGAGGGCAAGTCTGGTGCC
+    name: NS31
   rvs: 
-    sequence: CTGCACSAGSACGCACTTCA
-    name: acdSR8
+    sequence: GAACCCAAACACTTTGGTTTCC
+    name: AML2
 paired: true
 sequencing_direction: "unknown"
 filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 11
+  trunc_qual: 20
   max_EE:
-    fwd: 5
-    rvs: 5
+    fwd: 2
+    rvs: 2
   minLen:
-    fwd: 100
+    fwd: 200
     rvs: 100
   maxLen:
     fwd: Inf
@@ -31,29 +31,28 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
-chimeras:
-  remove: true
-  method: consensus
-outputdir: "/data/project/metaamp/PLAYGROUND"
+outputdir: "AMF_output"
 taxonomy:
   decipher:
     do: false
   mothur:
-    do: false
+    do: true
+    db_path: "/work/$USER/DBs/amplicon"
+    tax_db: "silva_132.AMF"
 blast:
   do: true
-  db_path: "/data/project/metaamp/DBs/amplicon/"
-  tax_db: acdSgene.shortname.new.fasta
-  e_val: 0.01
+  db_path: "/work/$USER/DBs/amplicon"
+  tax_db: "MaarjAM_vt_types.20150204.format.fasta"
   tax2id: ""
 hand_off:
   biom: true
-  phyloseq: false
+  phyloseq: true
 final_table_filtering:
-  do: false
+  do: true
+  keep_target_taxa: "Glomeromycotina"
 postprocessing:
   rarefaction_curve: true
   funguild:
     do: false
   treeing:
-    do: false
+    do: true

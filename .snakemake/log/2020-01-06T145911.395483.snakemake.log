@@ -1,0 +1,98 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job counts:
+	count	jobs
+	1	ALL
+	1	biom_handoff_preTax
+	4	combine_or_rename
+	1	dada_control
+	4	dada_errors
+	3	dada_filter
+	3	dada_mergeReadPairs
+	2	dada_mergeSamples
+	1	dada_mergeruns
+	2	dada_qc1
+	2	dada_qc_filtered
+	1	filter_numbers
+	1	input_numbers
+	1	merged_numbers
+	1	nochime_numbers
+	1	primer_numbers
+	1	primers_control
+	30
+
+[Mon Jan  6 14:59:11 2020]
+rule input_numbers:
+    input: reporting/sample_table.tsv, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_head_R1_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_NhP_II_15_head_R1_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_tail_R1_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_III_15_head_R1_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_head_R2_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_NhP_II_15_head_R2_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_II_15_tail_R2_001.fastq, /mnt/irisgpfs/users/aheintzbuschart/dadasnake/testdata/OTU_Nh_III_15_head_R2_001.fastq
+    output: reporting/readNumbers.tsv
+    log: logs/countInputReads.log
+    jobid: 9
+
+Submitted job 9 with external jobid 'Submitted batch job 1489286'.
+
+[Mon Jan  6 14:59:12 2020]
+Job 25: Running filtering on preprocessing/A/OTU_NhP_II.fwd.fastq preprocessing/A/OTU_NhP_II.rvs.fastq.
+
+Submitted job 25 with external jobid 'Submitted batch job 1489287'.
+[Mon Jan  6 14:59:21 2020]
+Finished job 9.
+1 of 30 steps (3%) done
+
+[Mon Jan  6 14:59:21 2020]
+rule primer_numbers:
+    input: reporting/readNumbers.tsv, preprocessing/A/OTU_Nh_IIa.fwd.fastq, preprocessing/A/OTU_Nh_IIa.rvs.fastq, preprocessing/A/OTU_NhP_II.fwd.fastq, preprocessing/A/OTU_NhP_II.rvs.fastq, preprocessing/A/OTU_Nh_IIb.fwd.fastq, preprocessing/A/OTU_Nh_IIb.rvs.fastq, preprocessing/B/OTU_Nh_III.fwd.fastq, preprocessing/B/OTU_Nh_III.rvs.fastq
+    output: reporting/primerNumbers_perLibrary.tsv, reporting/primerNumbers_perSample.tsv
+    log: logs/countPrimerReads.log
+    jobid: 10
+
+Submitted job 10 with external jobid 'Submitted batch job 1489288'.
+[Mon Jan  6 14:59:51 2020]
+Finished job 25.
+2 of 30 steps (7%) done
+[Mon Jan  6 14:59:52 2020]
+Finished job 10.
+3 of 30 steps (10%) done
+
+[Mon Jan  6 14:59:52 2020]
+rule combine_or_rename:
+    input: reporting/primerNumbers_perLibrary.tsv, preprocessing/B/OTU_Nh_III.fwd.fastq
+    output: preprocessing/B/OTU_NhP_III.fwd.fastq
+    log: logs/combine_or_rename.B.OTU_NhP_III.fwd.log
+    jobid: 7
+    wildcards: run=B, sample=OTU_NhP_III, direction=fwd
+
+Submitted job 7 with external jobid 'Submitted batch job 1489291'.
+
+[Mon Jan  6 14:59:52 2020]
+rule combine_or_rename:
+    input: reporting/primerNumbers_perLibrary.tsv, preprocessing/B/OTU_Nh_III.rvs.fastq
+    output: preprocessing/B/OTU_NhP_III.rvs.fastq
+    log: logs/combine_or_rename.B.OTU_NhP_III.rvs.log
+    jobid: 8
+    wildcards: run=B, sample=OTU_NhP_III, direction=rvs
+
+Submitted job 8 with external jobid 'Submitted batch job 1489292'.
+
+[Mon Jan  6 14:59:53 2020]
+rule combine_or_rename:
+    input: reporting/primerNumbers_perLibrary.tsv, preprocessing/A/OTU_Nh_IIa.rvs.fastq, preprocessing/A/OTU_Nh_IIb.rvs.fastq
+    output: preprocessing/A/OTU_Nh_II.rvs.fastq
+    log: logs/combine_or_rename.A.OTU_Nh_II.rvs.log
+    jobid: 5
+    wildcards: run=A, sample=OTU_Nh_II, direction=rvs
+
+Submitted job 5 with external jobid 'Submitted batch job 1489293'.
+
+[Mon Jan  6 14:59:54 2020]
+rule combine_or_rename:
+    input: reporting/primerNumbers_perLibrary.tsv, preprocessing/A/OTU_Nh_IIa.fwd.fastq, preprocessing/A/OTU_Nh_IIb.fwd.fastq
+    output: preprocessing/A/OTU_Nh_II.fwd.fastq
+    log: logs/combine_or_rename.A.OTU_Nh_II.fwd.log
+    jobid: 4
+    wildcards: run=A, sample=OTU_Nh_II, direction=fwd
+
+Submitted job 4 with external jobid 'Submitted batch job 1489294'.
+Terminating processes on user request, this might take some time.
+Will exit after finishing currently running jobs.
+Complete log: /mnt/irisgpfs/users/aheintzbuschart/dadasnake/.snakemake/log/2020-01-06T145911.395483.snakemake.log

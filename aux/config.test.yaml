@@ -1,6 +1,6 @@
 email: ""
-raw_directory: "../testdata"
-sample_table: "../testdata/samples.small.tsv"
+raw_directory: "testdata"
+sample_table: "testdata/samples.small.tsv"
 do_primers: true
 do_dada: true
 do_taxonomy: false

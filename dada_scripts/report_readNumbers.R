@@ -21,7 +21,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
       as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
     }
   })
-  prefix <- paste0(snakemake@config[["raw_directory"]],"/")
+  prefix <- paste0(snakemake@params[["raw_directory"]],"/")
   names(readnums) <- gsub(prefix,"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
   sampleTab$reads_raw_r2 <- sapply(sampleTab$r2_file,function(x) readnums[x])

@@ -85,7 +85,7 @@ rule ALL:
 
 rule SamplesPrint:
     input:
-        config['sample_table']
+        sam_path
     output:
         "reporting/sample_table.tsv"
     threads: 1
