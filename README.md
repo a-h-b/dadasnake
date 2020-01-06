@@ -3,8 +3,68 @@ Dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow
 
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
+## Installing dadasnake
+For dadasnake to work, you need conda. 
+
+1) Clone the 'general' branch to your disk:
+```
+git clone -branch general https://github.com/a-h-b/dadasnake.git
+```
+Change into the dadasnake directory:
+```
+cd dadasnake
+```
+
+2) Adjust the file VARIABLE_CONFIG to your requirements:
+* SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
+* LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
+* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version.
+
+3) Decide how you want to run dadasnake:
+Only do one of the two:
+* if you want to submit the top snakemake call to the cluster:
+```
+cp aux/dadasnake_allSubmit dadasnake
+```
+* if you want to keep snakemake on the frontend:
+```
+cp aux/dadasnake_tmux dadasnake
+```
+
+4) **optional**: Install snakemake via conda:
+If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
+```
+conda env create -f snakemake_env.yml --prefix $PWD/snakemake_env
+```
+
+5) Set permissions / PATH:
+Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path. It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
+
+6) Test run:
+The test run does not need any databases. You should be able to start it by running 
+```
+./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
+```
+If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done".
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/<someHashKey>/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+
+7) Databases:
+The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
+**You need to set the path to the database of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation.
+
+
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data. The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled run and sample to indicate libraries that should be combined into one final column and different sequencing runs. All raw data (usually fastq files) need to be in the same directory (which has to be given in the config file). 
+It is possible (and the best way to do this) to have a config file per run, which defines all settings that differ from the default config file. The default config file 
+
+### Using the dadasnake wrapper
+As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. Essentially, you can either run dadasnake (-c) and/or make a report (-r), or run a dryrun (-d), or unlock a working directory, if a run was killed (-u). In all cases you need the config file as the last argument. You can add a name for your main job, e.g.:
+```
+dadasnake -c -n RUNNAME -r config.yaml
+```
+Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
+
+### Running snakemake manually
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
 ```
 snakemake -s Snakefile --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
@@ -18,7 +78,7 @@ If you want to share the conda installation with colleagues, use the `--conda-pr
 ```
 snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda --conda-prefix /PATH/TO/YOUR/COMMON/CONDA/DIRECTORY
 ```
-Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish. It can be helpful to run the Snakemake command in tmux. An example for this is provided in the dadasnake script in this repository.
+Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
 
 ## What does the dadasnake do?
 * primer removal - using cutadapt
@@ -32,6 +92,7 @@ Depending on your dataset and settings, and your cluster's queue, the workflow w
 * treeing - using clustal omega and fasttree
 * hand-off in biom-format, as R object, as R phyloseq object, and as fasta and tab-separated tables
 * keeping tabs on number of reads in each step
+You can control the settings for each step in a config file.
 
 ## The configuration
 The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Here are some explanations.
