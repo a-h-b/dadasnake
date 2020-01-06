@@ -3,8 +3,42 @@ Dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow
 
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
+## Installing dadasnake
+For dadasnake to work, you need conda. 
+
+1) Clone the 'general' branch to your disk:
+```
+git clone -branch general https://github.com/a-h-b/dadasnake.git
+```
+Change into the dadasnake directory:
+```
+cd dadasnake
+```
+
+2) Adjust the file VARIABLE_CONFIG to your requirements:
+* SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
+* LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
+* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version.
+
+3) Decide how you want to run dadasnake:
+Only do one of the two:
+* if you want to submit the top snakemake call to the cluster:
+```
+cp aux/dadasnake_allSubmit dadasnake
+chmod 744 dadasnake
+```
+* if you want to keep snakemake on the frontend:
+```
+cp aux/dadasnake_tmux dadasnake
+```
+
+
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data. The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled run and sample to indicate libraries that should be combined into one final column and different sequencing runs. All raw data (usually fastq files) need to be in the same directory (which has to be given in the config file). 
+
+### Using the dadasnake wrapper
+
+### Running snakemake manually
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
 ```
 snakemake -s Snakefile --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
