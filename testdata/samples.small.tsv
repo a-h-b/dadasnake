@@ -1,5 +1,5 @@
 library	r1_file	r2_file	sample	run
-OTU_Nh_IIa	OTU_Nh_II_15_head_R1_001.fastq	OTU_Nh_II_15_head_R2_001.fastq	OTU_Nh_II	A
-OTU_NhP_II	OTU_NhP_II_15_head_R1_001.fastq	OTU_NhP_II_15_head_R2_001.fastq	OTU_NhP_II	A
-OTU_Nh_IIb	OTU_Nh_II_15_tail_R1_001.fastq	OTU_Nh_II_15_tail_R2_001.fastq	OTU_Nh_II	A
-OTU_Nh_III	OTU_Nh_III_15_head_R1_001.fastq	OTU_Nh_III_15_head_R2_001.fastq	OTU_NhP_III	B
+sample2a	lib_333_R1_001.fastq.gz	lib_333_R2_001.fastq.gz	sample_2	1
+sample1_seq1	lib_222_R1_001.fastq.gz	lib_222_R2_001.fastq.gz	sample_1	1
+sample2b	lib_334_R1_001.fastq.gz	lib_334_R2_001.fastq.gz	sample_2	1
+sample1_reseq	lib_111_R1_001.fastq.gz	lib_111_R2_001.fastq.gz	sample_1	2
