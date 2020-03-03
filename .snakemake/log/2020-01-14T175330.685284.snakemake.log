@@ -1,0 +1,8 @@
+Building DAG of jobs...
+Creating report...
+Adding readNumbers.tsv (0.00038 MB).
+Adding primerNumbers_perLibrary.tsv (0.00046 MB).
+Adding primerNumbers_perSample.tsv (0.0004 MB).
+Loading script code for rule input_numbers
+Loading script code for rule primer_numbers
+Report created.

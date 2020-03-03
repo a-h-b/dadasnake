@@ -2,7 +2,7 @@ email: ""
 raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"
 do_primers: true
-do_dada: true
+do_dada: false
 do_taxonomy: false
 do_postprocessing: false
 primers:
@@ -33,5 +33,5 @@ filtering:
     rvs: 0
 outputdir: "testoutput"
 hand_off:
-  biom: true
-  phyloseq: true
+  biom: false
+  phyloseq: false

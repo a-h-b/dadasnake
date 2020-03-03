@@ -96,5 +96,5 @@ postprocessing:
     funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
-    do: false
-    fasttreeMP: "FastTreeMP"
+    do: true
+    fasttreeMP: ""
