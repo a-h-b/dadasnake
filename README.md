@@ -47,7 +47,7 @@ The test run does not need any databases. You should be able to start it by runn
 ./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
 ```
 If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done".
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/<someHashKey>/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
 The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
