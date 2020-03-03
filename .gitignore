@@ -6,3 +6,4 @@ dada_env_common_2/
 dada_env_test/
 testoutput/
 snakemake_env/
+.snakemake/
