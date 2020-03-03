@@ -30,6 +30,7 @@ cp aux/dadasnake_allSubmit dadasnake
 ```
 cp aux/dadasnake_tmux dadasnake
 ```
+The dadasnake script assumes you're wanting to use slurm. The cluster config file for slurm is dada_scripts/slurm.config.yaml. 
 
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
@@ -51,6 +52,39 @@ The first run will install the conda environment containing DADA2 and the other 
 7) Databases:
 The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
 **You need to set the path to the database of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation.
+
+8) R-packages and other software:
+While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
+```
+ls ./dada_env_common
+```
+This will show a .yaml file and a directory with the same name. Use this name in activating the environment:
+```
+conda activate ./dada_env_common/XXXXXXXX
+```
+In the conda environment, run R:
+```
+conda activate ./dada_env_common/XXXXXXXX
+R
+```
+Within R, set the path to the R-library in the conda environment and install phyloseq. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
+```
+.libPaths(paste0(Sys.getenv("CONDA_PREFIX"),"/lib/R/library"))
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("phyloseq")
+```
+Leave R without saving the workspace (choose n when prompted):
+```
+quit()
+```
+Deactivate the environment:
+```
+conda deactivate
+```
+
 
 
 ## How to run dadasnake
