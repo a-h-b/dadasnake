@@ -1,6 +1,0 @@
-PermissionError in line 127 of /home/users/aheintzbuschart/dadasnake/dada_scripts/get_config.rules:
-[Errno 13] Permission denied: '/work/aheintzbuschart'
-  File "/home/users/aheintzbuschart/dadasnake/Snakefile", line 7, in <module>
-  File "/home/users/aheintzbuschart/dadasnake/dada_scripts/get_config.rules", line 127, in <module>
-  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/os.py", line 210, in makedirs
-  File "/home/users/aheintzbuschart/dadasnake/dada_env/lib/python3.6/os.py", line 220, in makedirs

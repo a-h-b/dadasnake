@@ -1,4 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 73 of /home/users/aheintzbuschart/dadasnake/Snakefile:
-Missing input files for rule ALL:
-sequenceTables/all.seqTab.biom
