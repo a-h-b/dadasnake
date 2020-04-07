@@ -21,7 +21,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
       as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
     }
   })
-  prefix <- paste0(snakemake@params[["raw_directory"]],"/")
+  prefix <- paste0(snakemake@config[["raw_directory"]],"/")
   names(readnums) <- gsub(prefix,"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
 #  sampleTab$reads_raw_r2 <- sapply(sampleTab$r2_file,function(x) readnums[x])
@@ -129,6 +129,18 @@ if(snakemake@params[["currentStep"]] == "raw"){
                                        function(x) readnums[names(readnums)==x])
   readnums <- rowSums(readRDS(filesOI[2]))
   sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
+                                       function(x) readnums[names(readnums)==x])
+  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
+}else if(snakemake@params[["currentStep"]] == "post"){
+  print("extracting read numbers")
+  tmpOTU <- readRDS(filesOI)
+  if(length(sampleTab$sample)>1){
+    readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+  }else{
+    readnums <- sum(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+    names(readnums) <- sampleTab$sample
+  }
+  sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }
