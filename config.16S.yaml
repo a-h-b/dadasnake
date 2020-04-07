@@ -34,7 +34,7 @@ filtering:
 outputdir: "/data/project/metaamp/PLAYGROUND"
 taxonomy:
   decipher:
-    do: true
+    do: false
     db_path: "/data/project/metaamp/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
     strand: top
@@ -42,8 +42,8 @@ taxonomy:
     spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
   mothur:
     do: true
-    db_path: "/data/project/metaamp/DBs/amplicon"
-    tax_db: "ifoh_515f.iroh_806r.silva_132"
+    db_path: "/data/project/metaamp/DBs/amplicon2020"
+    tax_db: "SILVA_138_SSUParc_prok.515F.806R"
 blast:
   do: true
 hand_off:

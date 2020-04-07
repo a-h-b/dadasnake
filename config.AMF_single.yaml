@@ -12,25 +12,20 @@ primers:
   rvs: 
     sequence: GAACCCAAACACTTTGGTTTCC
     name: AML2
-paired: true
-sequencing_direction: "unknown"
+paired: false
+sequencing_direction: "fwd_1"
 filtering:
   trunc_length:
-    fwd: 0
-    rvs: 0
-  trunc_qual: 20
+    fwd: 250
+  trunc_qual: 15
   max_EE:
     fwd: 2
-    rvs: 2
   minLen:
-    fwd: 200
-    rvs: 100
+    fwd: 0
   maxLen:
     fwd: Inf
-    rvs: Inf
   minQ:
     fwd: 0
-    rvs: 0
 outputdir: "/data/project/metaamp/PLAYGROUND"
 taxonomy:
   decipher:
@@ -41,10 +36,10 @@ taxonomy:
     tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
 blast:
   do: true
+  all: true
   db_path: "/data/project/metaamp/DBs/amplicon"
   tax_db: "MaarjAM_vt_types.20150204.format.fasta"
   tax2id: ""
-  all: true
 hand_off:
   biom: true
   phyloseq: true
