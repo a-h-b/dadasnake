@@ -1,0 +1,5 @@
+library	r1_file	r2_file	sample	run
+sample2a	lib_333_R1_001.fastq.gz	lib_333_R2_001.fastq.gz	sample_2	1
+sample1_seq1	lib_222_R1_001.fastq.gz	lib_222_R2_001.fastq.gz	sample_1	1
+sample2b	lib_334_R1_001.fastq.gz	lib_334_R2_001.fastq.gz	sample_2	1
+sample1_reseq	lib_111_R1_001.fastq.gz	lib_111_R2_001.fastq.gz	sample_1	2

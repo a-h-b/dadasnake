@@ -24,10 +24,10 @@ filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 9
+  trunc_qual: 15
   max_EE:
-    fwd: 5
-    rvs: 5
+    fwd: 3
+    rvs: 3
   minLen:
     fwd: 70
     rvs: 70
@@ -43,25 +43,18 @@ pair_merging:
 chimeras:
   remove: true
   method: consensus
-outputdir: "/data/project/metaamp/PLAYGROUND"
+outputdir: "outputITS"
 taxonomy:
   decipher:
     do: false
-    post_ITSx: false
-    db_path: "/data/project/metaamp/DBs/decipher"
-    tax_db: "UNITE_v2014_March2018.RData"
-    strand: both
   mothur:
     do: true
     post_ITSx: true
-    db_path: "/data/project/metaamp/DBs/amplicon"
+    db_path: "/work/$USER/DBs/amplicon"
     tax_db: "unite_01.12.2017_dynamic_s.ITS2"
 blast:
   do: true
-  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
-  tax_db: nt
   e_val: 0.00001
-  tax2id: "/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"
 ITSx:
   do: true
   min_regions: 1
@@ -69,15 +62,15 @@ ITSx:
   e_val: 1e-5
 hand_off:
   biom: true
-  phyloseq: true
+  phyloseq: false
 final_table_filtering:
   do: true
   keep_target_taxa: "Fungi"
 postprocessing:
   rarefaction_curve: true
   funguild:
-    do: true
-    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
+    do: false
+    funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
     do: false

@@ -30,6 +30,7 @@ cp aux/dadasnake_allSubmit dadasnake
 ```
 cp aux/dadasnake_tmux dadasnake
 ```
+The dadasnake script assumes you're wanting to use slurm. The cluster config file for slurm is dada_scripts/slurm.config.yaml. 
 
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
@@ -46,11 +47,46 @@ The test run does not need any databases. You should be able to start it by runn
 ./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
 ```
 If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done".
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/<someHashKey>/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
-The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
-**You need to set the path to the database of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation.
+The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. Dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+**You need to set the path to the databases of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
+
+8) R-package phyloseq:
+While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
+```
+ls ./dada_env_common
+```
+This will show a .yaml file and a directory with the same name. Use this name in activating the environment:
+```
+conda activate ./dada_env_common/XXXXXXXX
+```
+In the conda environment, run R:
+```
+conda activate ./dada_env_common/XXXXXXXX
+R
+```
+Within R, set the path to the R-library in the conda environment and install phyloseq. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
+```
+.libPaths(paste0(Sys.getenv("CONDA_PREFIX"),"/lib/R/library"))
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("phyloseq")
+```
+Leave R without saving the workspace (choose n when prompted):
+```
+quit()
+```
+Deactivate the environment:
+```
+conda deactivate
+```
+
+9) Fasttree:
+The dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be very slow. If you have fasttreeMP, you can give the path to it in the config file.
 
 
 ## How to run dadasnake
@@ -103,7 +139,7 @@ email |  | | "" | "" or a valid email address | all | email address for mail not
 tmp_dir |  |  | "/work/$USER/tmp" | any path that you have permissions for writing to | all | directory for temporary, intermediate files that shouldn't be kept | keep this in your /work so you don't need to worry about removing its contents
 raw_directory |  |  | "/work/$USER"| any one path where you might have your raw data | all | directory with all raw data | you will usually have this somewhere in a project folder
 sample_table |  |  | "/work/$USER/samples.tsv" | any one location of your samples table | all | path to the samples table | you can keep this in your /work, because the dadasnake will copy it to your output directory
-outputdir |  |  | "/data/project/metaamp/PLAYGROUND" | any path that you have permissions for writing to | all | directory where all the output will go | change this; a subdirectory of /work works best, but remember to move to a steady location afterwards; each output directory can hold the results of one completed pipeline only
+outputdir |  |  | "/work/$USER/dadasnake_output" | any path that you have permissions for writing to | all | directory where all the output will go | change this; a subdirectory of /work works best, but remember to move to a steady location afterwards; each output directory can hold the results of one completed pipeline only
 do_primers |  |  | true | true or false | all | should primers be cut? | 
 do_dada |  |  | true | true or false | all | should DADA2 be run? | 
 do_taxonomy |  |  | true | true or false | all | should taxonomic classification be done? |
@@ -156,18 +192,18 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;|  decipher||||taxonomy||settings for DECIPHER
 &nbsp;||    do| true|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation| DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
-&nbsp;||    db_path|"/data/project/metaamp/DBs/decipher"||taxonomy|directory where the database sits|don't change
+&nbsp;||    db_path|"/work/$USER/DBs/decipher"||taxonomy|directory where the database sits|don't change
 &nbsp;||    tax_db|"SILVA_SSU_r132_March2018.RData"||taxonomy|decipher database name|
 &nbsp;||    threshold|60|1-100|taxonomy|threshold for classification|see DECIPHER documentation for details
 &nbsp;||    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
 &nbsp;||    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
 &nbsp;||    seed|100|a positive integer|taxonomy|seed for DECIPHER run|keep constant in re-runs
 &nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
-&nbsp;||    spec_db|"/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
+&nbsp;||    spec_db|"/work/$USER/DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|
 &nbsp;|  mothur||||taxonomy||settings for Bayesian classifier (mothur implementation)
 &nbsp;||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
-&nbsp;||    db_path|"/data/project/metaamp/DBs/amplicon"||taxonomy|directory where the database sits|don't change
+&nbsp;||    db_path|"/work/$USER/DBs/amplicon"||taxonomy|directory where the database sits|don't change
 &nbsp;||    tax_db|"ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|
 &nbsp;||    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
@@ -175,7 +211,7 @@ blast|||||taxonomy||
 &nbsp;|    db_path|"/data/db/ncbi/blast/db/nt/2018-09-07"|||taxonomy|path to blast database|
 &nbsp;|    tax_db|nt|||taxonomy|name (without suffix) of blast database|
 &nbsp;|    e_val|0.01|||taxonomy|e-value for blast|
-&nbsp;|    tax2id|"/data/project/metaamp/DBs/ncbi/tax2ID.sorted.tsv"||"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path
+&nbsp;|    tax2id|"/work/$USER/DBs/ncbi/tax2ID.sorted.tsv"||"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path
 ITSx|||||taxonomy||settings for ITSx
 &nbsp;|  do|| false|true or false|taxonomy|whether ITSx should be run|only makes sense for analyses targetting an ITS region
 &nbsp;|  min_regions||1|1-4|taxonomy|minimum number of detected regions|counting includes SSU, LSU and 5.8 next to the ITS regions
@@ -193,11 +229,11 @@ final_table_filtering|||||postprocessing||settings for filtering the final OTU t
 postprocessing|||||postprocessing||settings for postprocessinf
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
-&nbsp;||    funguild_db|"/data/project/metaamp/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
+&nbsp;||    funguild_db|"/work/$USER/DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|don't change
 &nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
 &nbsp;|  treeing|||true or false|postprocessing||
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
-&nbsp;||    fasttreeMP|"/data/project/metaamp/TOOLS/FastTreeMP"||postprocessing|path to fasttreeMP executable|don't change
+&nbsp;||    fasttreeMP|"/work/$USER/TOOLS/FastTreeMP"||postprocessing|path to fasttreeMP executable|don't change
 &nbsp;|  rarefaction_curve||true|true or false|postprocessing|whether a rarefaction curve should be made|
 
 

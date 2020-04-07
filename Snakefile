@@ -9,7 +9,7 @@ include:
 workdir:
     OUTPUTDIR
 
-f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
+f = open('full.config.yaml', 'w+')
 yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
 if config['paired']:
@@ -59,10 +59,10 @@ if config['hand_off']['biom']:
 
 if EMAIL == "":
     onsuccess:
-        shell("mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs")
+        shell("mkdir -p job.errs.outs; mv slurm* job.errs.outs || touch job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs")
 else:
     onsuccess:
-        shell('mkdir -p job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
+        shell('mkdir -p job.errs.outs; mv slurm* job.errs.outs || touch job.errs.outs; mv snakejob.* job.errs.outs || touch job.errs.outs; mv *log job.errs.outs || touch job.errs.outs; mv *logfile job.errs.outs || touch job.errs.outs; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
     onerror:
         shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake exited with error" {EMAIL} ')
     onstart:
@@ -85,7 +85,7 @@ rule ALL:
 
 rule SamplesPrint:
     input:
-        config['sample_table']
+        sam_path
     output:
         "reporting/sample_table.tsv"
     threads: 1
