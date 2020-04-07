@@ -24,16 +24,19 @@ library(biomformat)
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
 
-if(snakemake@params[["currentStep"]]=="dada"){
- seqMat <- seqTab[,-c(1,ncol(seqTab))]
- rownames(seqMat) <- seqTab[,1]
- seqMeta <- data.frame("OTU_ID"=seqTab$OTU,stringsAsFactors = F,row.names = seqTab[,1])
-}else if(snakemake@params[["currentStep"]]=="taxonomy"){
- seqMat <- seqTab[,colnames(seqTab) %in% rownames(sInfo)]
- rownames(seqMat) <- seqTab$Row.names
- seqMeta <- seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")]
+if(length(c(1,ncol(seqTab)))+1 > ncol(seqTab)){
+  if(snakemake@params[["currentStep"]]=="dada"){
+   seqMat <- seqTab[,-c(1,ncol(seqTab))]
+   rownames(seqMat) <- seqTab[,1]
+   seqMeta <- data.frame("OTU_ID"=seqTab$OTU,stringsAsFactors = F,row.names = seqTab[,1])
+  }else if(snakemake@params[["currentStep"]]=="taxonomy"){
+   seqMat <- seqTab[,colnames(seqTab) %in% rownames(sInfo)]
+   rownames(seqMat) <- seqTab$Row.names
+   seqMeta <- seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")]
+  }
+  seqBiom <- make_biom(seqMat,observation_metadata = seqMeta,sample_metadata=sInfo)
+  write_biom(seqBiom,snakemake@output[[1]])
+}else{
+  write.table("",snakemake@output[[1]],quote=F,col.names=F,row.names=F)
 }
-seqBiom <- make_biom(seqMat,observation_metadata = seqMeta,sample_metadata=sInfo)
-write_biom(seqBiom,snakemake@output[[1]])
-
 
