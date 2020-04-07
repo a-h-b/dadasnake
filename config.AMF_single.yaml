@@ -12,42 +12,37 @@ primers:
   rvs: 
     sequence: GAACCCAAACACTTTGGTTTCC
     name: AML2
-paired: true
-sequencing_direction: "unknown"
+paired: false
+sequencing_direction: "fwd_1"
 filtering:
   trunc_length:
-    fwd: 0
-    rvs: 0
-  trunc_qual: 20
+    fwd: 250
+  trunc_qual: 15
   max_EE:
     fwd: 2
-    rvs: 2
   minLen:
-    fwd: 200
-    rvs: 100
+    fwd: 0
   maxLen:
     fwd: Inf
-    rvs: Inf
   minQ:
     fwd: 0
-    rvs: 0
-outputdir: "AMF_output"
+outputdir: "/data/project/metaamp/PLAYGROUND"
 taxonomy:
   decipher:
     do: false
   mothur:
     do: true
-    db_path: ""
+    db_path: "/data/project/metaamp/DBs/amplicon2020"
     tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
 blast:
-  do: false
-  db_path: "/work/$USER/DBs/amplicon"
+  do: true
+  all: true
+  db_path: "/data/project/metaamp/DBs/amplicon"
   tax_db: "MaarjAM_vt_types.20150204.format.fasta"
   tax2id: ""
-  all: true
 hand_off:
   biom: true
-  phyloseq: false
+  phyloseq: true
 final_table_filtering:
   do: true
   keep_target_taxa: "Glomeromycotina"

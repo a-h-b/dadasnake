@@ -35,6 +35,10 @@ outputdir: "output16S"
 taxonomy:
   mothur:
     do: true
+    db_path: ""
+    tax_db: ""
+  decipher:
+    do: false
 blast:
   do: true
 hand_off:

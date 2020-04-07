@@ -1,5 +1,5 @@
 email: ""
-tmp_dir: "tmp"
+tmp_dir: "/work/$USER/tmp"
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 do_primers: true
