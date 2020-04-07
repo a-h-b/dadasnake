@@ -23,8 +23,8 @@ filtering:
     fwd: 0.5
     rvs: 0.5
   minLen:
-    fwd: 100
-    rvs: 100
+    fwd: 0
+    rvs: 0
   maxLen:
     fwd: Inf
     rvs: Inf
@@ -33,17 +33,13 @@ filtering:
     rvs: 0
 outputdir: "output16S"
 taxonomy:
-  decipher:
-    do: true
-    strand: top
-    look_for_species: true
   mothur:
     do: true
 blast:
   do: true
 hand_off:
   biom: true
-  phyloseq: true
+  phyloseq: false
 final_table_filtering:
   do: true
   keep_target_taxa: "."

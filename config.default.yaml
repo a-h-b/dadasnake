@@ -23,15 +23,15 @@ primer_cutting:
   indels: "--no-indels"
 filtering:
   trunc_length:
+    fwd: 170
+    rvs: 130
+  trunc_qual: 9
+  max_EE:
+    fwd: 0.5
+    rvs: 0.5
+  minLen:
     fwd: 0
     rvs: 0
-  trunc_qual: 13
-  max_EE:
-    fwd: 2
-    rvs: 2
-  minLen:
-    fwd: 200
-    rvs: 100
   maxLen:
     fwd: Inf
     rvs: Inf
@@ -53,7 +53,7 @@ chimeras:
 outputdir: "/work/$USER/dadasnake_output"
 taxonomy:
   decipher:
-    do: true
+    do: false
     post_ITSx: false
     db_path: "/work/$USER/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
@@ -67,14 +67,14 @@ taxonomy:
     do: true
     post_ITSx: false
     db_path: "/work/$USER/DBs/amplicon"
-    tax_db: "ifoh_515f.iroh_806r.silva_132"
+    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
     cutoff: 60
 blast:
   do: false
-  db_path: "/work/$USER/nt/2018-09-07"
+  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
   tax_db: nt
   e_val: 0.01
-  tax2id: "/work/$USER/tax2ID.sorted.tsv"
+  tax2id: ""
   all: false
 ITSx:
   do: false
@@ -83,14 +83,14 @@ ITSx:
   e_val: 1e-5
 hand_off:
   biom: true
-  phyloseq: true
+  phyloseq: false
 final_table_filtering:
   do: true
   keep_target_taxa: "."
-  target_min_length: 0
-  target_max_length: Inf
+  target_min_length: 240
+  target_max_length: 265
 postprocessing:
-  rarefaction_curve: false
+  rarefaction_curve: true
   funguild:
     do: false
     funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"

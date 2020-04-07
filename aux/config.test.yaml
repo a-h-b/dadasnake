@@ -1,6 +1,6 @@
 email: ""
-raw_directory: "testdata"
-sample_table: "testdata/samples.small.tsv"
+raw_directory: "/global/apps/dadasnake/testdata"
+sample_table: "/global/apps/dadasnake/testdata/samples.small.tsv"
 do_primers: true
 do_dada: false
 do_taxonomy: false
@@ -31,7 +31,7 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
-outputdir: "testoutput"
+outputdir: "/work/$USER/testoutput"
 hand_off:
   biom: false
   phyloseq: false

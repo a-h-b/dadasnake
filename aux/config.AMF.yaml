@@ -38,15 +38,15 @@ taxonomy:
   mothur:
     do: true
     db_path: "/work/$USER/DBs/amplicon"
-    tax_db: "silva_132.AMF"
+    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
 blast:
-  do: true
+  do: false
   db_path: "/work/$USER/DBs/amplicon"
   tax_db: "MaarjAM_vt_types.20150204.format.fasta"
   tax2id: ""
 hand_off:
   biom: true
-  phyloseq: true
+  phyloseq: false
 final_table_filtering:
   do: true
   keep_target_taxa: "Glomeromycotina"
