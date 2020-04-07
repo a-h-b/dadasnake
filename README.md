@@ -30,6 +30,7 @@ cp aux/dadasnake_allSubmit dadasnake
 ```
 cp aux/dadasnake_tmux dadasnake
 ```
+The dadasnake script assumes you're wanting to use slurm. The cluster config file for slurm is dada_scripts/slurm.config.yaml. 
 
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
@@ -46,11 +47,46 @@ The test run does not need any databases. You should be able to start it by runn
 ./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
 ```
 If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done".
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/<someHashKey>/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
-The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. In addition to [mothur](https://www.mothur.org/), dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild. 
-**You need to set the path to the database of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation.
+The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. Dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+**You need to set the path to the databases of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
+
+8) R-package phyloseq:
+While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
+```
+ls ./dada_env_common
+```
+This will show a .yaml file and a directory with the same name. Use this name in activating the environment:
+```
+conda activate ./dada_env_common/XXXXXXXX
+```
+In the conda environment, run R:
+```
+conda activate ./dada_env_common/XXXXXXXX
+R
+```
+Within R, set the path to the R-library in the conda environment and install phyloseq. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
+```
+.libPaths(paste0(Sys.getenv("CONDA_PREFIX"),"/lib/R/library"))
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("phyloseq")
+```
+Leave R without saving the workspace (choose n when prompted):
+```
+quit()
+```
+Deactivate the environment:
+```
+conda deactivate
+```
+
+9) Fasttree:
+The dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be very slow. If you have fasttreeMP, you can give the path to it in the config file.
 
 
 ## How to run dadasnake
