@@ -130,7 +130,7 @@ Depending on your dataset and settings, and your cluster's queue, the workflow w
 * keeping tabs on number of reads in each step
 You can control the settings for each step in a config file.
 
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
+![steps](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
 
 ## The configuration
 The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Here are some explanations.
