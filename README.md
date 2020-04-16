@@ -6,7 +6,7 @@ dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow
 ## Installing dadasnake
 For dadasnake to work, you need conda. 
 
-1) Clone the 'general' branch to your disk:
+1) Clone this repository to your disk:
 ```
 git clone https://github.com/a-h-b/dadasnake.git
 ```
