@@ -14,6 +14,7 @@ Change into the dadasnake directory:
 ```
 cd dadasnake
 ```
+At this point, you have all the scripts you need to run the workflow using snakemake, and you'd just need to get some data and databases (see point 7). If you want to use the **comfortable dadasnake wrapper**, follow the points 2-6. 
 
 2) Adjust the file VARIABLE_CONFIG to your requirements:
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
@@ -46,8 +47,9 @@ The test run does not need any databases. You should be able to start it by runn
 ```
 ./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
 ```
-If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done".
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd suggest to remove one line from the activation script ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ), namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done". You can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail TESTRUN_XXXXXXXXXX.stderr`.
+
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
 The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. Dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
