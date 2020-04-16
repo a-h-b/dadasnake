@@ -4,7 +4,7 @@ dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
 ## Installing dadasnake
-For dadasnake to work, you need conda. 
+For dadasnake to work, you need [conda](https://www.anaconda.com/). 
 
 1) Clone this repository to your disk:
 ```
@@ -19,7 +19,7 @@ At this point, you have all the scripts you need to run the workflow using snake
 2) Adjust the file VARIABLE_CONFIG to your requirements:
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
-* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version.
+* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version. You need to have [tmux](https://github.com/tmux/tmux/wiki) installed.
 
 3) Decide how you want to run dadasnake:
 Only do one of the two:
@@ -69,7 +69,7 @@ In the conda environment, run R:
 conda activate ./dada_env_common/XXXXXXXX
 R
 ```
-Within R, set the path to the R-library in the conda environment and install phyloseq. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
+Within R, set the path to the R-library in the conda environment and install phyloseq. This depends on regular building utilities of your operating system, e.g. gcc. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
 ```
 .libPaths(paste0(Sys.getenv("CONDA_PREFIX"),"/lib/R/library"))
 
