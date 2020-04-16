@@ -8,7 +8,7 @@ For dadasnake to work, you need conda.
 
 1) Clone the 'general' branch to your disk:
 ```
-git clone --branch general https://github.com/a-h-b/dadasnake.git
+git clone https://github.com/a-h-b/dadasnake.git
 ```
 Change into the dadasnake directory:
 ```
