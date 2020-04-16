@@ -1,6 +1,6 @@
 email: ""
-raw_directory: "testdata"
-sample_table: "testdata/samples.small.tsv"
+raw_directory: "dadasnake/testdata"
+sample_table: "dadasnake/testdata/samples.small.tsv"
 do_primers: true
 do_dada: false
 do_taxonomy: false

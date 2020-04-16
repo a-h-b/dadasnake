@@ -53,10 +53,10 @@ if EMAIL != "":
         EMAIL = ""
         print("Your email address is not valid, you will not receive notifications.")
 
-if os.path.isabs(os.path.expandvars(config['sample_table'])):
-    sam_path = os.path.expandvars(config['sample_table'])
-else:
-    sam_path = os.getcwd() + "/" + os.path.expandvars(config['sample_table'])
+#if os.path.isabs(os.path.expandvars(config['sample_table'])):
+sam_path = os.path.expandvars(config['sample_table'])
+#else:
+#    sam_path = os.getcwd() + "/" + os.path.expandvars(config['sample_table'])
 try:
     samples = pd.read_table(sam_path)
 except:
@@ -103,10 +103,10 @@ if config['paired'] and 'r2_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 2 - column should be named r2_file.")
 #print(samples)
 
-if os.path.isabs(os.path.expandvars(config['raw_directory'])):
-    RAW = os.path.expandvars(config['raw_directory'])
-else:
-    RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
+#if os.path.isabs(os.path.expandvars(config['raw_directory'])):
+RAW = os.path.expandvars(config['raw_directory'])
+#else:
+#    RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
 
 
 #validate(samples, schema="schemas/sample.schema.yaml")
@@ -131,9 +131,9 @@ STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
 # temporary directory will be stored inside the OUTPUTDIR directory
 # unless an absolute path is set
 TMPDIR = os.path.expandvars(config['tmp_dir'])
-if not os.path.isabs(TMPDIR):
-    TMPDIR = os.path.abspath(os.path.join(OUTPUTDIR, TMPDIR))
-elif not os.path.exists(TMPDIR):
-    os.makedirs(TMPDIR)
+#if not os.path.isabs(TMPDIR):
+#    TMPDIR = os.path.abspath(os.path.join(OUTPUTDIR, TMPDIR))
+#elif not os.path.exists(TMPDIR):
+os.makedirs(TMPDIR, exist_ok=True)
 
 
