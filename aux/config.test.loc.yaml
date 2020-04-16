@@ -1,6 +1,6 @@
 email: ""
-raw_directory: "testdata"
-sample_table: "testdata/samples.small.tsv"
+raw_directory: "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata"
+sample_table: "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/samples.small.tsv"
 do_primers: true
 do_dada: false
 do_taxonomy: false
@@ -31,7 +31,6 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
-tmp_dir: "tmp"
 outputdir: "testoutput"
 hand_off:
   biom: false
