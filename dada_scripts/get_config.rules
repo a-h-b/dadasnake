@@ -132,8 +132,8 @@ STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
 # unless an absolute path is set
 TMPDIR = os.path.expandvars(config['tmp_dir'])
 if not os.path.isabs(TMPDIR):
-    TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
-if not os.path.exists(TMPDIR):
+    TMPDIR = os.path.abspath(os.path.join(OUTPUTDIR, TMPDIR))
+elif not os.path.exists(TMPDIR):
     os.makedirs(TMPDIR)
 
 
