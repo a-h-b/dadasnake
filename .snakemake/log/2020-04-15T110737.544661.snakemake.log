@@ -1,0 +1,11 @@
+Building DAG of jobs...
+MissingInputException in line 45 of /Users/heintzbu/Documents/Programs/myOwn/dadasnake/dada_scripts/cutadapt.rules:
+Missing input files for rule input_numbers:
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_111_R2_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_222_R2_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_333_R2_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_334_R2_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_334_R1_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_111_R1_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_333_R1_001.fastq.gz
+dada_data/dadasnake/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/lib_222_R1_001.fastq.gz
