@@ -1,0 +1,52 @@
+email: ""
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
+primers:
+  fwd: 
+    sequence: TTGGAGGGCAAGTCTGGTGCC
+    name: NS31
+  rvs: 
+    sequence: GAACCCAAACACTTTGGTTTCC
+    name: AML2
+paired: false
+sequencing_direction: "fwd_1"
+filtering:
+  trunc_length:
+    fwd: 250
+    rvs: 0
+  trunc_qual: 15
+  max_EE:
+    fwd: 2
+  maxLen:
+    fwd: Inf
+  minQ:
+    fwd: 0
+outputdir: "AMF_single_output"
+taxonomy:
+  decipher:
+    do: false
+  mothur:
+    do: true
+    db_path: "/work/$USER/DBs/amplicon"
+    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
+blast:
+  do: false
+  db_path: "/work/$USER/DBs/amplicon"
+  tax_db: "MaarjAM_vt_types.20150204.format.fasta"
+  tax2id: ""
+hand_off:
+  biom: true
+  phyloseq: false
+final_table_filtering:
+  do: true
+  keep_target_taxa: "Glomeromycotina"
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: false
+  treeing:
+    do: true

@@ -21,6 +21,8 @@ rule taxonomy_control:
         """
 
 taxTabs = ["sequenceTables/all.seqTab.RDS"]
+if config['ITSx']['do']:
+    taxTabs.append("sequenceTables/ITSx.seqs.fasta")
 if config['taxonomy']['decipher']['do']:
     taxTabs.append("sequenceTables/tax.decipher.RDS")
 if config['taxonomy']['mothur']['do']:
@@ -35,8 +37,8 @@ rule taxonomy_to_OTUtab:
     threads: 1
     params:
         mem="8G",
-        runtime="36:00:00"
-    conda: "dada_env_test.yml"
+        runtime="12:00:00"
+    conda: "dada_env.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
     script:
@@ -52,8 +54,8 @@ if config['taxonomy']['decipher']['post_ITSx']:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
-        conda: "dada_env_test.yml"
+            runtime="48:00:00"
+        conda: "dada_env.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
@@ -68,15 +70,15 @@ else:
         threads: 1
         params:
             mem="8G",
-            runtime="36:00:00"
-        conda: "dada_env_test.yml"
+            runtime="48:00:00"
+        conda: "dada_env.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
             SRC_dir+"decipher_ID.R"
 
 if config['taxonomy']['mothur']['post_ITSx']:
-    rule mothur_taxonomy:
+    rule mothur_taxonomy_postITSx:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
@@ -84,14 +86,16 @@ if config['taxonomy']['mothur']['post_ITSx']:
         threads: 6
         params:
             mem="8G",
-            runtime="12:00:00"
-        conda: "dada_env_test.yml"
+            runtime="48:00:00",
+            outBase="sequenceTables/ITSx.seqs"
+        conda: "dada_env.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
         shell:
             """
             mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
             classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})"
+            mv {params[outBase]}.*.wang.taxonomy {output}
             """
 else:
     rule mothur_taxonomy:
@@ -101,10 +105,10 @@ else:
             "sequenceTables/tax.mothur.tsv"
         threads: 1
         params:
-            mem="30G,highmem",
-            runtime="12:00:00",
+            mem="30G",
+            runtime="48:00:00",
             outBase="sequenceTables/all.seqs"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/mothur_taxonomy.log"
         message: "Running mothur classifier on {input}."
         shell:
@@ -124,55 +128,69 @@ if config['ITSx']['do']:
         threads: 12
         params:
             mem="8G",
-            runtime="48:00:00"
+            runtime="12:00:00"
         log: "logs/ITSx.log"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         message: "Running ITSx on {input}."
         shell:
             """
-            export PERL5LIB={config[dada_lib]}/site_perl/5.26.2/x86_64-linux-thread-multi:$PERL5LIB
+            PL5=${{PERL5LIB:-}}
+            export PERL5LIB=$CONDA_PREFIX/lib/site_perl/5.26.2/x86_64-linux-thread-multi:$PL5
+            mkdir {output[0]}
             ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
             -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]}
             grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
             """
 
 if config['blast']['do']:
-    rule prepare_blastn:
-        input:
-            expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) else "")
-        output:
-            "sequenceTables/no_anno.seqs.fasta"
-        threads: 1
-        params:
-            mem="8G",
-            runtime="2:00:00"
-        log: "logs/prep_blastn.log"
-        conda: "dada_env_test.yml"
-        message: "Preparing blast: extracting un-annotated sequences."
-        script:
-            SRC_dir+"prepare_blastn.R"
-    if config['blast']['tax2id'] == "none":
+    if not config['blast']['all']:
+        rule prepare_blastn:
+            input:
+                expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) else "")
+            output:
+                "sequenceTables/no_anno.seqs.fasta"
+            threads: 1
+            params:
+                mem="8G",
+                runtime="2:00:00"
+            log: "logs/prep_blastn.log"
+            conda: "dada_env.yml"
+            message: "Preparing blast: extracting un-annotated sequences."
+            script:
+                SRC_dir+"prepare_blastn.R"
+        BLAST_IN="sequenceTables/no_anno.seqs.fasta"
+    else:
+        BLAST_IN="sequenceTables/all.seqs.fasta"
+    if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         rule blastn:
             input:
-                "sequenceTables/no_anno.seqs.fasta"
+                BLAST_IN
             output:
                 "sequenceTables/blast_results.tsv"
             threads: 6
             params:
-                mem="8G",
+                mem="30G",
                 runtime="48:00:00"
             log: "logs/blastn.log"
-            conda: "dada_env_test.yml"
+            conda: "dada_env.yml"
             message: "Running blastn on {input}."
             shell:
                 """
-                blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
-                 -query {input} -outfmt 7 -out {output} -max_target_seqs 10
+                if [ -s {input} ]; then
+                  if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" ]
+                    then
+                    makeblastdb -dbtype nucl -in {config[blast][db_path]}/{config[blast][tax_db]} -out {config[blast][db_path]}/{config[blast][tax_db]}
+                  fi
+                  blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
+                   -query {input} -outfmt 7 -out {output} -max_target_seqs 10
+                else
+                  touch {output}
+                fi
                 """
     else:
         rule blastn:
             input:
-                "sequenceTables/no_anno.seqs.fasta"
+                BLAST_IN
             output:
                 "sequenceTables/blast_results.tsv"
             threads: 2
@@ -180,17 +198,21 @@ if config['blast']['do']:
                 mem="30G,highmem",
                 runtime="48:00:00"
             log: "logs/blastn.log"
-            conda: "dada_env_test.yml"
+            conda: "dada_env.yml"
             message: "Running blastn on {input}."
             shell:
                 """
-                export BLASTDB={config[blast][db_path]}
-                blastn -query {input} -db {config[blast][db_path]}/{config[blast][tax_db]} \
-                 -out sequenceTables/blast_output.{config[blast][tax_db]}.tsv \
-                 -evalue {config[blast][e_val]} -max_target_seqs 10 \
-                 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
-                awk -F $"\\t" '{{if (NR==FNR) {{val[$13] = $0; next}} if($1 in val){{print val[$1]"\\t"$0}}}}' \
-                 sequenceTables/blast_output.{config[blast][tax_db]}.tsv {config[blast][tax2id]} >> {output}
+                if [ -s {input} ]; then
+                  export BLASTDB={config[blast][db_path]}
+                  blastn -query {input} -db {config[blast][db_path]}/{config[blast][tax_db]} \
+                   -out sequenceTables/blast_output.{config[blast][tax_db]}.tsv \
+                   -evalue {config[blast][e_val]} -max_target_seqs 10 \
+                   -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle'
+                 awk -F $"\\t" '{{if (NR==FNR) {{val[$13] = $0; next}} if($1 in val){{print val[$1]"\\t"$0}}}}' \
+                  sequenceTables/blast_output.{config[blast][tax_db]}.tsv {config[blast][tax2id]} >> {output}
+                else
+                  touch {output}
+                fi  
                 """
 
 if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']):
@@ -205,7 +227,7 @@ if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or confi
             currentStep = "taxonomy",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/biom_hand-off.log"
         script:
             SRC_dir+"biom_handoff.R"
@@ -222,7 +244,7 @@ if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or c
             currentStep = "taxonomy",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
             SRC_dir+"phyloseq_handoff.R"

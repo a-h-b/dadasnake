@@ -1,17 +1,22 @@
-#! /bin/bash
-
-#$ -cwd
-#$ -N dadaSnake
-#$ -l h_rt=72:00:00,h_vmem=8G
-#$ -binding linear:1
-#$ -e $JOB_NAME.stderr
-#$ -o $JOB_NAME.stdout
+#! /bin/bash -i
 
 CONFIGFILE=$1
+VARCONFIG=$2
+DIR=$(dirname $VARCONFIG)
+JNAME=$3
 
-module load miniconda/3/4.5.12-1
-conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
+if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
+   CONDA_START="conda activate $DIR/snakemake_env"
+   CONDA_END="conda deactivate"
+else
+   CONDA_START=""
+   CONDA_END=""
+fi
 
-snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 
+eval $LOADING_MODULES
+eval $CONDA_START
 
-conda deactivate
+snakemake -j 50 -s $DIR/Snakefile --cluster-config $DIR/dada_scripts/slurm.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu}{params.mem} {cluster.threads}{threads} {cluster.partition}" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr
+
+eval $CONDA_END

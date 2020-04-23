@@ -1,0 +1,131 @@
+#! /bin/bash -i
+
+usage() {
+    echo "Usage: $0 [-u] [-d] [-c] [-r] [-n name] /absolute_path/to/config_file " 1>&2
+    echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
+    echo "       -d if set, a dryrun is performed" 1>&2
+    echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -n <name for main job>, only works with -c" 1>&2
+    echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
+}
+
+while getopts n:udfcrh flag
+do
+    case $flag in
+        u)
+            UNLOCK=true;;
+        d)
+            DRYRUN=true;;
+        c)
+            CLUSTER=true;;
+        n)
+            JNAME=$OPTARG;;
+        r)
+            REPORT=true;;
+        f)
+            FRONTEND=true;;
+        h)
+            usage
+            exit;;
+        *)  
+            echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        :) 
+            echo "Missing option argument for -$OPTARG" >&2 
+            usage
+            exit 1;;
+        ?)
+            usage
+            exit
+             ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$1" ]; then
+    echo "missing input"
+    usage
+    exit 1
+else
+    CONFIGFILE=$1
+fi
+
+
+#if the file cannot be found
+if [[ !  -e "$1" ]]; then
+   echo "Configfile "$1" was not found."
+   echo "Provide full path."
+   exit 1
+fi
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+VARCONFIG=$DIR/VARIABLE_CONFIG
+
+while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
+if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
+   CONDA_START="conda activate $DIR/snakemake_env"
+   CONDA_END="conda deactivate"
+else
+   CONDA_START=""
+   CONDA_END=""
+fi
+
+if [ "$UNLOCK" = true ]; then
+    echo "Unlocking working directory."
+    eval $LOADING_MODULES
+    eval $CONDA_START
+    snakemake -j 1 -s $DIR/Snakefile --unlock --configfile $CONFIGFILE
+    eval $CONDA_END
+elif [ "$DRYRUN" = true ]; then
+    echo "Dryrun."
+    eval $LOADING_MODULES
+    eval $CONDA_START
+    snakemake -j 1 -s $DIR/Snakefile --dryrun --configfile $CONFIGFILE
+    eval $CONDA_END
+elif [ "$CLUSTER" = true ]; then
+  START_TIME=`date +%s`
+  NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+    if [ -z "$JNAME" ]; then
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 50 -s $DIR/Snakefile --cluster-config $DIR/dada_scripts/slurm.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu}{params.mem} {cluster.threads}{threads} {cluster.partition}\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 50 -s $DIR/Snakefile --cluster-config $DIR/dada_scripts/slurm.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu}{params.mem} {cluster.threads}{threads} {cluster.partition}\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END; tmux kill-session" C-m
+    fi
+elif [ "$FRONTEND" = true ]; then
+    echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
+    START_TIME=`date +%s`
+    NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
+   if [ -z "$JNAME" ]; then
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/dada_env_common >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END; tmux kill-session" C-m
+    fi
+elif [ "$REPORT" = true ]; then
+    echo "Writing report."
+    eval $LOADING_MODULES
+    eval $CONDA_START
+    snakemake -j 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common
+    eval $CONDA_END
+else
+    echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."
+fi
+
+

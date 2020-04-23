@@ -9,7 +9,7 @@ usage() {
     echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
 }
 
-while getopts n:udcrh flag
+while getopts n:udfcrh flag
 do
     case $flag in
         u)
@@ -22,6 +22,8 @@ do
             JNAME=$OPTARG;;
         r)
             REPORT=true;;
+        f)
+            FRONTEND=true;;
         h)
             usage
             exit;;
@@ -63,32 +65,56 @@ if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --unlock --configfile $CONFIGFILE
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --unlock --configfile $CONFIGFILE
     conda deactivate
 elif [ "$DRYRUN" = true ]; then
     echo "Dryrun."
 #    module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --dryrun --configfile $CONFIGFILE
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --dryrun --configfile $CONFIGFILE
     conda deactivate 
 elif [ "$CLUSTER" = true ]; then
     if [ -z "$JNAME" ]; then
-        JNAME="dadasnake"
-    fi
-    echo "Submitting workflow to cluster."
-    if [ "$REPORT" = true ]; then
-        qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/dev_dada_snake_submit.sh $CONFIGFILE
+        START_TIME=`date +%s`
+        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+        JNAME="dadasnake_${NAMEHASH}"
     else
-       qsub -cwd -m beas -l h_rt=72:00:00,h_vmem=8G -binding linear:1 -N $JNAME /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/dev_dada_snake_submit_withoutReport.sh $CONFIGFILE
-#    snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile $CONFIGFILE
-   fi
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
+elif [ "$FRONTEND" = true ]; then
+    echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
+    if [ -z "$JNAME" ]; then
+        START_TIME=`date +%s`
+        NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+        JNAME="dadasnake_${NAMEHASH}"
+    else
+        JNAME="${JNAME}_${NAMEHASH}"
+    fi
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
     module load miniconda/3/4.5.12-1
     conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
-    snakemake -j 1 -s /data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile_dev --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
     conda deactivate
 else
     echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."
 fi
+
 

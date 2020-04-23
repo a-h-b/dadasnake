@@ -1,0 +1,97 @@
+#! /bin/bash -i
+
+usage() {
+    echo "Usage: $0 [-u] [-d] [-c] [-r] [-n name] /absolute_path/to/config_file " 1>&2
+    echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
+    echo "       -d if set, a dryrun is performed" 1>&2
+    echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -n <name for main job>, only works with -c" 1>&2
+    echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
+}
+
+while getopts n:udcrh flag
+do
+    case $flag in
+        u)
+            UNLOCK=true;;
+        d)
+            DRYRUN=true;;
+        c)
+            CLUSTER=true;;
+        n)
+            JNAME=$OPTARG;;
+        r)
+            REPORT=true;;
+        h)
+            usage
+            exit;;
+        *)  
+            echo "Unimplemented option: -$OPTARG" >&2 
+            usage
+            exit 1;;
+        :) 
+            echo "Missing option argument for -$OPTARG" >&2 
+            usage
+            exit 1;;
+        ?)
+            usage
+            exit
+             ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$1" ]; then
+    echo "missing input"
+    usage
+    exit 1
+else
+    CONFIGFILE=$1
+fi
+
+
+#if the file cannot be found
+if [[ !  -e "$1" ]]; then
+   echo "Configfile "$1" was not found."
+   echo "Provide full path."
+   exit 1
+fi
+
+
+if [ "$UNLOCK" = true ]; then
+    echo "Unlocking working directory."
+    module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --unlock --configfile $CONFIGFILE
+    conda deactivate
+elif [ "$DRYRUN" = true ]; then
+    echo "Dryrun."
+#    module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --dryrun --configfile $CONFIGFILE
+    conda deactivate 
+elif [ "$CLUSTER" = true ]; then
+    if [ -z "$JNAME" ]; then
+        JNAME="dadasnake"
+    fi
+    echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
+    tmux new -s $JNAME -d
+    tmux send-keys -t $JNAME "module load miniconda/3/4.5.12-1 >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    tmux send-keys -t $JNAME "conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    if [ "$REPORT" = true ]; then
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    else
+        tmux send-keys -t $JNAME "snakemake -j 50 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --cluster \"qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd\" --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2 >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+    fi
+elif [ "$REPORT" = true ]; then
+    echo "Writing report."
+    module load miniconda/3/4.5.12-1
+    conda activate /data/project/metaamp/TOOLS/dada_pipe/dada_env_test
+    snakemake -j 1 -s /data/project/metaamp/TOOLS/dada_pipe/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix /data/project/metaamp/TOOLS/dada_pipe/dada_env_common_2
+    conda deactivate
+else
+    echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."
+fi
+
+

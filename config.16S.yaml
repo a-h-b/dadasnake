@@ -1,0 +1,62 @@
+email: ""
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
+primers:
+  fwd: 
+    sequence: GTGYCAGCMGCCGCGGTAA
+    name: 515F
+  rvs: 
+    sequence: GGACTACNVGGGTWTCTAAT
+    name: 806R
+paired: true
+sequencing_direction: "unknown"
+filtering:
+  trunc_length:
+    fwd: 170
+    rvs: 130
+  trunc_qual: 9
+  max_EE:
+    fwd: 0.5
+    rvs: 0.5
+  minLen:
+    fwd: 100
+    rvs: 100
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+outputdir: "/data/project/metaamp/PLAYGROUND"
+taxonomy:
+  decipher:
+    do: true
+    db_path: "/data/project/metaamp/DBs/decipher"
+    tax_db: "SILVA_SSU_r132_March2018.RData"
+    strand: top
+    look_for_species: true
+    spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
+  mothur:
+    do: true
+    db_path: "/data/project/metaamp/DBs/amplicon"
+    tax_db: "ifoh_515f.iroh_806r.silva_132"
+blast:
+  do: true
+hand_off:
+  biom: true
+  phyloseq: true
+final_table_filtering:
+  do: true
+  keep_target_taxa: "."
+  target_min_length: 245
+  target_max_length: 265
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: false
+  treeing:
+    do: true

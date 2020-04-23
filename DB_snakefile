@@ -1,0 +1,94 @@
+THREADS=12
+MEM="8G"
+
+if config['what'] == "tax":
+    FILTERSHELL = """
+        TMP_DIR=$(mktemp -dt "DB_XXXXXX")
+        #echo $TMP_DIR
+        grep {params.taxname} {input.tax} >> {output.tax}
+        cut -f 1 {output.tax} >> $TMP_DIR/seqIDs
+        cp {input.db} $TMP_DIR/seqs.fasta
+        mothur "#set.dir(tempdefault=$TMP_DIR);
+                 get.seqs(fasta=seqs.fasta,accnos=seqIDs)"
+        mv $TMP_DIR/seqs.pick.fasta {output.db}
+        """
+    THREADS=1
+    MEM="30G,highmem"
+elif config['what'] == "ITSx":
+    FILTERSHELL = """ 
+        TMP_DIR=$(mktemp -dt "DB_XXXXXX")
+        PL5=${{PERL5LIB:-}}
+        export PERL5LIB=$CONDA_PREFIX/lib/site_perl/5.26.2/x86_64-linux-thread-multi:$PL5
+        ITSx -i {input.db} --cpu {threads} --detailed_results T --save_regions {params.region} --graphical F -o $TMP_DIR/ITSx -N 1 -E {params.evalue}
+        grep '|F|{params.region}' -A 1 --no-group-separator $TMP_DIR/ITSx.{params.region}.fasta | sed 's/|.*//' > {output.db}
+        grep ">" {output.db} | sed 's/>//' > $TMP_DIR/seqIDs 
+        awk 'FNR==NR {{ a[$NF]; next }} ($1 in a)' $TMP_DIR/seqIDs {input.tax} >> {output.tax}
+        """
+elif config['what'] == "primers":
+    FILTERSHELL = """ 
+        TMP_DIR=$(mktemp -dt "DB_XXXXXX")
+        cutadapt -g {params.fwd} --no-indels -n 1 -O 14 -m 1 -j 1 \
+         -e {params.mismatch} --untrimmed-output=$TMP_DIR/fwd.unt.fasta \
+         -o $TMP_DIR/fwd.fasta {input.db} &> {log}
+
+        cutadapt -a {params.rvs_rc} --no-indels -n 1 -m 1 -O 14 -j {threads} \
+         -e {params.mismatch} --trimmed-only -o $TMP_DIR/fwd.rvs.fasta \
+         $TMP_DIR/fwd.fasta >> {log} 2>&1
+
+        cutadapt -g {params.rvs} --no-indels  -n 1 -O 14 -m 1 -j {threads} \
+         -e {params.mismatch} --trimmed-only -o $TMP_DIR/rvs.fasta \
+         $TMP_DIR/fwd.unt.fasta >> {log} 2>&1
+
+        cutadapt -a {params.fwd_rc} --no-indels -n 1 -m 1 -j {threads} \
+         -e {params.mismatch} --trimmed-only -o $TMP_DIR/rvs.fwd.fasta \
+         $TMP_DIR/rvs.fasta  >> {log} 2>&1
+
+        cat $TMP_DIR/fwd.rvs.fasta $TMP_DIR/rvs.fwd.fasta >> {output.db}
+
+        grep ">" {output.db} | sed 's/>//' > $TMP_DIR/seqIDs
+        awk 'FNR==NR {{ a[$NF]; next }} ($1 in a)' $TMP_DIR/seqIDs {input.tax} >> {output.tax}
+        """
+
+rule db_filter:
+    input:
+        db=config['input_DB'],
+        tax=config['input_tax']
+    output:
+        db=config['output_DB'],
+        tax=config['output_tax']
+    threads: THREADS
+    params:
+        mem=MEM,
+        runtime="48:00:00",
+        region=config['region'],
+        evalue=config['evalue'],
+        mismatch=config['mismatch'],
+        taxname=config['tax'],
+        fwd=config['fwd'],
+        fwd_rc=config['fwd_rc'],
+        rvs=config['rvs'],
+        rvs_rc=config['rvs_rc'],
+    conda: "dada_env_test.yml"
+    log: "filtering." + config['sessionName'] + ".log"
+    message: "Filtering DB and taxonomy {input}."
+    shell:
+        FILTERSHELL
+
+if config['email'] != "":
+    EMAIL=config['email']
+    onsuccess:
+        shell('echo "$(date) {config[sessionName]}" | mail -s "database prepared" {EMAIL} ')
+    onerror:
+        shell('echo "$(date) {config[sessionName]}" | mail -s "error in preparing database" {EMAIL} ')
+    onstart:
+        shell('echo "$(date) {config[sessionName]}" | mail -s "database preparation started" {EMAIL} ')
+
+localrules: ALL
+
+# master command
+rule ALL:
+    input:
+        config['output_DB'],
+        config['output_tax']
+    threads: 1
+

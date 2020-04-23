@@ -3,6 +3,7 @@ import shutil
 import gzip
 import yaml
 #import bz2
+from re import match
 from copy import deepcopy
 import subprocess
 import pandas as pd
@@ -44,9 +45,23 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
 
 
 # get parameters from the command line
-OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
+OUTPUTDIR = os.path.expandvars(config['outputdir'])
 
-samples = pd.read_table(os.path.expandvars(config['sample_table']))
+EMAIL = config['email']
+if EMAIL != "":
+    if not re.fullmatch(r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$", EMAIL):
+        EMAIL = ""
+        print("Your email address is not valid, you will not receive notifications.")
+
+if os.path.isabs(os.path.expandvars(config['sample_table'])):
+    sam_path = os.path.expandvars(config['sample_table'])
+else:
+    sam_path = os.getcwd() + "/" + os.path.expandvars(config['sample_table'])
+try:
+    samples = pd.read_table(sam_path)
+except:
+    print("Sample table was not found. Please enter the absolute path and file name in the config file.")
+    raise
 if 'run' in samples.columns:
     samples['run'] = samples['run'].astype(str)
     for r in samples['run']:
@@ -88,6 +103,12 @@ if config['paired'] and 'r2_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 2 - column should be named r2_file.")
 #print(samples)
 
+if os.path.isabs(os.path.expandvars(config['raw_directory'])):
+    RAW = os.path.expandvars(config['raw_directory'])
+else:
+    RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
+
+
 #validate(samples, schema="schemas/sample.schema.yaml")
 
 yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
@@ -111,8 +132,8 @@ STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
 # unless an absolute path is set
 TMPDIR = os.path.expandvars(config['tmp_dir'])
 if not os.path.isabs(TMPDIR):
-    TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
-if not os.path.exists(TMPDIR):
+    TMPDIR = os.path.abspath(os.path.join(OUTPUTDIR, TMPDIR))
+elif not os.path.exists(TMPDIR):
     os.makedirs(TMPDIR)
 
 
