@@ -1,0 +1,16 @@
+__default__: 
+  call: "qsub -cwd"
+  mem_per_cpu: "-l h_vmem="
+  partition: ""
+  runtime: "-l h_rt="
+  threads: "-pe smp "
+
+dada_mergeSamples:
+  partition: "-l highmem"
+
+mothur_taxonomy:
+  partition: "-l highmem"
+
+blastn:
+  partition: "-l highmem"
+

@@ -1,0 +1,76 @@
+email: ""
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
+primers:
+  fwd: 
+    sequence: TCCTCCGCTTATTGATATGC
+    name: ITS4
+  rvs: 
+    sequence: GTGARTCATCGAATCTTTG
+    name: fITS7
+paired: true
+sequencing_direction: "unknown"
+primer_cutting:
+  overlap: 10
+  count: 2
+  filter_if_not_match: any
+  perc_mismatch: 0.2
+  indels: "--no-indels"
+filtering:
+  trunc_length:
+    fwd: 0
+    rvs: 0
+  trunc_qual: 15
+  max_EE:
+    fwd: 3
+    rvs: 3
+  minLen:
+    fwd: 70
+    rvs: 70
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+pair_merging:
+  min_overlap: 20
+  max_mismatch: 2
+chimeras:
+  remove: true
+  method: consensus
+outputdir: "outputITS"
+taxonomy:
+  decipher:
+    do: false
+  mothur:
+    do: true
+    post_ITSx: true
+    db_path: "/work/$USER/DBs/amplicon"
+    tax_db: "unite_01.12.2017_dynamic_s.ITS2"
+blast:
+  do: true
+  e_val: 0.00001
+ITSx:
+  do: true
+  min_regions: 1
+  region: ITS2
+  e_val: 1e-5
+hand_off:
+  biom: true
+  phyloseq: false
+final_table_filtering:
+  do: true
+  keep_target_taxa: "Fungi"
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: false
+    funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
+    classifier: mothur
+  treeing:
+    do: false

@@ -5,6 +5,8 @@ description: DADA2 pipeline Snakemake configuration file
 type: object
 
 properties:
+  email:
+    type: string
   tmp_dir:
     type: string 
   dada_root:
@@ -13,6 +15,8 @@ properties:
     type: string
   dada_lib:
     type: string 
+  dada_bin:
+    type: string
   raw_directory:
     type: string
   sample_table:
@@ -21,13 +25,9 @@ properties:
     type: boolean
   do_dada:
     type: boolean 
-  skip_db: 
-    type: boolean 
   do_taxonomy: 
     type: boolean
   do_postprocessing:
-    type: boolean 
-  remove_chimeras: 
     type: boolean 
   primers: 
     type: object
@@ -48,6 +48,8 @@ properties:
           sequence:
             type: string
             pattern: "^[GATCRYSWKMBDHVNgatcryswkmbdhvn]{10,30}$"
+  paired:
+    type: boolean
   sequencing_direction:
     type: string
     enum:
@@ -63,7 +65,7 @@ properties:
         maximum: 30
       count:
         type: number
-      match: 
+      filter_if_not_match: 
         type: string
         enum: 
           - both
@@ -72,33 +74,219 @@ properties:
       perc_mismatch: 
         type: number
         maximum: 1
-  trunc_length:
-    type: object
-    properties: 
-      fwd:
-        type: number
-        minimum: 50
-        maximum: 300 
-      rvs:
-        type: number
-        minimum: 50
-        maximum: 300
-  min_qual:
+        minimum: 0
+  filtering:
     type: object
     properties:
-      fwd:
+      trunc_length:
+        type: object
+        properties: 
+          fwd:
+            type: number
+            minimum: 0
+            maximum: 600 
+          rvs:
+            type: number
+            minimum: 0
+            maximum: 600
+      trunc_qual:
         type: number
         minimum: 0
-        maximum: 45
-      rvs:
+        maximum: 40
+      max_EE:
+        type: object
+        properties: 
+          fwd:
+            type:
+              - number
+              - string
+          rvs:
+            type: 
+              - number
+              - string
+      minLen:
+        type: object
+        properties: 
+          fwd:
+            type: number
+            minimum: 0
+            maximum: 600 
+          rvs:
+            type: number
+            minimum: 0
+            maximum: 600
+      maxLen:
+        type: object
+        properties: 
+          fwd:
+            type:
+              - number
+              - string
+          rvs:
+            type:
+              - number
+              - string
+      minQ:
+        type: object
+        properties:
+          fwd:
+            type: number
+            minimum: 0
+            maximum: 40
+          rvs:
+            type: number
+            minimum: 0
+            maximum: 40
+  error seed:
+    type: number
+  dada:
+    type: object
+    properties:
+      band_size:
+        type: number
+      homopolymer_gap_penalty:
+        type:
+          - number
+          - "null"
+  pair_merging:
+    type: object
+    properties:
+      min_overlap:
         type: number
         minimum: 0
-        maximum: 45
+      max_mismatch:
+        type: number
+        minimum: 0
+      just_concatenate:
+        type: boolean
+      trim_overhang:
+        type: boolean
+  chimeras:
+    type: object
+    properties:
+      remove:
+        type: boolean
+      method:
+        type: string
+        enum:
+          - consensus
+          - pooled
+          - per-sample
   outputdir:
     type: string
     pattern: "^/.+(/.+)*$"
-  db_path: 
-    type: string
-  tax_db:
-    type: string   
-
+  taxonomy:
+    type: object
+    properties:
+      decipher:
+        type: object
+        properties:
+          do:
+            type: boolean
+          post_ITSx: 
+            type: boolean
+          db_path: 
+            type: string
+            pattern: "^/.+(/.+)*$"
+          tax_db:
+            type: string   
+          threshold:
+            type: number
+            minimum: 0
+            maximum: 100
+          strand:
+            type: string
+            enum:
+              - both
+              - top
+              - bottom
+          bootstraps:
+            type: number
+          seed:
+            type: number
+          look_for_species:
+            type: boolean
+          spec_db:
+            type: string
+            pattern: "^/.+(/.+)*$"
+      mothur:
+        type: object
+        properties:
+          do:
+            type: boolean
+          post_ITSx: 
+            type: boolean
+          db_path: 
+            type: string
+            pattern: "^/.+(/.+)*$"
+          tax_db:
+            type: string   
+          cutoff:
+            type: number
+            minimum: 0
+            maximum: 100
+  blast:
+    type: object
+    properties:
+      do:
+        type: boolean
+      min_regios:
+        type: number
+        minimum: 1
+        maximum: 10
+      region:
+        type: string
+        enum:
+          - SSU
+          - ITS1
+          - 5.8S
+          - ITS2
+          - LSU
+          - all
+          - none
+      e_val:
+        type: number
+  hand_off:
+    type: object
+    properties:
+      biom:
+        type: boolean
+      phyloseq:
+        type: boolean
+  final_table_filtering:
+    type: object
+    properties:
+      do:
+        type: boolean
+      keep_target_taxa:
+        type: string
+      target_min_length:
+        type: number
+        minimum: 0
+      target_max_length:
+        type: 
+          - number
+          - string
+  postprocessing:
+    type: object
+    properties:
+      rarefaction_curve:
+        type: boolean
+      funguild:
+        type: object
+        properties:
+          funguild_db:
+            type: string
+            pattern: "^/.+(/.+)*$"
+          classifier:
+            type: string
+            enum:
+              - mothur
+              - decipher
+      treeing:
+        type: object
+        properties:
+          do:
+            type: boolean
+          fasttreeMP:
+            type: string

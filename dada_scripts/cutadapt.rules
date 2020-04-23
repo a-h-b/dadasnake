@@ -1,8 +1,10 @@
 def get_fastq(wildcards):
-    return os.path.expandvars(config['raw_directory'])+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    return RAW+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
 
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
+
+#ruleorder: cut_primer_both > combine_or_rename 
 
 rule primers_control:
     input:
@@ -43,16 +45,17 @@ rule combine_or_rename:
 rule input_numbers:
     input:
         "reporting/sample_table.tsv",
-        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=os.path.expandvars(config['raw_directory'])),
-        expand("{raw_directory}/{file}", file=samples.r2_file,raw_directory=os.path.expandvars(config['raw_directory']))
+        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=RAW),
+        expand("{raw_directory}/{file}", file=samples.r2_file,raw_directory=RAW)
     output:
         report("reporting/readNumbers.tsv",category="Reads")
     threads: 1
     params:
         currentStep = "raw",
         runtime="12:00:00",
-        mem="8G"
-    conda: "dada_env_test.yml"
+        mem="8G",
+        raw_directory = RAW
+    conda: "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
         SRC_dir+"report_readNumbers.R" 
@@ -71,9 +74,12 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     script:
         SRC_dir+"report_readNumbers.R"
+
+
+#script to visualize read numbers -> run once for all steps
 
 
 if config['sequencing_direction'] == "fwd_1":
@@ -87,7 +93,7 @@ if config['sequencing_direction'] == "fwd_1":
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
         shell:
@@ -120,7 +126,7 @@ elif config['sequencing_direction'] == "rvs_1":
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
         shell:
@@ -154,7 +160,7 @@ else:
         params:
             runtime="12:00:00",
             mem="8G"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both  primers in both reads."
         shell:

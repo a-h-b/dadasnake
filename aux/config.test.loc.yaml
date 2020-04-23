@@ -1,0 +1,37 @@
+email: ""
+raw_directory: "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata"
+sample_table: "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/testdata/samples.small.tsv"
+do_primers: true
+do_dada: false
+do_taxonomy: false
+do_postprocessing: false
+primers:
+  fwd: 
+    sequence: GTGYCAGCMGCCGCGGTAA
+    name: 515F
+  rvs: 
+    sequence: GGACTACNVGGGTWTCTAAT
+    name: 806R
+paired: true
+sequencing_direction: "unknown"
+filtering:
+  trunc_length:
+    fwd: 170
+    rvs: 130
+  trunc_qual: 9
+  max_EE:
+    fwd: 0.5
+    rvs: 0.5
+  minLen:
+    fwd: 100
+    rvs: 100
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+outputdir: "testoutput"
+hand_off:
+  biom: false
+  phyloseq: false

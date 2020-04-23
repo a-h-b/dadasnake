@@ -7,9 +7,9 @@ rule dada_mergeSamples:
         "sequenceTables/seqTab.{run}.tsv"
     threads: 1
     params:
-        mem="30G,highmem",
+        mem="30G",
         runtime="12:00:00"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"
     message: "preparing sequence table for {wildcards.run}."
     script:
@@ -28,7 +28,7 @@ if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['tax
             currentStep = "dada",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env_test.yml"
+        conda: "dada_env.yml"
         log: "logs/biom_hand-off.log"
         script:
             SRC_dir+"biom_handoff.R"
@@ -47,7 +47,7 @@ if config['hand_off']['phyloseq']:
                     currentStep = "dada",
                     mem="8G",
                     runtime="12:00:00"
-                conda: "dada_env_test.yml"
+                conda: "dada_env.yml"
                 log: "logs/phyloseq_hand-off.log"
                 script:
                     SRC_dir+"phyloseq_handoff.R"

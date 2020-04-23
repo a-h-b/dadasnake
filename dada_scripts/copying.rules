@@ -1,5 +1,5 @@
 def get_fastq(wildcards):
-    return os.path.expandvars(config['raw_directory'])+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    return RAW+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
 
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
@@ -45,16 +45,17 @@ rule combine_or_rename:
 rule input_numbers:
     input:
         "reporting/sample_table.tsv",
-        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=os.path.expandvars(config['raw_directory'])),
-        expand("{raw_directory}/{file}", file=samples.r2_file,raw_directory=os.path.expandvars(config['raw_directory']))
+        expand("{raw_directory}/{file}", file=samples.r1_file,raw_directory=RAW),
+        expand("{raw_directory}/{file}", file=samples.r2_file,raw_directory=RAW)
     output:
         report("reporting/readNumbers.tsv",category="Reads")
     threads: 1
     params:
         currentStep = "raw",
         runtime="12:00:00",
-        mem="8G"
-    conda: "dada_env_test.yml"
+        mem="8G",
+        raw_directory = RAW
+    conda: "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
         SRC_dir+"report_readNumbers.R" 
@@ -73,7 +74,7 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env_test.yml"
+    conda: "dada_env.yml"
     script:
         SRC_dir+"report_readNumbers.R"
 

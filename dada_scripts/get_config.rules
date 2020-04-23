@@ -24,6 +24,9 @@ def dict_merge(a, b):
     return result
 
 
+# default configuration file
+#configfile: "config.default.yaml"
+#validate(config,schema="schemas/config.schema.yaml")
 
 # default executable for snakemake
 shell.executable("bash")
@@ -37,9 +40,12 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
     with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
         data = yaml.load(rhandle)
         config = dict_merge(config, data)
+#validate(config,schema="schemas/config.schema.yaml")
+
+
 
 # get parameters from the command line
-OUTPUTDIR = os.environ.get("OUTPUTDIR", os.path.expandvars(config['outputdir']))
+OUTPUTDIR = os.path.expandvars(config['outputdir'])
 
 EMAIL = config['email']
 if EMAIL != "":
@@ -47,8 +53,12 @@ if EMAIL != "":
         EMAIL = ""
         print("Your email address is not valid, you will not receive notifications.")
 
+if os.path.isabs(os.path.expandvars(config['sample_table'])):
+    sam_path = os.path.expandvars(config['sample_table'])
+else:
+    sam_path = os.getcwd() + "/" + os.path.expandvars(config['sample_table'])
 try:
-    samples = pd.read_table(os.path.expandvars(config['sample_table']))
+    samples = pd.read_table(sam_path)
 except:
     print("Sample table was not found. Please enter the absolute path and file name in the config file.")
     raise
@@ -91,9 +101,20 @@ if 'r1_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 1 - column should be named r1_file.")
 if config['paired'] and 'r2_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 2 - column should be named r2_file.")
+#print(samples)
+
+if os.path.isabs(os.path.expandvars(config['raw_directory'])):
+    RAW = os.path.expandvars(config['raw_directory'])
+else:
+    RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
+
+
+#validate(samples, schema="schemas/sample.schema.yaml")
 
 yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
 yaml.add_representer(tuple, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))
+#f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
+#yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
 PRELIM_STEPS = ''
 if config['do_primers']:
@@ -111,8 +132,8 @@ STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
 # unless an absolute path is set
 TMPDIR = os.path.expandvars(config['tmp_dir'])
 if not os.path.isabs(TMPDIR):
-    TMPDIR = os.path.join(OUTPUTDIR, TMPDIR)
-if not os.path.exists(TMPDIR):
+    TMPDIR = os.path.abspath(os.path.join(OUTPUTDIR, TMPDIR))
+elif not os.path.exists(TMPDIR):
     os.makedirs(TMPDIR)
 
 
