@@ -1,4 +1,0 @@
-WorkflowError in line 41 of /gpfs1/data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/get_config.rules:
-Schema file /gpfs1/data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/schemas/config.schema.yaml not found.
-  File "/gpfs1/data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/Snakefile_dev", line 7, in <module>
-  File "/gpfs1/data/project/metaamp/TOOLS/dev_dada_pipe/dadasnake/dada_scripts/get_config.rules", line 41, in <module>
