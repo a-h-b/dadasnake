@@ -17,30 +17,10 @@ if (snakemake@threads > 1) {
 library(dada2)
 library(Biostrings)
 
+dadaFile <- snakemake@input
+dadalist <- readRDS(dadaFile)
+seqtab <- makeSequenceTable(dadalist)
 
-print("merging runs")
-# # Merge multiple runs (if necessary)
-seqTabList <- unlist(snakemake@input)
-print(length(seqTabList))
-if(length(seqTabList)>1){
-  seqTabs <- list()
-  for(i in 1:length(seqTabList)){
-     tmpTab <- readRDS(seqTabList[i])
-     tabname <- gsub("sequenceTables/seqTab.","",gsub(".RDS","",seqTabList[i]))
-     if(all(dim(tmpTab)>0)){
-       seqTabs[[tabname]] <- tmpTab
-     }else{
-       print(paste0("No reads were recovered from run ",tabname,"!")) 
-     }
-  }
-  if(length(seqTabs)>1){
-    seqtab <- mergeSequenceTables(tables=seqTabs,repeats="sum")
-  }else{
-    seqtab <- seqTabs[[1]]
-  }
-}else{
-  seqtab <- readRDS(seqTabList[1])
-}
 if(snakemake@config[['chimeras']][['remove']]){
   print("Removing chimeras")
   saveRDS(seqtab,snakemake@output[[5]])
