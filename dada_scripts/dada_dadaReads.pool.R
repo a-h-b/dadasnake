@@ -19,7 +19,7 @@ library(dada2)
 # File parsing
 errfile <- snakemake@input[[1]]
 
-filt <- unlist(snakemake@input[[2]])
+filt <- unlist(snakemake@input[-1])
 
 filtNames <- sapply(filt,
                     function(x){

@@ -13,7 +13,7 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-paired: false
+paired: true
 sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
@@ -40,7 +40,7 @@ filtering:
     rvs: 0
 error_seed: 100
 dada:
-  pool: true
+  pool: pseudo
   band_size: 16
   homopolymer_gap_penalty: NULL
 pair_merging:

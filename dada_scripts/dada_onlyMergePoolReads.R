@@ -27,7 +27,6 @@ mergefile <- snakemake@output[[1]]
 dadaF <- readRDS(dadaFfile)
 dadaR <- readRDS(dadaRfile)
 
-if(names(dadaF)!=names(dadaR)) stop("Forward and reverse files do not match.")
 
 derepF <- readRDS(derepFfile)
 derepR <- readRDS(derepRfile)

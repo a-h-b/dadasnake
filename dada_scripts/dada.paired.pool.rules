@@ -132,6 +132,7 @@ rule dada_dadaPairs:
         "merged/dada.{direction}.RDS"
     threads: 1
     params:
+        pool=config['dada']['pool'],
         mem="8G",
         runtime="12:00:00"
     conda: "dada_env.yml"
@@ -182,7 +183,7 @@ if config["chimeras"]["remove"]:
 
     rule nochime_numbers:
         input:
-            "reporting/mergedNumbers_perSample.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
@@ -217,7 +218,7 @@ else:
 
     rule tabled_numbers:
         input:
-            "reporting/mergedNumbers_perSample.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")

@@ -83,39 +83,6 @@ if(snakemake@params[["currentStep"]] == "raw"){
   colnames(nums2PerSample)[1] <- "sample"
   perSample <- merge(tab2PerSample,nums2PerSample,by="sample")
   write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
-}else if(snakemake@params[["currentStep"]] == "merged"& !snakemake@params[["dada"]][["pool"]]){
-  library(dada2)
-  print("extracting read numbers")
-  getN <- function(x) sum(getUniques(x))
-  first <- T
-  for(f in filesOI){
-    fh <- readRDS(f)
-    if(first){
-      readnums <- getN(fh)
-      first <- F
-    }else{
-      readnums <- append(readnums,getN(fh))
-    }
-    names(readnums)[length(readnums)] <- f
-  } 
-  prefix <- "merged/"
-  suffix <- ".RDS"
-  names(readnums) <- gsub(prefix,"",names(readnums))
-  runs_sams <- sapply(names(readnums),function(x) unlist(strsplit(x,split="/")))
-  runs_sams[2,] <- gsub(suffix,"",runs_sams[2,])
-  sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
-                                       function(x) readnums[which(runs_sams[1,]==x[1]
-                                                                  &runs_sams[2,]==x[2])])
-  write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
-  tabPerSample <- aggregate(sampleTab[,c("library","run","r1_file","r2_file")],list(sampleTab$sample),function(x)paste(unique(x),collapse=",",sep=","))
-  colnames(tabPerSample)[1] <- "sample"
-  numsPerSample <- aggregate(sampleTab[,c("reads_raw_r1","reads_raw_r2","reads_primers_fwd","reads_primers_rvs")],list(sampleTab$sample),sum)
-  colnames(numsPerSample)[1] <- "sample"
-  tab2PerSample <- merge(tabPerSample,numsPerSample,by="sample")
-  nums2PerSample <- aggregate(sampleTab[,c("reads_filtered_fwd","reads_filtered_rvs","reads_merged")],list(sampleTab$sample),function(x)sum(unique(x)))
-  colnames(nums2PerSample)[1] <- "sample"
-  perSample <- merge(tab2PerSample,nums2PerSample,by="sample")
-  write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "merged"){
   library(dada2)
   print("extracting read numbers")
