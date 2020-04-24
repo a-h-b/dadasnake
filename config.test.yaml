@@ -1,0 +1,101 @@
+email: "anna.heintz-buschart@ufz.de"
+tmp_dir: "/work/$USER/tmp"
+raw_directory: "/global/apps/dadasnake/testdata"
+sample_table: "/global/apps/dadasnake/testdata/samples.small.tsv"
+do_primers: true
+do_dada: true
+do_taxonomy: false
+do_postprocessing: false
+primers:
+  fwd: 
+    sequence: GTGYCAGCMGCCGCGGTAA
+    name: 515F
+  rvs: 
+    sequence: GGACTACNVGGGTWTCTAAT
+    name: 806R
+paired: false
+sequencing_direction: "unknown"
+primer_cutting:
+  overlap: 10
+  count: 2
+  filter_if_not_match: any
+  perc_mismatch: 0.2
+  indels: "--no-indels"
+filtering:
+  trunc_length:
+    fwd: 170
+    rvs: 130
+  trunc_qual: 9
+  max_EE:
+    fwd: 0.5
+    rvs: 0.5
+  minLen:
+    fwd: 0
+    rvs: 0
+  maxLen:
+    fwd: Inf
+    rvs: Inf
+  minQ:
+    fwd: 0
+    rvs: 0
+error_seed: 100
+dada:
+  pool: true
+  band_size: 16
+  homopolymer_gap_penalty: NULL
+pair_merging:
+  min_overlap: 12
+  max_mismatch: 0
+  just_concatenate: false
+  trim_overhang: true
+chimeras:
+  remove: true
+  method: consensus
+outputdir: "/work/$USER/dadasnake_output"
+taxonomy:
+  decipher:
+    do: false
+    post_ITSx: false
+    db_path: "/work/$USER/DBs/decipher"
+    tax_db: "SILVA_SSU_r132_March2018.RData"
+    threshold: 60
+    strand: top
+    bootstraps: 100
+    seed: 100  
+    look_for_species: false
+    spec_db: "/work/$USER/DBs/decipher/silva_species_assignment_v132.fa.gz"
+  mothur:
+    do: false
+    post_ITSx: false
+    db_path: "/work/$USER/DBs/amplicon"
+    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
+    cutoff: 60
+blast:
+  do: false
+  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
+  tax_db: nt
+  e_val: 0.01
+  tax2id: ""
+  all: false
+ITSx:
+  do: false
+  min_regions: 1
+  region: ITS2
+  e_val: 1e-5
+hand_off:
+  biom: true
+  phyloseq: false
+final_table_filtering:
+  do: true
+  keep_target_taxa: "."
+  target_min_length: 240
+  target_max_length: 265
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: false
+    funguild_db: "/work/$USER/DBs/amplicon/funguild_db.json"
+    classifier: mothur
+  treeing:
+    do: true
+    fasttreeMP: ""

@@ -17,9 +17,14 @@ if (snakemake@threads > 1) {
 library(dada2)
 library(Biostrings)
 
-dadaFile <- snakemake@input
+dadaFile <- snakemake@input[[1]]
 dadalist <- readRDS(dadaFile)
-seqtab <- makeSequenceTable(dadalist)
+seqtab1 <- makeSequenceTable(dadalist)
+seqtab2 <- aggregate(seqtab1,list(gsub(".+/","",rownames(seqtab1))),sum)
+rm(seqtab1)
+seqtab <- as.matrix(seqtab2[,-1])
+rownames(seqtab) <- seqtab2[,1]
+rm(seqtab2)
 
 if(snakemake@config[['chimeras']][['remove']]){
   print("Removing chimeras")

@@ -40,7 +40,7 @@ rule filter_numbers:
 rule merged_numbers:
     input:
         "reporting/filteredNumbers_perLibrary.tsv",
-        expand("merged/{samples.run}/{samples.sample}.RDS", samples=samples.itertuples())
+        expand("merged/dada.RDS", samples=samples.itertuples())
     output:
         report("reporting/mergedNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
@@ -109,7 +109,7 @@ rule dada_filter:
 
 rule dada_errors:
     input:
-        expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples())
+        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
     output:
         "errors/models.{direction}.RDS",
         "stats/error_models.{direction}.pdf",
@@ -126,7 +126,7 @@ rule dada_errors:
 rule dada_dadaPairs:
     input:
         "errors/models.{direction}.RDS",
-        expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples())
+        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
     output:
         "merged/derep.{direction}.RDS",
         "merged/dada.{direction}.RDS"

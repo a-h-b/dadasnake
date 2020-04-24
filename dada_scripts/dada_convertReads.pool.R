@@ -19,7 +19,7 @@ library(dada2)
 # File parsing
 errfile <- snakemake@input[[1]]
 
-filt <- unlist(snakemake@input[[2]])
+filt <- unlist(snakemake@input[-1])
 
 filtNames <- sapply(filt,
                     function(x){
@@ -39,7 +39,7 @@ err <- readRDS(errfile)
 
 # Sample inference and merger of paired-end reads
 derep <- derepFastq(filt)
-if(snakemake@params[['pool']]=="pseudo"){
+if(snakemake@params[['pooling']]=="pseudo"){
   print(paste0("make pseudo-pooled dada object"))
   dada <- dada(derep, err=err, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],

@@ -1,7 +1,0 @@
-PermissionError in line 137 of /Users/heintzbu/Documents/Programs/myOwn/dadasnake/dada_scripts/get_config.rules:
-[Errno 13] Permission denied: '/work'
-  File "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/Snakefile", line 7, in <module>
-  File "/Users/heintzbu/Documents/Programs/myOwn/dadasnake/dada_scripts/get_config.rules", line 137, in <module>
-  File "/opt/anaconda3/lib/python3.7/os.py", line 211, in makedirs
-  File "/opt/anaconda3/lib/python3.7/os.py", line 211, in makedirs
-  File "/opt/anaconda3/lib/python3.7/os.py", line 221, in makedirs
