@@ -6,6 +6,8 @@ if config['blast']['do']:
 if config['hand_off']['phyloseq'] and not config['do_postprocessing']:
     taxConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
 
+localrules: taxonomy_control
+
 rule taxonomy_control:
     input:
         taxConts

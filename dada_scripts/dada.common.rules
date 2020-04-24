@@ -1,21 +1,3 @@
-rule dada_mergeSamples:
-    input:
-        lambda wildcards: get_sample_perRun(wildcards,"merged/{run}/",".RDS"),
-    output:
-        "merged/dada_merged.{run}.RDS",
-        "sequenceTables/seqTab.{run}.RDS",
-        "sequenceTables/seqTab.{run}.tsv"
-    threads: 1
-    params:
-        mem="30G",
-        runtime="12:00:00"
-    conda: "dada_env.yml"
-    log: "logs/DADA2_mergeSamples.{run}.log"
-    message: "preparing sequence table for {wildcards.run}."
-    script:
-        SRC_dir+"dada_gatherMergedReads.R"
-
-
 if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do'])):
     rule biom_handoff_preTax:
         input:
