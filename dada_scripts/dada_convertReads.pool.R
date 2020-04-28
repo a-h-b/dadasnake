@@ -15,6 +15,7 @@ if (snakemake@threads > 1) {
     register(SerialParam())
 }
 library(dada2)
+library(Biostrings)
 
 # File parsing
 errfile <- snakemake@input[[1]]
@@ -35,7 +36,19 @@ names(filt) <- sampleNames
 mergefile <- snakemake@output[[1]]
 
 print("merging")
-err <- readRDS(errfile)
+
+if(snakemake@config[['dada']][['priors']]!=""){
+  priorFasta <- readDNAStringSet(snakemake@config[['dada']][['priors']])
+  priors <- as.character(priorFasta)
+}else{
+  priors=""
+}
+
+if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
+  err <- NULL
+}else{
+  err <- readRDS(errfile)
+}
 
 # Sample inference and merger of paired-end reads
 derep <- derepFastq(filt)
@@ -44,13 +57,25 @@ if(snakemake@params[['pooling']]=="pseudo"){
   dada <- dada(derep, err=err, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
-               pool="pseudo")
+               OMEGA_A=as.numeric(snakemake@config[['dada']][['omega_A']]),
+               OMEGA_P=as.numeric(snakemake@config[['dada']][['omega_P']]),
+               OMEGA_C=as.numeric(snakemake@config[['dada']][['omega_C']]),
+               GAPLESS=as.logical(snakemake@config[['dada']][['gapless']]),
+               pool="pseudo",
+               priors=priors,
+               selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]))
 }else{
   print(paste0("make pooled dada object"))
   dada <- dada(derep, err=err, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
-               pool=TRUE)
+               OMEGA_A=as.numeric(snakemake@config[['dada']][['omega_A']]),
+               OMEGA_P=as.numeric(snakemake@config[['dada']][['omega_P']]),
+               OMEGA_C=as.numeric(snakemake@config[['dada']][['omega_C']]),
+               GAPLESS=as.logical(snakemake@config[['dada']][['gapless']]),
+               selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
+               pool=TRUE,
+               priors=priors)
   
 }
 saveRDS(dada,mergefile)

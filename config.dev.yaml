@@ -21,6 +21,7 @@ primer_cutting:
   filter_if_not_match: any
   perc_mismatch: 0.2
   indels: "--no-indels"
+  both_primers_in_read: false 
 filtering:
   trunc_length:
     fwd: 170
@@ -41,8 +42,15 @@ filtering:
 error_seed: 100
 dada:
   pool: false
+  omega_A: 1e-40
   band_size: 16
   homopolymer_gap_penalty: NULL
+  priors: ""
+  omega_P: 1e-4
+  omega_C: 1e-40
+  gapless: true
+  selfConsist: false
+  no_error_assumptions: false
 pair_merging:
   min_overlap: 12
   max_mismatch: 0
