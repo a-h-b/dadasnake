@@ -36,6 +36,13 @@ The dadasnake script assumes you're wanting to use slurm. The cluster config fil
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
 ```
+conda create --prefix $PWD/snakemake_env
+conda activate $PWD/snakemake_env
+conda install -c bioconda/label/cf201901 snakemake
+conda deactivate
+```
+or
+```
 conda env create -f snakemake_env.yml --prefix $PWD/snakemake_env
 ```
 
@@ -66,7 +73,6 @@ conda activate ./dada_env_common/XXXXXXXX
 ```
 In the conda environment, run R:
 ```
-conda activate ./dada_env_common/XXXXXXXX
 R
 ```
 Within R, set the path to the R-library in the conda environment and install phyloseq. This depends on regular building utilities of your operating system, e.g. gcc. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
