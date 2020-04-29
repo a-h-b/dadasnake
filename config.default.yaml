@@ -26,10 +26,10 @@ filtering:
   trunc_length:
     fwd: 170
     rvs: 130
-  trunc_qual: 9
+  trunc_qual: 13
   max_EE:
-    fwd: 0.5
-    rvs: 0.5
+    fwd: 0.2
+    rvs: 0.2
   minLen:
     fwd: 0
     rvs: 0
@@ -43,6 +43,18 @@ error_seed: 100
 dada:
   band_size: 16
   homopolymer_gap_penalty: NULL
+  pool: false
+  omega_A: 1e-40
+  priors: ""
+  omega_P: 1e-4
+  omega_C: 1e-40
+  gapless: true
+  selfConsist: false
+  no_error_assumptions: false
+  kdist_cutoff: 0.42
+  match: 4
+  mismatch: -5
+  gap_penalty: -8
 pair_merging:
   min_overlap: 12
   max_mismatch: 0
@@ -88,8 +100,8 @@ hand_off:
 final_table_filtering:
   do: true
   keep_target_taxa: "."
-  target_min_length: 240
-  target_max_length: 265
+  target_min_length: 245
+  target_max_length: 275
 postprocessing:
   rarefaction_curve: true
   funguild:

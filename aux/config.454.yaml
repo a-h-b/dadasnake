@@ -1,46 +1,55 @@
 email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
-outputdir: "/work/$USER/AMF_single_output"
+outputdir: "/work/$USER/454_output"
 taxonomy:
   decipher:
     do: false
   mothur:
     do: true
     db_path: "../DBs/amplicon"
-    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
+    tax_db: "SILVA_138_SSURef_NR99_prok"
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
 primers:
   fwd: 
-    sequence: TTGGAGGGCAAGTCTGGTGCC
-    name: NS31
+    sequence: CTGCTGCCTCCCCGTAGG
+    name: 357F
   rvs: 
-    sequence: GAACCCAAACACTTTGGTTTCC
-    name: AML2
+    sequence: CCGTCAATTCMTTTRAGN
+    name: 926R
 paired: false
-sequencing_direction: "fwd_1"
+sequencing_direction: "rvs_1"
 filtering:
   trunc_length:
-    fwd: 250
-    rvs: 0
-  trunc_qual: 13
+    fwd: 350
+    rvs: 350
+  trunc_qual: 5
   max_EE:
-    fwd: 0.2
+    fwd: 2
   maxLen:
     fwd: Inf
   minQ:
     fwd: 0
+chimeras:
+  remove: true
+  method: pooled
+dada:
+  pool: true
+  band_size: 32
+  homopolymer_gap_penalty: -1
+  omega_C: 0
+  omega_A: 1e-250
+  gapless: false
 blast:
   do: false
 hand_off:
   biom: true
   phyloseq: false
 final_table_filtering:
-  do: true
-  keep_target_taxa: "Glomeromycotina"
+  do: false
 postprocessing:
   rarefaction_curve: true
   funguild:

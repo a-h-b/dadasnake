@@ -1,6 +1,14 @@
 email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
+outputdir: "/work/$USER/output16S"
+taxonomy:
+  mothur:
+    do: true
+    db_path: "../DBs/amplicon"
+    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
+  decipher:
+    do: false
 do_primers: true
 do_dada: true
 do_taxonomy: true
@@ -18,10 +26,10 @@ filtering:
   trunc_length:
     fwd: 170
     rvs: 130
-  trunc_qual: 9
+  trunc_qual: 13
   max_EE:
-    fwd: 0.5
-    rvs: 0.5
+    fwd: 0.2
+    rvs: 0.2
   minLen:
     fwd: 0
     rvs: 0
@@ -31,14 +39,6 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
-outputdir: "output16S"
-taxonomy:
-  mothur:
-    do: true
-    db_path: ""
-    tax_db: ""
-  decipher:
-    do: false
 blast:
   do: true
 hand_off:
@@ -48,7 +48,7 @@ final_table_filtering:
   do: true
   keep_target_taxa: "."
   target_min_length: 245
-  target_max_length: 265
+  target_max_length: 275
 postprocessing:
   rarefaction_curve: true
   funguild:

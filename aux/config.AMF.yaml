@@ -1,10 +1,18 @@
 email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
+outputdir: "/work/$USER/AMF_output"
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
+taxonomy:
+  decipher:
+    do: false
+  mothur:
+    do: true
+    db_path: "../DBs/amplicon"
+    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
 primers:
   fwd: 
     sequence: TTGGAGGGCAAGTCTGGTGCC
@@ -18,33 +26,21 @@ filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 20
+  trunc_qual: 7
   max_EE:
     fwd: 2
     rvs: 2
   minLen:
-    fwd: 200
-    rvs: 100
+    fwd: 260
+    rvs: 210
   maxLen:
     fwd: Inf
     rvs: Inf
   minQ:
     fwd: 0
     rvs: 0
-outputdir: "AMF_output"
-taxonomy:
-  decipher:
-    do: false
-  mothur:
-    do: true
-    db_path: ""
-    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
 blast:
   do: false
-  db_path: "/work/$USER/DBs/amplicon"
-  tax_db: "MaarjAM_vt_types.20150204.format.fasta"
-  tax2id: ""
-  all: true
 hand_off:
   biom: true
   phyloseq: false

@@ -2,7 +2,7 @@ email: ""
 raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"
 do_primers: true
-do_dada: false
+do_dada: true
 do_taxonomy: false
 do_postprocessing: false
 primers:
@@ -18,10 +18,10 @@ filtering:
   trunc_length:
     fwd: 170
     rvs: 130
-  trunc_qual: 9
+  trunc_qual: 13
   max_EE:
-    fwd: 0.5
-    rvs: 0.5
+    fwd: 0.2
+    rvs: 0.2
   minLen:
     fwd: 100
     rvs: 100
