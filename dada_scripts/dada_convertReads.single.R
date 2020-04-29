@@ -46,7 +46,7 @@ print(paste0("make dada object, ",sampleName))
 derep <- derepFastq(filt)
 dada <- dada(derep, err=err, multithread=snakemake@threads,
              BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
-             HOMOPOLYMER_GAP_PENALTY=as.numeric(snakemake@config[['dada']][['homopolymer_gap_penalty']]),
+             HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
              OMEGA_A=as.numeric(snakemake@config[['dada']][['omega_A']]),
              OMEGA_P=as.numeric(snakemake@config[['dada']][['omega_P']]),
              OMEGA_C=as.numeric(snakemake@config[['dada']][['omega_C']]),

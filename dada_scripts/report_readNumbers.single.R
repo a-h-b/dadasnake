@@ -77,7 +77,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   library(dada2)
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
-  if(length(filesOI)>1 | | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){
+  if(length(filesOI)>1 | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){
     readnums <- sapply(filesOI,function(x) getN(readRDS(x)))
     runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
     sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
@@ -109,15 +109,17 @@ if(snakemake@params[["currentStep"]] == "raw"){
 }else if(snakemake@params[["currentStep"]] == "chimera"){
   print("extracting read numbers")
   readnums <- rowSums(readRDS(filesOI[1]))
+  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
   sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   readnums <- rowSums(readRDS(filesOI[2]))
+  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
   sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "post"){
   print("extracting read numbers")
-  tmpOTU <- readRDS(filesOI)
+  tmpOTU <- readRDS(filesOI[1])
   if(length(sampleTab$sample)>1){
     readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
   }else{

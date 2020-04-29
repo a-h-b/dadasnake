@@ -114,15 +114,18 @@ if(snakemake@params[["currentStep"]] == "raw"){
 }else if(snakemake@params[["currentStep"]] == "table"){
   print("extracting read numbers")
   readnums <- rowSums(readRDS(filesOI))
+  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
   sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "chimera"){
   print("extracting read numbers")
   readnums <- rowSums(readRDS(filesOI[1]))
+  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
   sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   readnums <- rowSums(readRDS(filesOI[2]))
+  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
   sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
@@ -132,6 +135,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   if(length(sampleTab$sample)>1){
     readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
   }else{
+    if(!colnames(tmpOTU)[3] %in% sampleTab$sample) colnames(tmpOTU)[3]<- sampleTab$sample
     readnums <- sum(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
     names(readnums) <- sampleTab$sample
   }
