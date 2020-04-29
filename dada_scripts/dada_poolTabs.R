@@ -20,11 +20,17 @@ library(Biostrings)
 dadaFile <- snakemake@input[[1]]
 dadalist <- readRDS(dadaFile)
 seqtab1 <- makeSequenceTable(dadalist)
-seqtab2 <- aggregate(seqtab1,list(gsub(".+/","",rownames(seqtab1))),sum)
-rm(seqtab1)
-seqtab <- as.matrix(seqtab2[,-1])
-rownames(seqtab) <- seqtab2[,1]
-rm(seqtab2)
+if(nrow(seqtab1)>1){
+  seqtab2 <- aggregate(seqtab1,list(gsub(".+/","",rownames(seqtab1))),sum)
+  rm(seqtab1)
+  seqtab <- as.matrix(seqtab2[,-1])
+  rownames(seqtab) <- seqtab2[,1]
+  rm(seqtab2)
+}else{
+  seqtab <- seqtab1
+  rownames(seqtab) <- gsub(".+/","",rownames(seqtab1))
+  rm(seqtab1)
+}
 
 if(snakemake@config[['chimeras']][['remove']]){
   print("Removing chimeras")
