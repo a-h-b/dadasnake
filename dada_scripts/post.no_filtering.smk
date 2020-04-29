@@ -1,71 +1,32 @@
-postConts = ["post/filtered.seqTab.RDS","reporting/post_finalNumbers_perSample.tsv"]
+postConts = []
 if config['hand_off']['phyloseq']:
-    postConts.append("post/filtered.seqTab.phyloseq.RDS")
+    postConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
 if config['postprocessing']['treeing']['do']:
     postConts.append("post/tree.newick")
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
 if config['postprocessing']['funguild']['do']:
-    postConts.append("post/filtered.seqTab.guilds.tsv")
-#if config['postprocessing']['faprotax']['do']:
-#    postConts.append("post/fapro.tsv")
+    CLASSIFY=config['postprocessing']['funguild']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/all.seqTab.guilds.tsv")
 
-rule post_control_Filter:
+
+localrules: post_control_noFilter
+
+rule post_control_noFilter:
     input:
         postConts
     output:
         "postprocessing.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}
         """
 
-filtTabs = ["sequenceTables/all.seqs.fasta"]
-if config['do_taxonomy'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']):
-    filtTabs.append("sequenceTables/all.seqTab.tax.RDS")
-else:
-    filtTabs.append("sequenceTables/all.seqTab.RDS")
-rule filtering_table:
-    input: 
-       filtTabs
-    output:
-       "post/filtered.seqTab.RDS",
-       "post/filtered.seqTab.tsv",   
-       "post/filtered.seqs.fasta"  
-    threads: 1
-    params:
-        mem="8G",
-        runtime="2:00:00"
-    log: "logs/post_filtering_table.log"
-    conda: "dada_env.yml"
-    script:
-        SRC_dir+"post_filtering.R"
-
-rule table_filter_numbers:
+rule rarefaction_curve_noFilter:
     input:
-        "reporting/finalNumbers_perSample.tsv",
-        "post/filtered.seqTab.RDS"
-    output:
-        "reporting/post_finalNumbers_perSample.tsv"
-    threads: 1
-    params:
-        currentStep = "post",
-        mem="8G",
-        runtime="12:00:00"
-    conda: "dada_env.yml"
-    log: "logs/countPostfilteredReads.log"
-    script:
-        SRC_dir+"report_readNumbers.R"
-
-
-rule rarefaction_curve_Filter:
-    input:
-        "post/filtered.seqTab.RDS",
-        "reporting/post_finalNumbers_perSample.tsv"
+        "sequenceTables/all.seqTab.RDS",
+        "reporting/finalNumbers_perSample.tsv"
     output:
         "stats/rarefaction_curves.pdf"
     threads: 1
@@ -78,11 +39,12 @@ rule rarefaction_curve_Filter:
         SRC_dir+"rarefaction_curve.R"
 
 
-rule guilds_Filter:
+
+rule guilds_noFilter:
     input:
-        "post/filtered.seqTab.tsv"
+        "sequenceTables/all.seqTab.tax.tsv"
     output:
-        "post/filtered.seqTab.guilds.tsv"
+        "post/all.seqTab.guilds.tsv"
     threads: 1
     params:
         mem="8G",
@@ -93,19 +55,19 @@ rule guilds_Filter:
     message: "Running funguild on {input}."
     shell:
         """
-        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]} &> {log}
+        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]}&> {log}
         """
 
+
 if config['hand_off']['phyloseq']:
-    physInputs = ["post/filtered.seqTab.RDS","reporting/post_finalNumbers_perSample.tsv"]
-    physOutputs = "post/filtered.seqTab.phyloseq.RDS"
+    physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
     if config['postprocessing']['treeing']['do']:
         physInputs.append("post/tree.newick")
-    rule phyloseq_handoff_postFilter:
+    rule phyloseq_handoff_post:
         input:
             physInputs
         output:
-            "post/filtered.seqTab.phyloseq.RDS"
+            "sequenceTables/all.seqTab.phyloseq.RDS"
         threads: 1
         params:
             currentStep = "post",
@@ -116,12 +78,13 @@ if config['hand_off']['phyloseq']:
         script:
             SRC_dir+"phyloseq_handoff.R"
 
+
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
-    rule treeing_Filter_fasttreeMP:
+    rule treeing_noFilter_fasttreeMP:
         input:
-            "post/filtered.seqs.fasta"
+            "sequenceTables/all.seqs.fasta"
         output:
-            "post/filtered.seqs.multi.fasta",
+            "post/all.seqs.multi.fasta",
             "post/tree.newick"
         threads: 10
         params:
@@ -136,11 +99,11 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
              -log {log} -quiet {output[0]} > {output[1]}
             """
 else:
-    rule treeing_Filter:
+    rule treeing_noFilter:
         input:
-            "post/filtered.seqs.fasta"
+            "sequenceTables/all.seqs.fasta"
         output:
-            "post/filtered.seqs.multi.fasta",
+            "post/all.seqs.multi.fasta",
             "post/tree.newick"
         threads: 1
         params:
@@ -154,6 +117,8 @@ else:
             fasttree -nt -gamma -no2nd -fastest -spr 4 \
              -log {log} -quiet {output[0]} > {output[1]}
             """
+
+
 
 
 #rule panFP:

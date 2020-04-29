@@ -6,7 +6,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 .libPaths(paste0(condap,"/lib/R/library"))
 
 library(BiocParallel)
-#parallel <- FALSE
 if (snakemake@threads > 1) {
     library("BiocParallel")
     # setup parallelization
@@ -16,9 +15,7 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-#register(SerialParam())
 library(dada2)
-#library(ggplot2)
 
 # File parsing
 errFfile <- snakemake@input[[1]]
@@ -44,8 +41,22 @@ dadatab <- snakemake@output[[2]]
 dadatabtsv <- snakemake@output[[3]]
 
 print("merging")
-errF <- readRDS(errFfile)
-errR <- readRDS(errRfile)
+
+if(snakemake@config[['dada']][['priors']]!=""){
+  priorFasta <- readDNAStringSet(snakemake@config[['dada']][['priors']])
+  priors <- as.character(priorFasta)
+}else{
+  priors=""
+}
+
+if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
+  errF <- NULL
+  errR <- NULL
+}else{
+  errF <- readRDS(errFfile)
+  errR <- readRDS(errRfile)
+}
+
 
 # Sample inference and merger of paired-end reads
 print("make dada object and merge, one by one")
@@ -54,9 +65,35 @@ names(mergers) <- sampleNames
 for(sam in sampleNames) {
   print(paste0("Processing: ", sam))
   derepF <- derepFastq(filtFs[[sam]])
-  dadaF <- dada(derepF, err=errF, multithread=snakemake@threads)
+  dadaF <- dada(derepF, err=errF, multithread=snakemake@threads,
+                BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
+                HOMOPOLYMER_GAP_PENALTY=as.numeric(snakemake@config[['dada']][['homopolymer_gap_penalty']]),
+                OMEGA_A=as.numeric(snakemake@config[['dada']][['omega_A']]),
+                OMEGA_P=as.numeric(snakemake@config[['dada']][['omega_P']]),
+                OMEGA_C=as.numeric(snakemake@config[['dada']][['omega_C']]),
+                GAPLESS=as.logical(snakemake@config[['dada']][['gapless']]),
+                KDIST_CUTOFF=as.numeric(snakemake@config[['dada']][['kdist_cutoff']]),
+                MATCH=as.numeric(snakemake@config[['dada']][['match']]),
+                MISMATCH=as.numeric(snakemake@config[['dada']][['mismatch']]),
+                GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
+                selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
+                pool=FALSE,
+                priors=priors)
   derepR <- derepFastq(filtRs[[sam]])
-  dadaR <- dada(derepR, err=errR, multithread=snakemake@threads)
+  dadaR <- dada(derepR, err=errR, multithread=snakemake@threads,
+                BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
+                HOMOPOLYMER_GAP_PENALTY=as.numeric(snakemake@config[['dada']][['homopolymer_gap_penalty']]),
+                OMEGA_A=as.numeric(snakemake@config[['dada']][['omega_A']]),
+                OMEGA_P=as.numeric(snakemake@config[['dada']][['omega_P']]),
+                OMEGA_C=as.numeric(snakemake@config[['dada']][['omega_C']]),
+                GAPLESS=as.logical(snakemake@config[['dada']][['gapless']]),
+                KDIST_CUTOFF=as.numeric(snakemake@config[['dada']][['kdist_cutoff']]),
+                MATCH=as.numeric(snakemake@config[['dada']][['match']]),
+                MISMATCH=as.numeric(snakemake@config[['dada']][['mismatch']]),
+                GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
+                selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
+                pool=FALSE,
+                priors=priors)
   merger <- mergePairs(dadaF, derepF, dadaR, derepR,
             minOverlap=snakemake@config[['pair_merging']][['min_overlap']],
             maxMismatch=snakemake@config[['pair_merging']][['max_mismatch']],

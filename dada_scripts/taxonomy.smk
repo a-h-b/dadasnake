@@ -6,15 +6,13 @@ if config['blast']['do']:
 if config['hand_off']['phyloseq'] and not config['do_postprocessing']:
     taxConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
 
+localrules: taxonomy_control
+
 rule taxonomy_control:
     input:
         taxConts
     output:
         "taxonomy.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}

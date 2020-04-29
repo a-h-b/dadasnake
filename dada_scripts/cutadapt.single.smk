@@ -4,7 +4,8 @@ def get_fastq(wildcards):
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
 
-#ruleorder: cut_primer_both > combine_or_rename 
+
+localrules: primers_control
 
 rule primers_control:
     input:
@@ -13,10 +14,6 @@ rule primers_control:
         "reporting/primerNumbers_perSample.tsv"
     output:
         "primers.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}
@@ -79,6 +76,10 @@ rule primer_numbers:
 
 #script to visualize read numbers -> run once for all steps
 
+if config['primer_cutting']['both_primers_in_read']:
+    BOTHMATCH = "--trimmed-only"
+else:
+    BOTHMATCH = ""
 
 if config['sequencing_direction'] == "fwd_1":
     rule cut_primer_both:
@@ -89,7 +90,8 @@ if config['sequencing_direction'] == "fwd_1":
         threads: 1
         params:
             runtime="12:00:00",
-            mem="8G"
+            mem="8G",
+            both_match=BOTHMATCH
         conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
@@ -98,7 +100,6 @@ if config['sequencing_direction'] == "fwd_1":
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
             FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
-                
             cutadapt -g {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
             -m 1 \
@@ -108,6 +109,7 @@ if config['sequencing_direction'] == "fwd_1":
             cutadapt -a $RVS_RC {config[primer_cutting][indels]} \
              -n {config[primer_cutting][count]} -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             {params.both_match} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
              """
 
@@ -120,7 +122,8 @@ elif config['sequencing_direction'] == "rvs_1":
         threads: 1
         params:
             runtime="12:00:00",
-            mem="8G"
+            mem="8G",
+            both_match=BOTHMATCH
         conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming reverse primer is in read."
@@ -141,6 +144,7 @@ elif config['sequencing_direction'] == "rvs_1":
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             {params.both_match} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log}  2>&1
             """
 
@@ -153,7 +157,8 @@ else:
         threads: 1
         params:
             runtime="12:00:00",
-            mem="8G"
+            mem="8G",
+            both_match=BOTHMATCH
         conda: "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
@@ -174,6 +179,7 @@ else:
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
+             {params.both_match} \
              -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
 
             cutadapt -g {config[primers][rvs][sequence]} \
@@ -188,6 +194,7 @@ else:
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o $TMPD/{wildcards.library}.final.fastq \
+             {params.both_match} \
              $TMPD/{wildcards.library}.tr2.fastq  >> {log} 2>&1
 
             cat $TMPD/{wildcards.library}.final.fastq >> {output}

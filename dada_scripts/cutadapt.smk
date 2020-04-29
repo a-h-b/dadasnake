@@ -4,7 +4,8 @@ def get_fastq(wildcards):
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
 
-#ruleorder: cut_primer_both > combine_or_rename 
+
+localrules: primers_control
 
 rule primers_control:
     input:
@@ -13,10 +14,6 @@ rule primers_control:
         "reporting/primerNumbers_perSample.tsv"
     output:
         "primers.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}
@@ -78,8 +75,6 @@ rule primer_numbers:
     script:
         SRC_dir+"report_readNumbers.R"
 
-
-#script to visualize read numbers -> run once for all steps
 
 
 if config['sequencing_direction'] == "fwd_1":

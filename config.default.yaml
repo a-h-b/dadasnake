@@ -21,6 +21,7 @@ primer_cutting:
   filter_if_not_match: any
   perc_mismatch: 0.2
   indels: "--no-indels"
+  both_primers_in_read: false
 filtering:
   trunc_length:
     fwd: 170

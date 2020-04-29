@@ -1,3 +1,5 @@
+localrules: dada_control
+
 rule dada_control:
     input:
         "sequenceTables/all.seqTab.RDS",
@@ -6,10 +8,6 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique())  
     output:
         "dada.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}
@@ -132,6 +130,22 @@ rule dada_read2RDS:
     script:
         SRC_dir+"dada_convertReads.single.R"
 
+rule dada_mergeSamples:
+    input:
+        lambda wildcards: get_sample_perRun(wildcards,"merged/{run}/",".RDS"),
+    output:
+        "merged/dada_merged.{run}.RDS",
+        "sequenceTables/seqTab.{run}.RDS",
+        "sequenceTables/seqTab.{run}.tsv"
+    threads: 1
+    params:
+        mem="30G",
+        runtime="12:00:00"
+    conda: "dada_env.yml"
+    log: "logs/DADA2_mergeSamples.{run}.log"
+    message: "preparing sequence table for {wildcards.run}."
+    script:
+        SRC_dir+"dada_gatherMergedReads.R"
 
 if config["chimeras"]["remove"]:
     rule dada_mergeruns:

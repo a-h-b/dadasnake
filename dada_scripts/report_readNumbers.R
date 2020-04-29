@@ -87,25 +87,19 @@ if(snakemake@params[["currentStep"]] == "raw"){
   library(dada2)
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
-  first <- T
-  for(f in filesOI){
-    fh <- readRDS(f)
-    if(first){
-      readnums <- getN(fh)
-      first <- F
-    }else{
-      readnums <- append(readnums,getN(fh))
-    }
-    names(readnums)[length(readnums)] <- f
-  } 
-  prefix <- "merged/"
-  suffix <- ".RDS"
-  names(readnums) <- gsub(prefix,"",names(readnums))
-  runs_sams <- sapply(names(readnums),function(x) unlist(strsplit(x,split="/")))
-  runs_sams[2,] <- gsub(suffix,"",runs_sams[2,])
-  sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
-                                       function(x) readnums[which(runs_sams[1,]==x[1]
-                                                                  &runs_sams[2,]==x[2])])
+  if(length(filesOI)>1){
+    readnums <- sapply(filesOI,function(x) getN(readRDS(x)))
+    runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
+    sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
+                                  function(x) readnums[which(runs_sams[2,]==x[1]
+                                                             &runs_sams[3,]==x[2])])
+  }else{
+    readnums <- getN(readRDS(filesOI))
+    runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
+    sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
+                                  function(x) readnums[which(runs_sams[1,]==x[1]
+                                                             &runs_sams[2,]==x[2])])
+  }
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
   tabPerSample <- aggregate(sampleTab[,c("library","run","r1_file","r2_file")],list(sampleTab$sample),function(x)paste(unique(x),collapse=",",sep=","))
   colnames(tabPerSample)[1] <- "sample"

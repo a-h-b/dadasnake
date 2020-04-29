@@ -18,34 +18,22 @@ if (snakemake@threads > 1) {
 library(dada2)
 
 # File parsing
-errFfile <- snakemake@input[[1]]
-errRfile <- snakemake@input[[2]]
-
-filtF <- snakemake@input[[3]]
-filtR <- snakemake@input[[4]]
-
-sampleNameF <- gsub("/","",gsub("filtered/","run.",gsub(".fwd.fastq.gz","",filtF)))
-sampleNameR <- gsub("/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtR)))
-
-if(sampleNameF!=sampleNameR) stop("Forward and reverse files do not match.")
-
-sampleName <- gsub(".+/","",gsub(".fwd.fastq.gz","",filtF))
-
-names(filtF) <- sampleName
-names(filtR) <- sampleName
-
+dadaFfile <- snakemake@input[[1]]
+dadaRfile <- snakemake@input[[2]]
+derepFfile <- snakemake@input[[3]]
+derepRfile <- snakemake@input[[4]]
 mergefile <- snakemake@output[[1]]
 
-print("merging")
-errF <- readRDS(errFfile)
-errR <- readRDS(errRfile)
+dadaF <- readRDS(dadaFfile)
+dadaR <- readRDS(dadaRfile)
 
-# Sample inference and merger of paired-end reads
-print(paste0("make dada object and merge, ",sampleName))
-derepF <- derepFastq(filtF)
-dadaF <- dada(derepF, err=errF, multithread=snakemake@threads)
-derepR <- derepFastq(filtR)
-dadaR <- dada(derepR, err=errR, multithread=snakemake@threads)
+
+derepF <- readRDS(derepFfile)
+derepR <- readRDS(derepRfile)
+
+print("merging")
+# merger of paired-end reads
+print("merge reads")
 merger <- mergePairs(dadaF, derepF, dadaR, derepR,
                      minOverlap=snakemake@config[['pair_merging']][['min_overlap']],
                      maxMismatch=snakemake@config[['pair_merging']][['max_mismatch']],

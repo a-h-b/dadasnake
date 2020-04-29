@@ -6,7 +6,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 .libPaths(paste0(condap,"/lib/R/library"))
 
 library(BiocParallel)
-#parallel <- FALSE
 if (snakemake@threads > 1) {
     library("BiocParallel")
     # setup parallelization
@@ -16,7 +15,6 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-#register(SerialParam())
 library(dada2)
 library(ShortRead)
 library(ggplot2)
@@ -88,17 +86,11 @@ plotQualityProfile <- function(fl, n = 5e+05){
 # File parsing
 path <- snakemake@params[['path']] 
 fastqs <- sort(list.files(path, pattern="fastq"))
-#fastqRs <- sort(list.files(path, pattern="rvs.fastq"))
 
 # QC
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
 plotQualityProfile(paste0(path,"/",fastqs))
 dev.off()
-
-#pdf(snakemake@output[[2]],
-#    width=8,height=11,pointsize=7)
-#plotQualityProfile(paste0(path,"/",fastqRs))
-#dev.off()
 
 

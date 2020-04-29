@@ -1,3 +1,5 @@
+localrules: dada_control
+
 rule dada_control:
     input:
         "sequenceTables/all.seqTab.RDS",
@@ -6,10 +8,6 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())  
     output:
         "dada.done"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     shell:
         """
         touch {output}
@@ -38,7 +36,7 @@ rule filter_numbers:
 rule merged_numbers:
     input:
         "reporting/filteredNumbers_perLibrary.tsv",
-        expand("merged/{samples.run}/{samples.sample}.RDS", samples=samples.itertuples())
+        expand("merged/dada.RDS", samples=samples.itertuples())
     output:
         report("reporting/mergedNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
@@ -105,46 +103,62 @@ rule dada_filter:
     script:
         SRC_dir+"dada_filter.R"
 
-
 rule dada_errors:
     input:
-        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz")
+        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
     output:
-        "errors/models.{run}.{direction}.RDS",
-        "stats/error_models.{run}.{direction}.pdf",
+        "errors/models.{direction}.RDS",
+        "stats/error_models.{direction}.pdf",
     threads: 1
     params:
         mem="8G",
         runtime="12:00:00"
     conda: "dada_env.yml"
-    log: "logs/DADA2_errors.{run}.{direction}.log"
+    log: "logs/DADA2_errors.{direction}.log"
     message: "Running error models on {input}."
     script:
         SRC_dir+"dada_errors.R"
 
+rule dada_dadaPairs:
+    input:
+        "errors/models.{direction}.RDS",
+        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+    output:
+        "merged/derep.{direction}.RDS",
+        "merged/dada.{direction}.RDS"
+    threads: 1
+    params:
+        pool=config['dada']['pool'],
+        mem="8G",
+        runtime="12:00:00"
+    conda: "dada_env.yml"
+    log: "logs/DADA2_dada.{direction}.log"
+    message: "converting to DADA reads for {wildcards.direction}."
+    script:
+        SRC_dir+"dada_dadaReads.pool.R"
+
 rule dada_mergeReadPairs:
     input:
-        "errors/models.{run}.fwd.RDS",
-        "errors/models.{run}.rvs.RDS",
-        "filtered/{run}/{sample}.fwd.fastq.gz",
-        "filtered/{run}/{sample}.rvs.fastq.gz"
+        "merged/dada.fwd.RDS",
+        "merged/dada.rvs.RDS",
+        "merged/derep.fwd.RDS",
+        "merged/derep.rvs.RDS"
     output:
-        "merged/{run}/{sample}.RDS"
+        "merged/dada.RDS"
     threads: 1
     params:
         mem="8G",
         runtime="12:00:00"
     conda: "dada_env.yml"
-    log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
-    message: "merging reads for {wildcards.run} {wildcards.sample}."
+    log: "logs/DADA2_mergeReadPairs.log"
+    message: "merging reads."
     script:
-        SRC_dir+"dada_onlyMergeReads.R"
-
+        SRC_dir+"dada_onlyMergePoolReads.R"
 
 if config["chimeras"]["remove"]:
     rule dada_mergeruns:
         input:
-            expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
+            "merged/dada.RDS"
         output:
             "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
@@ -161,11 +175,11 @@ if config["chimeras"]["remove"]:
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
-            SRC_dir+"dada_mergeRuns.R"
+            SRC_dir+"dada_poolTabs.R"
 
     rule nochime_numbers:
         input:
-            "reporting/mergedNumbers_perSample.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
@@ -182,7 +196,7 @@ if config["chimeras"]["remove"]:
 else:
     rule dada_mergeruns:
         input:
-            expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
+            "merged/dada.RDS"
         output:
             "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
@@ -196,11 +210,11 @@ else:
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
-            SRC_dir+"dada_mergeRuns.R"
+            SRC_dir+"dada_poolTabs.R"
 
     rule tabled_numbers:
         input:
-            "reporting/mergedNumbers_perSample.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")

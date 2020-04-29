@@ -4,7 +4,7 @@ configfile: srcdir("config.default.yaml")
 SRC_dir = srcdir("dada_scripts/")
 
 include:
-    "dada_scripts/get_config.rules"
+    "dada_scripts/get_config.smk"
 
 workdir:
     OUTPUTDIR
@@ -15,33 +15,41 @@ yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 if config['paired']:
     if 'primers' in STEPS:
         include:
-            "dada_scripts/cutadapt.rules"
+            "dada_scripts/cutadapt.smk"
     else:
         include:
-            "dada_scripts/copying.rules"
+            "dada_scripts/copying.smk"
     if 'dada' in STEPS:
-        include:
-            "dada_scripts/dada.paired.rules"
+        if not config['dada']['pool']:
+            include:
+                "dada_scripts/dada.paired.smk"
+        else:
+            include:
+                "dada_scripts/dada.paired.pool.smk"
 else:
     if 'primers' in STEPS:
         include:
-            "dada_scripts/cutadapt.single.rules"
+            "dada_scripts/cutadapt.single.smk"
     if 'dada' in STEPS:
-        include:
-            "dada_scripts/dada.single.rules"
+        if not config['dada']['pool']:
+            include:
+                "dada_scripts/dada.single.smk"
+        else:
+            include:
+                "dada_scripts/dada.single.pool.smk"
 if 'dada' in STEPS:
     include:
-        "dada_scripts/dada.common.rules"
+        "dada_scripts/dada.common.smk"
 if 'taxonomy' in STEPS:
     include:
-        "dada_scripts/taxonomy.rules"
+        "dada_scripts/taxonomy.smk"
 if 'postprocessing' in STEPS:
     if config['final_table_filtering']['do']:
         include:
-            "dada_scripts/post.filtering.rules"
+            "dada_scripts/post.filtering.smk"
     else:
         include:
-            "dada_scripts/post.no_filtering.rules"
+            "dada_scripts/post.no_filtering.smk"
 
 
 
@@ -68,6 +76,7 @@ else:
     onstart:
         shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake started" {EMAIL} ')
 
+localrules: ALL, SamplesPrint
 
 # master command
 rule ALL:
@@ -75,22 +84,11 @@ rule ALL:
         inputs
     output:
         touch('workflow.done')
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
-
-#rule ConfigPrint:
-
 
 rule SamplesPrint:
     input:
         sam_path
     output:
         "reporting/sample_table.tsv"
-    threads: 1
-    params:
-        runtime="00:10:00",
-        mem="8G"
     run:
         samples.to_csv(path_or_buf=output[0],sep="\t",index=False,index_label=False)

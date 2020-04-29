@@ -6,7 +6,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 .libPaths(paste0(condap,"/lib/R/library"))
 
 library(BiocParallel)
-#parallel <- FALSE
 if (snakemake@threads > 1) {
     library("BiocParallel")
     # setup parallelization
@@ -16,7 +15,6 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-#register(SerialParam())
 library(dada2)
 
 
@@ -32,7 +30,6 @@ filtpath <- gsub("/.+","",filtF)
 
 print("filtering")
 
-#if(!file_test("-d", filtpath)) dir.create(filtpath)
 fastqPairedFilter(c(fastqF,fastqR), 
                     c(filtF,filtR),
                     truncLen=c(snakemake@config[['filtering']][['trunc_length']][['fwd']],

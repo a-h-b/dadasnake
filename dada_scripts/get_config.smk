@@ -2,7 +2,6 @@ import os
 import shutil
 import gzip
 import yaml
-#import bz2
 from re import match
 from copy import deepcopy
 import subprocess
@@ -23,10 +22,6 @@ def dict_merge(a, b):
             result[k] = deepcopy(v)
     return result
 
-
-# default configuration file
-#configfile: "config.default.yaml"
-#validate(config,schema="schemas/config.schema.yaml")
 
 # default executable for snakemake
 shell.executable("bash")
@@ -101,7 +96,6 @@ if 'r1_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 1 - column should be named r1_file.")
 if config['paired'] and 'r2_file' not in samples.columns:
     raise Exception("You haven't provided file names for read 2 - column should be named r2_file.")
-#print(samples)
 
 if os.path.isabs(os.path.expandvars(config['raw_directory'])):
     RAW = os.path.expandvars(config['raw_directory'])
@@ -113,8 +107,6 @@ else:
 
 yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
 yaml.add_representer(tuple, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))
-#f = open(OUTPUTDIR+'/full.config.yaml', 'w+')
-#yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
 PRELIM_STEPS = ''
 if config['do_primers']:
