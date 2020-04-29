@@ -77,7 +77,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   library(dada2)
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
-  if(length(filesOI)>1){
+  if(length(filesOI)>1 | | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){
     readnums <- sapply(filesOI,function(x) getN(readRDS(x)))
     runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
     sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,

@@ -68,23 +68,23 @@ taxonomy:
   decipher:
     do: false
     post_ITSx: false
-    db_path: "../DBs/decipher"
+    db_path: "/data/project/metaamp/DBs/decipher"
     tax_db: "SILVA_SSU_r132_March2018.RData"
     threshold: 60
     strand: top
     bootstraps: 100
     seed: 100  
     look_for_species: false
-    spec_db: "../DBs/decipher/silva_species_assignment_v132.fa.gz"
+    spec_db: "/data/project/metaamp/DBs/decipher/silva_species_assignment_v132.fa.gz"
   mothur:
     do: true
     post_ITSx: false
-    db_path: "../DBs/amplicon"
+    db_path: "/data/project/metaamp/DBs/amplicon2020"
     tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
     cutoff: 60
 blast:
   do: false
-  db_path: "../DBs/ncbi/blast/db/nt/2018-09-07"
+  db_path: "/data/db/ncbi/blast/db/nt/2018-09-07"
   tax_db: nt
   e_val: 0.01
   tax2id: ""
@@ -106,8 +106,8 @@ postprocessing:
   rarefaction_curve: true
   funguild:
     do: false
-    funguild_db: "../DBs/amplicon/funguild_db.json"
+    funguild_db: "/data/project/metaamp/DBs/amplicon/funguild_db.json"
     classifier: mothur
   treeing:
     do: true
-    fasttreeMP: ""
+    fasttreeMP: "module load libgomp/4.4.7\nexport OMP_NUM_THREADS={threads}\n/data/project/metaamp/TOOLS/FastTreeMP"
