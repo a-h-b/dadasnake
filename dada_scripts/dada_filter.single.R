@@ -36,7 +36,8 @@ fastqFilter(fastq,
             minLen=snakemake@config[['filtering']][['minLen']][['fwd']],
             minQ=snakemake@config[['filtering']][['minQ']][['fwd']],
             truncQ=snakemake@config[['filtering']][['trunc_qual']], 
-            maxN=0, rm.phix=TRUE,
+            maxN=snakemake@config[['filtering']][['maxN']],
+            rm.phix=as.logical(snakemake@config[['filtering']][['rm_phix']]),
             compress=TRUE, verbose=TRUE)
 
 #output table with number of reads post-filtering

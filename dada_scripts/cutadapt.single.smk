@@ -189,13 +189,15 @@ else:
              -o $TMPD/{wildcards.library}.tr2.fastq \
              $TMPD/{wildcards.library}.unt.fastq >> {log} 2>&1
 
-            cutadapt -a $FWD_RC \
+            fastx_reverse_complement -i $TMPD/{wildcards.library}.tr2.fastq -o $TMPD/{wildcards.library}.tr2.rc.fastq
+
+            cutadapt -a {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o $TMPD/{wildcards.library}.final.fastq \
              {params.both_match} \
-             $TMPD/{wildcards.library}.tr2.fastq  >> {log} 2>&1
+             $TMPD/{wildcards.library}.tr2.rc.fastq  >> {log} 2>&1
 
             cat $TMPD/{wildcards.library}.final.fastq >> {output}
             """

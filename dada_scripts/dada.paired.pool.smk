@@ -135,7 +135,7 @@ rule dada_dadaPairs:
     log: "logs/DADA2_dada.{direction}.log"
     message: "converting to DADA reads for {wildcards.direction}."
     script:
-        SRC_dir+"dada_dadaReads.pool.R"
+        SRC_dir+"dada_convertReads.pool.R"
 
 rule dada_mergeReadPairs:
     input:

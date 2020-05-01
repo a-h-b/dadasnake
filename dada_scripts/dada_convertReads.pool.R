@@ -67,7 +67,8 @@ if(snakemake@params[['pooling']]=="pseudo"){
                GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
                pool="pseudo",
                priors=priors,
-               selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]))
+               selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
+               errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
 }else{
   print(paste0("make pooled dada object"))
   dada <- dada(derep, err=err, multithread=snakemake@threads,
@@ -83,7 +84,8 @@ if(snakemake@params[['pooling']]=="pseudo"){
                GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
                selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
                pool=TRUE,
-               priors=priors)
+               priors=priors,
+               errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
   
 }
 saveRDS(dada,mergefile)

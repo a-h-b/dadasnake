@@ -37,7 +37,13 @@ if(snakemake@config[['chimeras']][['remove']]){
   saveRDS(seqtab,snakemake@output[[5]])
   seqs1 <- DNAStringSet(colnames(seqtab))
   seqtab1 <- seqtab
-  seqtab <- removeBimeraDenovo(seqtab, method=snakemake@config[['chimeras']][['method']])
+  seqtab <- removeBimeraDenovo(seqtab, 
+                               method=snakemake@config[['chimeras']][['method']], 
+                               minFoldParentOverAbundance=snakemake@config[['chimeras']][['minFoldParentOverAbundance']], 
+                               minParentAbundance=snakemake@config[['chimeras']][['minParentAbundance']], 
+                               allowOneOff=as.logical(snakemake@config[['chimeras']][['allowOneOff']]), 
+                               minOneOffParentDistance=snakemake@config[['chimeras']][['minOneOffParentDistance']], 
+                               maxShift=snakemake@config[['chimeras']][['maxShift']])
   seqs <- DNAStringSet(colnames(seqtab))
   names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
   seqs1set <- append(seqs,setdiff(seqs1,seqs))

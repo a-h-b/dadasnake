@@ -39,6 +39,8 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
+  maxN: 0
+  rm_phix: true
 error_seed: 100
 dada:
   band_size: 16
@@ -55,6 +57,7 @@ dada:
   match: 4
   mismatch: -5
   gap_penalty: -8
+  errorEstimationFunction: loessErrfun
 pair_merging:
   min_overlap: 12
   max_mismatch: 0
@@ -63,6 +66,11 @@ pair_merging:
 chimeras:
   remove: true
   method: consensus
+  minFoldParentOverAbundance: 2
+  minParentAbundance: 8
+  allowOneOff: false
+  minOneOffParentDistance: 4
+  maxShift: 16
 outputdir: "dadasnake_output"
 taxonomy:
   decipher:

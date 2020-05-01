@@ -78,7 +78,8 @@ for(sam in sampleNames) {
                 GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
                 selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
                 pool=FALSE,
-                priors=priors)
+                priors=priors,
+                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
   derepR <- derepFastq(filtRs[[sam]])
   dadaR <- dada(derepR, err=errR, multithread=snakemake@threads,
                 BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
@@ -93,7 +94,8 @@ for(sam in sampleNames) {
                 GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
                 selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
                 pool=FALSE,
-                priors=priors)
+                priors=priors,
+                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
   merger <- mergePairs(dadaF, derepF, dadaR, derepR,
             minOverlap=snakemake@config[['pair_merging']][['min_overlap']],
             maxMismatch=snakemake@config[['pair_merging']][['max_mismatch']],

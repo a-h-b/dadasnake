@@ -57,7 +57,8 @@ dada <- dada(derep, err=err, multithread=snakemake@threads,
              GAP_PENALTY=as.numeric(snakemake@config[['dada']][['gap_penalty']]),
              selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
              pool=FALSE,
-             priors=priors)
+             priors=priors,
+             errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
 saveRDS(dada,mergefile)
 
 print("done")
