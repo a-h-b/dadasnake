@@ -79,7 +79,8 @@ for(sam in sampleNames) {
                 selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
                 pool=FALSE,
                 priors=priors,
-                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
+                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]),
+                USE_QUALS=as.logical(snakemake@config[['dada']][['use_quals']]))
   derepR <- derepFastq(filtRs[[sam]])
   dadaR <- dada(derepR, err=errR, multithread=snakemake@threads,
                 BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
@@ -95,7 +96,8 @@ for(sam in sampleNames) {
                 selfConsist=as.logical(snakemake@config[['dada']][['selfConsist']]),
                 pool=FALSE,
                 priors=priors,
-                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
+                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]),
+                USE_QUALS=as.logical(snakemake@config[['dada']][['use_quals']]))
   merger <- mergePairs(dadaF, derepF, dadaR, derepR,
             minOverlap=snakemake@config[['pair_merging']][['min_overlap']],
             maxMismatch=snakemake@config[['pair_merging']][['max_mismatch']],

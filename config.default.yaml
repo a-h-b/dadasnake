@@ -58,6 +58,7 @@ dada:
   mismatch: -5
   gap_penalty: -8
   errorEstimationFunction: loessErrfun
+  use_quals: true
 pair_merging:
   min_overlap: 12
   max_mismatch: 0

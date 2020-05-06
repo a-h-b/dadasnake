@@ -131,7 +131,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "post"){
   print("extracting read numbers")
-  tmpOTU <- readRDS(filesOI)
+  tmpOTU <- readRDS(filesOI[1])
   if(length(sampleTab$sample)>1){
     readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
   }else{

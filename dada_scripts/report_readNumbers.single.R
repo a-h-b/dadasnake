@@ -70,7 +70,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   colnames(numsPerSample)[1] <- "sample"
   tab2PerSample <- merge(tabPerSample,numsPerSample,by="sample")
   nums2PerSample <- aggregate(sampleTab[,c("reads_filtered")],list(sampleTab$sample),function(x) sum(unique(x)))
-  colnames(nums2PerSample)[1] <- "sample"
+  colnames(nums2PerSample)[c(1,ncol(nums2PerSample))] <- c("sample","reads_filtered")
   perSample <- merge(tab2PerSample,nums2PerSample,by="sample")
   write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "merged"){

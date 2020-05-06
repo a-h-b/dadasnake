@@ -114,21 +114,38 @@ rule dada_errors:
     script:
         SRC_dir+"dada_errors.R"
 
-rule dada_read2RDS:
-    input:
-        "errors/models.{run}.RDS",
-        "filtered/{run}/{sample}.fastq.gz"
-    output:
-        "merged/{run}/{sample}.RDS"
-    threads: 1
-    params:
-        mem="8G",
-        runtime="24:00:00"
-    conda: "dada_env.yml"
-    log: "logs/DADA2_read2RDS.{run}.{sample}.log"
-    message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
-    script:
-        SRC_dir+"dada_convertReads.single.R"
+if config['dada']['use_quals']:
+    rule dada_read2RDS:
+        input:
+            "errors/models.{run}.RDS",
+            "filtered/{run}/{sample}.fastq.gz"
+        output:
+            "merged/{run}/{sample}.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="24:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_read2RDS.{run}.{sample}.log"
+        message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
+        script:
+            SRC_dir+"dada_convertReads.single.R"
+else:
+    rule dada_read2RDS:
+        input:
+            "filtered/{run}/{sample}.fastq.gz"
+        output:
+            "merged/{run}/{sample}.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="24:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_read2RDS.{run}.{sample}.log"
+        message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
+        script:
+            SRC_dir+"dada_convertReads.single.noError.R"
+
 
 rule dada_mergeSamples:
     input:

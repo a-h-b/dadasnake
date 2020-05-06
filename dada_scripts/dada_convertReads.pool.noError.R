@@ -18,9 +18,7 @@ library(dada2)
 library(Biostrings)
 
 # File parsing
-errfile <- snakemake@input[[1]]
-
-filt <- unlist(snakemake@input[-1])
+filt <- unlist(snakemake@input)
 
 filtNames <- sapply(filt,
                     function(x){
@@ -47,7 +45,7 @@ if(snakemake@config[['dada']][['priors']]!=""){
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   err <- NULL
 }else{
-  err <- readRDS(errfile)
+  err <- inflateErr(tperr1, 3)
 }
 
 # Sample inference and merger of paired-end reads

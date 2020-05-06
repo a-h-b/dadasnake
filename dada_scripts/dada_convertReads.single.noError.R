@@ -17,9 +17,7 @@ if (snakemake@threads > 1) {
 library(dada2)
 
 # File parsing
-errfile <- snakemake@input[[1]]
-
-filt <- snakemake@input[[2]]
+filt <- snakemake@input[[1]]
 
 sampleName <- gsub(".+/","",gsub(".fastq.gz","",filt))
 
@@ -37,7 +35,7 @@ if(snakemake@config[['dada']][['priors']]!=""){
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   err <- NULL
 }else{
-  err <- readRDS(errfile)
+  err <- inflateErr(tperr1, 3)
 }
 
 

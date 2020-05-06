@@ -57,10 +57,10 @@ dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = "
 print("reading input")
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
-if((ncol(seqTab)==3 &!colnames(seqTab)[2] %in% rownames(sInfo)) | !colnames(seqTab)[3] %in% rownames(sInfo)) colnames(seqTab)[which(colnames(seqTab)=="V1")] <- rownames(sInfo)
+if((ncol(seqTab)==3 &!colnames(seqTab)[2] %in% rownames(sInfo)) | !colnames(seqTab)[3] %in% c(rownames(sInfo),sInfo$sample)) colnames(seqTab)[which(colnames(seqTab)=="V1")] <- rownames(sInfo)
 
 print("formatting OTU table")
-seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% rownames(sInfo)])
+seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% c(rownames(sInfo),sInfo$sample)])
 rownames(seqMat) <- seqTab$Row.names
 
 if(any(colSums(seqMat)<1)){
