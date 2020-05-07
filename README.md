@@ -1,7 +1,7 @@
+![logo](https://github.com/a-h-b/dadasnake/blob/master/documentation/snake_all-transparent.png)
+
 # What is dadasnake?
 dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow to process amplicon sequencing data, from raw fastq-files to taxonomically assigned "OTU" tables, based on the [DADA2](http://benjjneb.github.io/dada2/) method. Running dadasnake could not be easier: it is called by a single command from the command line. With a human-readable configuration file and a simple sample table, its steps are adjustable to a wide array of input data and requirements. It is designed to run on a computing cluster using a single conda environment in multiple jobs triggered by Snakemake. dadasnake reports on intermediary steps and statistics in intuitive figures and tables. Final data output formats include biom format, phyloseq objects, and flexible text files or R data sets for easy integration in microbial ecology analysis scripts.
-
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
 ## Installing dadasnake
 For dadasnake to work, you need [conda](https://www.anaconda.com/). 
@@ -98,6 +98,7 @@ conda deactivate
 9) Fasttree:
 The dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be very slow. If you have fasttreeMP, you can give the path to it in the config file.
 
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data: 
