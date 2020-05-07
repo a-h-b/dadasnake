@@ -8,5 +8,6 @@ dada_env_test/
 testoutput/
 snakemake_env/
 conda/
+.conda/
 TESTRUN_*
 .snakemake/

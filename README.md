@@ -43,7 +43,7 @@ conda deactivate
 ```
 or
 ```
-conda env create -f snakemake_env.yml --prefix $PWD/conda/snakemake_env
+conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
 
 5) Set permissions / PATH:
