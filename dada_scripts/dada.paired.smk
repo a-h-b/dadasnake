@@ -120,23 +120,41 @@ rule dada_errors:
     script:
         SRC_dir+"dada_errors.R"
 
-rule dada_mergeReadPairs:
-    input:
-        "errors/models.{run}.fwd.RDS",
-        "errors/models.{run}.rvs.RDS",
-        "filtered/{run}/{sample}.fwd.fastq.gz",
-        "filtered/{run}/{sample}.rvs.fastq.gz"
-    output:
-        "merged/{run}/{sample}.RDS"
-    threads: 1
-    params:
-        mem="8G",
-        runtime="12:00:00"
-    conda: "dada_env.yml"
-    log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
-    message: "merging reads for {wildcards.run} {wildcards.sample}."
-    script:
-        SRC_dir+"dada_onlyMergeReads.R"
+if config['dada']['use_quals']:
+    rule dada_mergeReadPairs:
+        input:
+            "errors/models.{run}.fwd.RDS",
+            "errors/models.{run}.rvs.RDS",
+            "filtered/{run}/{sample}.fwd.fastq.gz",
+            "filtered/{run}/{sample}.rvs.fastq.gz"
+        output:
+            "merged/{run}/{sample}.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
+        message: "merging reads for {wildcards.run} {wildcards.sample}."
+        script:
+            SRC_dir+"dada_dadaMergeReads.R"
+else:
+    rule dada_mergeReadPairs:
+        input:
+            "filtered/{run}/{sample}.fwd.fastq.gz", 
+            "filtered/{run}/{sample}.rvs.fastq.gz"
+        output:
+            "merged/{run}/{sample}.RDS"
+        threads: 1
+        params:
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
+        message: "merging reads for {wildcards.run} {wildcards.sample}."
+        script:
+            SRC_dir+"dada_dadaMergeReads.noError.R"
+
 
 rule dada_mergeSamples:
     input:

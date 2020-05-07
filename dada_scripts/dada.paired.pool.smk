@@ -119,23 +119,42 @@ rule dada_errors:
     script:
         SRC_dir+"dada_errors.R"
 
-rule dada_dadaPairs:
-    input:
-        "errors/models.{direction}.RDS",
-        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
-    output:
-        "merged/derep.{direction}.RDS",
-        "merged/dada.{direction}.RDS"
-    threads: 1
-    params:
-        pool=config['dada']['pool'],
-        mem="8G",
-        runtime="12:00:00"
-    conda: "dada_env.yml"
-    log: "logs/DADA2_dada.{direction}.log"
-    message: "converting to DADA reads for {wildcards.direction}."
-    script:
-        SRC_dir+"dada_convertReads.pool.R"
+if config['dada']['use_quals']:
+    rule dada_dadaPairs:
+        input:
+            "errors/models.{direction}.RDS",
+            expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+        output:
+            "merged/derep.{direction}.RDS",
+            "merged/dada.{direction}.RDS"
+        threads: 1
+        params:
+            pool=config['dada']['pool'],
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_dada.{direction}.log"
+        message: "converting to DADA reads for {wildcards.direction}."
+        script:
+            SRC_dir+"dada_dadaReads.pool.R"
+else:
+    rule dada_dadaPairs:
+        input:
+            expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+        output:
+            "merged/derep.{direction}.RDS",
+            "merged/dada.{direction}.RDS"
+        threads: 1
+        params:
+            pool=config['dada']['pool'],
+            mem="8G",
+            runtime="12:00:00"
+        conda: "dada_env.yml"
+        log: "logs/DADA2_dada.{direction}.log"
+        message: "converting to DADA reads for {wildcards.direction}."
+        script:
+            SRC_dir+"dada_dadaReads.pool.noError.R"
+
 
 rule dada_mergeReadPairs:
     input:

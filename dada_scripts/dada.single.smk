@@ -129,7 +129,7 @@ if config['dada']['use_quals']:
         log: "logs/DADA2_read2RDS.{run}.{sample}.log"
         message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
         script:
-            SRC_dir+"dada_convertReads.single.R"
+            SRC_dir+"dada_dadaReads.single.R"
 else:
     rule dada_read2RDS:
         input:
@@ -144,7 +144,7 @@ else:
         log: "logs/DADA2_read2RDS.{run}.{sample}.log"
         message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
         script:
-            SRC_dir+"dada_convertReads.single.noError.R"
+            SRC_dir+"dada_dadaReads.single.noError.R"
 
 
 rule dada_mergeSamples:
