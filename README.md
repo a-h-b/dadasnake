@@ -1,7 +1,7 @@
 # What is dadasnake?
 dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow to process amplicon sequencing data, from raw fastq-files to taxonomically assigned "OTU" tables, based on the [DADA2](http://benjjneb.github.io/dada2/) method. Running dadasnake could not be easier: it is called by a single command from the command line. With a human-readable configuration file and a simple sample table, its steps are adjustable to a wide array of input data and requirements. It is designed to run on a computing cluster using a single conda environment in multiple jobs triggered by Snakemake. dadasnake reports on intermediary steps and statistics in intuitive figures and tables. Final data output formats include biom format, phyloseq objects, and flexible text files or R data sets for easy integration in microbial ecology analysis scripts.
 
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
+![logo](https://github.com/a-h-b/dadasnake/blob/master/documentation/snake.png)
 
 ## Installing dadasnake
 For dadasnake to work, you need [conda](https://www.anaconda.com/). 
@@ -96,6 +96,7 @@ conda deactivate
 9) Fasttree:
 The dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be very slow. If you have fasttreeMP, you can give the path to it in the config file.
 
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data. The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled run and sample to indicate libraries that should be combined into one final column and different sequencing runs. All raw data (usually fastq files) need to be in the same directory (which has to be given in the config file). 
