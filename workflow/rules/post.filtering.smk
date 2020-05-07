@@ -37,9 +37,9 @@ rule filtering_table:
         mem="8G",
         runtime="2:00:00"
     log: "logs/post_filtering_table.log"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     script:
-        SRC_dir+"post_filtering.R"
+        SCRIPTSDIR+"post_filtering.R"
 
 rule table_filter_numbers:
     input:
@@ -52,10 +52,10 @@ rule table_filter_numbers:
         currentStep = "post",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/countPostfilteredReads.log"
     script:
-        SRC_dir+"report_readNumbers.R"
+        SCRIPTSDIR+"report_readNumbers.R"
 
 
 rule rarefaction_curve_Filter:
@@ -68,10 +68,10 @@ rule rarefaction_curve_Filter:
     params:
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/rarefaction_curve.log"
     script:
-        SRC_dir+"rarefaction_curve.R"
+        SCRIPTSDIR+"rarefaction_curve.R"
 
 
 rule guilds_Filter:
@@ -83,9 +83,9 @@ rule guilds_Filter:
     params:
         mem="8G",
         runtime="12:00:00",
-        src_path=SRC_dir
+        src_path=SCRIPTSDIR
     log: "logs/funguild.log"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     message: "Running funguild on {input}."
     shell:
         """
@@ -107,10 +107,10 @@ if config['hand_off']['phyloseq']:
             currentStep = "post",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            SRC_dir+"phyloseq_handoff.R"
+            SCRIPTSDIR+"phyloseq_handoff.R"
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
     rule treeing_Filter_fasttreeMP:
@@ -123,7 +123,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
         shell:
             """
@@ -142,7 +142,7 @@ else:
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
         shell:
             """

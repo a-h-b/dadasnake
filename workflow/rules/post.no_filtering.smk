@@ -33,10 +33,10 @@ rule rarefaction_curve_noFilter:
     params:
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/rarefaction_curve.log"
     script:
-        SRC_dir+"rarefaction_curve.R"
+        SCRIPTSDIR+"rarefaction_curve.R"
 
 
 
@@ -49,9 +49,9 @@ rule guilds_noFilter:
     params:
         mem="8G",
         runtime="12:00:00",
-        src_path=SRC_dir
+        src_path=SCRIPTSDIR
     log: "logs/funguild.log"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     message: "Running funguild on {input}."
     shell:
         """
@@ -73,10 +73,10 @@ if config['hand_off']['phyloseq']:
             currentStep = "post",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
-            SRC_dir+"phyloseq_handoff.R"
+            SCRIPTSDIR+"phyloseq_handoff.R"
 
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
@@ -90,7 +90,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
         shell:
             """
@@ -109,7 +109,7 @@ else:
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
         shell:
             """

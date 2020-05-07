@@ -20,6 +20,7 @@ At this point, you have all the scripts you need to run the workflow using snake
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
 * SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version. You need to have [tmux](https://github.com/tmux/tmux/wiki) installed.
+* SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml
 
 3) Decide how you want to run dadasnake:
 Only do one of the two:
@@ -31,19 +32,18 @@ cp aux/dadasnake_allSubmit dadasnake
 ```
 cp aux/dadasnake_tmux dadasnake
 ```
-The dadasnake script assumes you're wanting to use slurm. The cluster config file for slurm is dada_scripts/slurm.config.yaml. 
 
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
 ```
-conda create --prefix $PWD/snakemake_env
-conda activate $PWD/snakemake_env
+conda create --prefix $PWD/conda/snakemake_env
+conda activate $PWD/conda/snakemake_env
 conda install -c bioconda/label/cf201901 snakemake
 conda deactivate
 ```
 or
 ```
-conda env create -f snakemake_env.yml --prefix $PWD/snakemake_env
+conda env create -f snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
 
 5) Set permissions / PATH:
@@ -56,7 +56,7 @@ The test run does not need any databases. You should be able to start it by runn
 ```
 If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done". You can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail TESTRUN_XXXXXXXXXX.stderr`.
 
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( dada_env_common/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
+The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
 The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. Dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
@@ -65,11 +65,11 @@ The dadasnake does not supply databases. I'd suggest to use the [silva database]
 8) R-package phyloseq:
 While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
 ```
-ls ./dada_env_common
+ls ./conda
 ```
 This will show a .yaml file and a directory with the same name. Use this name in activating the environment:
 ```
-conda activate ./dada_env_common/XXXXXXXX
+conda activate ./conda/XXXXXXXX
 ```
 In the conda environment, run R:
 ```

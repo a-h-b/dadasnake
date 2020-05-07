@@ -1,10 +1,11 @@
 # include configuration file
-configfile: srcdir("config.default.yaml")
+configfile: srcdir("config/config.default.yaml")
 
-SRC_dir = srcdir("dada_scripts/")
+SCRIPTSDIR = srcdir("workflow/scripts/")
+ENVDIR = srcdir("workflow/envs/")
 
 include:
-    "dada_scripts/get_config.smk"
+    "workflow/rules/get_config.smk"
 
 workdir:
     OUTPUTDIR
@@ -15,41 +16,41 @@ yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 if config['paired']:
     if 'primers' in STEPS:
         include:
-            "dada_scripts/cutadapt.smk"
+            "workflow/rules/cutadapt.smk"
     else:
         include:
-            "dada_scripts/copying.smk"
+            "workflow/rules/copying.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             include:
-                "dada_scripts/dada.paired.smk"
+                "workflow/rules/dada.paired.smk"
         else:
             include:
-                "dada_scripts/dada.paired.pool.smk"
+                "workflow/rules/dada.paired.pool.smk"
 else:
     if 'primers' in STEPS:
         include:
-            "dada_scripts/cutadapt.single.smk"
+            "workflow/rules/cutadapt.single.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             include:
-                "dada_scripts/dada.single.smk"
+                "workflow/rules/dada.single.smk"
         else:
             include:
-                "dada_scripts/dada.single.pool.smk"
+                "workflow/rules/dada.single.pool.smk"
 if 'dada' in STEPS:
     include:
-        "dada_scripts/dada.common.smk"
+        "workflow/rules/dada.common.smk"
 if 'taxonomy' in STEPS:
     include:
-        "dada_scripts/taxonomy.smk"
+        "workflow/rules/taxonomy.smk"
 if 'postprocessing' in STEPS:
     if config['final_table_filtering']['do']:
         include:
-            "dada_scripts/post.filtering.smk"
+            "workflow/rules/post.filtering.smk"
     else:
         include:
-            "dada_scripts/post.no_filtering.smk"
+            "workflow/rules/post.no_filtering.smk"
 
 
 

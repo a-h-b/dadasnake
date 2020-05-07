@@ -51,10 +51,10 @@ rule input_numbers:
         runtime="12:00:00",
         mem="8G",
         raw_directory = RAW
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
-        SRC_dir+"report_readNumbers.R" 
+        SCRIPTSDIR+"report_readNumbers.R" 
 
 
 rule primer_numbers:
@@ -70,9 +70,9 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     script:
-        SRC_dir+"report_readNumbers.R"
+        SCRIPTSDIR+"report_readNumbers.R"
 
 
 if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] == "unknown":

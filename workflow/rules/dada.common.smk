@@ -10,10 +10,10 @@ if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['tax
             currentStep = "dada",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/biom_hand-off.log"
         script:
-            SRC_dir+"biom_handoff.R"
+            SCRIPTSDIR+"biom_handoff.R"
 
 if config['hand_off']['phyloseq']:
     if not config['do_taxonomy'] or (not config['taxonomy']['decipher']['do'] and not config['taxonomy']['mothur']['do']):
@@ -29,8 +29,8 @@ if config['hand_off']['phyloseq']:
                     currentStep = "dada",
                     mem="8G",
                     runtime="12:00:00"
-                conda: "dada_env.yml"
+                conda: ENVDIR + "dada_env.yml"
                 log: "logs/phyloseq_hand-off.log"
                 script:
-                    SRC_dir+"phyloseq_handoff.R"
+                    SCRIPTSDIR+"phyloseq_handoff.R"
 

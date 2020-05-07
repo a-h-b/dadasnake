@@ -68,7 +68,7 @@ rule db_filter:
         fwd_rc=config['fwd_rc'],
         rvs=config['rvs'],
         rvs_rc=config['rvs_rc'],
-    conda: "dada_env.yml"
+    conda: "workflow/envs/dada_env.yml"
     log: "filtering." + config['sessionName'] + ".log"
     message: "Filtering DB and taxonomy {input}."
     shell:

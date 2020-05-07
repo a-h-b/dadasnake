@@ -1,0 +1,27 @@
+__default__: 
+  call: "qsub -cwd"
+  mem_per_cpu: "-l h_vmem=8G"
+  partition: ""
+  runtime: "-l h_rt="
+  threads: "-pe smp "
+
+dada_mergeSamples:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+dada_dadaPairs_pool:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+dada_dadaSingle_pool:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+mothur_taxonomy:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+blastn:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+

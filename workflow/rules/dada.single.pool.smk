@@ -28,10 +28,10 @@ rule filter_numbers:
         currentStep = "filtered",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/countFilteredReads.log"
     script:
-        SRC_dir+"report_readNumbers.single.R"
+        SCRIPTSDIR+"report_readNumbers.single.R"
 
 rule merged_numbers:
     input:
@@ -46,10 +46,10 @@ rule merged_numbers:
         pooling = config['dada']['pool'],
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/countMergedReads.log"
     script:
-        SRC_dir+"report_readNumbers.single.R"
+        SCRIPTSDIR+"report_readNumbers.single.R"
 
 rule dada_qc1:
     input:
@@ -61,11 +61,11 @@ rule dada_qc1:
         path="preprocessing/{run}",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        SRC_dir+"dada_QC.single.R"
+        SCRIPTSDIR+"dada_QC.single.R"
 
 rule dada_qc_filtered:
     input:
@@ -77,11 +77,11 @@ rule dada_qc_filtered:
         path="filtered/{run}",
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        SRC_dir+"dada_QC.single.R"
+        SCRIPTSDIR+"dada_QC.single.R"
 
 rule dada_filter:
     input:
@@ -92,11 +92,11 @@ rule dada_filter:
     params:
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
-        SRC_dir+"dada_filter.single.R"
+        SCRIPTSDIR+"dada_filter.single.R"
 
 rule dada_errors:
     input:
@@ -108,45 +108,45 @@ rule dada_errors:
     params:
         mem="8G",
         runtime="12:00:00"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_errors.log"
     message: "Running error models on {input}."
     script:
-        SRC_dir+"dada_errors.R"
+        SCRIPTSDIR+"dada_errors.R"
 
 if config['dada']['use_quals']:
-    rule dada_read2RDS:
+    rule dada_dadaSingle_pool:
         input:
             "errors/models.RDS",
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 10
+        threads: 1
         params:
-            mem="8G",
+            mem="30G",
             runtime="24:00:00",
             pooling=config['dada']['pool']
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
-            SRC_dir+"dada_convertReads.pool.R"
+            SCRIPTSDIR+"dada_dadaReads.pool.R"
 else:
-    rule dada_read2RDS:
+    rule dada_dadaSingle_pool:
         input:
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 10
+        threads: 1
         params:
-            mem="8G",
+            mem="30G",
             runtime="24:00:00",
             pooling=config['dada']['pool']
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
-            SRC_dir+"dada_convertReads.pool.noError.R"
+            SCRIPTSDIR+"dada_dadaReads.pool.noError.R"
 
 
 
@@ -166,11 +166,11 @@ if config["chimeras"]["remove"]:
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "removing chimeras for {input}."
         script:
-            SRC_dir+"dada_poolTabs.R"
+            SCRIPTSDIR+"dada_poolTabs.R"
 
     rule nochime_numbers:
         input:
@@ -184,10 +184,10 @@ if config["chimeras"]["remove"]:
             currentStep = "chimera",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
-            SRC_dir+"report_readNumbers.single.R"
+            SCRIPTSDIR+"report_readNumbers.single.R"
 else:
     rule dada_poolTabs:
         input:
@@ -201,11 +201,11 @@ else:
         params:
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "writing tables and fasta file for {input}."
         script:
-            SRC_dir+"dada_poolTabs.R"
+            SCRIPTSDIR+"dada_poolTabs.R"
 
     rule tabled_numbers:
         input:
@@ -218,8 +218,8 @@ else:
             currentStep = "table",
             mem="8G",
             runtime="12:00:00"
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/countTabledReads.log"
         script:
-            SRC_dir+"report_readNumbers.single.R"
+            SCRIPTSDIR+"report_readNumbers.single.R"
 

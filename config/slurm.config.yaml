@@ -1,0 +1,27 @@
+__default__: 
+  call: "sbatch"
+  mem_per_cpu: "--mem-per-cpu 8G"
+  partition: "-p batch"
+  runtime: "-t"
+  threads: "-n"
+
+dada_mergeSamples:
+  partition: "-p bigmem --qos qos-bigmem"
+  mem_per_cpu: "--mem-per-cpu 30G"
+
+dada_dadaPairs_pool:
+  partition: "-p bigmem --qos qos-bigmem"
+  mem_per_cpu: "--mem-per-cpu 30G"
+
+dada_dadaSingle_pool:
+  partition: "-p bigmem --qos qos-bigmem"
+  mem_per_cpu: "--mem-per-cpu 30G"
+
+mothur_taxonomy:
+  partition: "-p bigmem --qos qos-bigmem"
+  mem_per_cpu: "--mem-per-cpu 30G"
+
+blastn:
+  partition: "-p bigmem --qos qos-bigmem"
+  mem_per_cpu: "--mem-per-cpu 30G"
+

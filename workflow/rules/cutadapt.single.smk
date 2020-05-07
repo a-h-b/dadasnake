@@ -50,10 +50,10 @@ rule input_numbers:
         runtime="12:00:00",
         mem="8G",
         raw_directory = RAW
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
-        SRC_dir+"report_readNumbers.single.R" 
+        SCRIPTSDIR+"report_readNumbers.single.R" 
 
 
 rule primer_numbers:
@@ -69,9 +69,9 @@ rule primer_numbers:
         runtime="12:00:00",
         mem="8G"
     log: "logs/countPrimerReads.log"
-    conda: "dada_env.yml"
+    conda: ENVDIR + "dada_env.yml"
     script:
-        SRC_dir+"report_readNumbers.single.R"
+        SCRIPTSDIR+"report_readNumbers.single.R"
 
 
 #script to visualize read numbers -> run once for all steps
@@ -92,7 +92,7 @@ if config['sequencing_direction'] == "fwd_1":
             runtime="12:00:00",
             mem="8G",
             both_match=BOTHMATCH
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
         shell:
@@ -124,7 +124,7 @@ elif config['sequencing_direction'] == "rvs_1":
             runtime="12:00:00",
             mem="8G",
             both_match=BOTHMATCH
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming reverse primer is in read."
         shell:
@@ -159,7 +159,7 @@ else:
             runtime="12:00:00",
             mem="8G",
             both_match=BOTHMATCH
-        conda: "dada_env.yml"
+        conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
         shell:
