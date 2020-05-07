@@ -100,15 +100,18 @@ The dadasnake comes with fasttree for treeing, but if you have a decent number o
 
 
 ## How to run dadasnake
-To run the dadasnake, you need a config file and a sample table, plus data. The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled run and sample to indicate libraries that should be combined into one final column and different sequencing runs. All raw data (usually fastq files) need to be in the same directory (which has to be given in the config file). 
-It is possible (and the best way to do this) to have a config file per run, which defines all settings that differ from the default config file. The default config file 
+To run the dadasnake, you need a config file and a sample table, plus data: 
+* The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. 
+* The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled `run` and `sample` to indicate libraries that should be combined into one final column and different sequencing runs. 
+* All raw data (usually fastq files) need to be in one directory (which has to be given in the config file). 
+* It is possible (and the best way to do this) to have a config file per run, which defines all settings that differ from the default config file.
 
 ### Using the dadasnake wrapper
 As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. Essentially, you can either run dadasnake (-c) and/or make a report (-r), or run a dryrun (-d), or unlock a working directory, if a run was killed (-u). In all cases you need the config file as the last argument. You can add a name for your main job, e.g.:
 ```
 dadasnake -c -n RUNNAME -r config.yaml
 ```
-Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
+Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish.
 
 ### Running snakemake manually
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
@@ -119,10 +122,13 @@ If you're using a computing cluster, add your cluster's submission command and t
 ```
 snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
 ```
-This will submit most steps as their own job to your cluster's queue.
+This will submit most steps as their own job to your cluster's queue. The same can be achieved with a [cluster configuration](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution):
+```
+snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
+```
 If you want to share the conda installation with colleagues, use the `--conda-prefix` argument of Snakemake
 ```
-snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda --conda-prefix /PATH/TO/YOUR/COMMON/CONDA/DIRECTORY
+snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --use-conda --conda-prefix /PATH/TO/YOUR/COMMON/CONDA/DIRECTORY
 ```
 Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
 
