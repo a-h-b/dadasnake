@@ -10,4 +10,5 @@ snakemake_env/
 conda/
 .conda/
 TESTRUN_*
+aux/config.default.yaml
 .snakemake/
