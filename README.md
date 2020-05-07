@@ -27,10 +27,12 @@ Only do one of the two:
 * if you want to submit the top snakemake call to the cluster:
 ```
 cp aux/dadasnake_allSubmit dadasnake
+chmod 755 dadasnake
 ```
 * if you want to keep snakemake on the frontend:
 ```
 cp aux/dadasnake_tmux dadasnake
+chmod 755 dadasnake
 ```
 
 4) **optional**: Install snakemake via conda:
@@ -52,7 +54,7 @@ Dadasnake is meant to be used by multiple users. Set the permissions accordingly
 6) Test run:
 The test run does not need any databases. You should be able to start it by running 
 ```
-./dadasnake -c -n "TESTRUN" -r aux/config.test.yaml
+./dadasnake -c -n "TESTRUN" -r config/config.test.yaml
 ```
 If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done". You can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail TESTRUN_XXXXXXXXXX.stderr`.
 
