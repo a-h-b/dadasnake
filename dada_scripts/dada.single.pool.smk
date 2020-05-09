@@ -121,7 +121,7 @@ if config['dada']['use_quals']:
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 10
+        threads: 1
         params:
             mem="8G",
             runtime="24:00:00",
@@ -130,14 +130,14 @@ if config['dada']['use_quals']:
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
-            SRC_dir+"dada_convertReads.pool.R"
+            SRC_dir+"dada_dadaReads.pool.R"
 else:
     rule dada_read2RDS:
         input:
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 10
+        threads: 1
         params:
             mem="8G",
             runtime="24:00:00",
@@ -146,7 +146,7 @@ else:
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
-            SRC_dir+"dada_convertReads.pool.noError.R"
+            SRC_dir+"dada_dadaReads.pool.noError.R"
 
 
 
