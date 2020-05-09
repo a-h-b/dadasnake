@@ -11,4 +11,5 @@ conda/
 .conda/
 TESTRUN_*
 aux/config.default.yaml
+config/config.default.yaml
 .snakemake/
