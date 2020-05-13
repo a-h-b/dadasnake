@@ -107,11 +107,21 @@ To run the dadasnake, you need a config file and a sample table, plus data:
 * It is possible (and the best way to do this) to have a config file per run, which defines all settings that differ from the default config file.
 
 ### Using the dadasnake wrapper
-As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. Essentially, you can either run dadasnake (-c) and/or make a report (-r), or run a dryrun (-d), or unlock a working directory, if a run was killed (-u). In all cases you need the config file as the last argument. You can add a name for your main job, e.g.:
+As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. You can either:
+* run (submit to a cluster) dadasnake (-c) and make a report (-r)
+* just make a report (-r), or 
+* run a dryrun (-d), or 
+* unlock a working directory, if a run was killed (-u). 
+It is recommended to first run a dryrun on a new configuration, which will tell you within a few seconds and without submission to a cluster whether your chosen steps work together, the input files are where you want them, and your sample file is formatted correctly. In all cases you need the config file as the last argument. 
+```
+dadasnake -d -r config.yaml
+```
+You can add a name for your main job (-n NAME), e.g.:
 ```
 dadasnake -c -n RUNNAME -r config.yaml
 ```
-Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish.
+Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish. 
+
 
 ### Running snakemake manually
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
