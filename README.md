@@ -55,7 +55,7 @@ The test run does not need any databases. You should be able to start it by runn
 ```
 ./dadasnake -l -n "TESTRUN" -r config/config.test.yaml
 ```
-If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". 
+If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". Don't worry if you see a few warnings from `mv`, such as `mv: cannot stat ‘slurm*’: No such file or directory`. 
 If you don't want to see dadasnake's guts at this point, you can also run this with the -c or -f settings to submit to your cluster or start a tmux session (see How to run dadasnake below). 
 
 The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
