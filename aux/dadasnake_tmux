@@ -12,7 +12,7 @@ usage() {
     echo "       -r is set, a report is generated (it's recommended to run -c, -f and -l with -r)" 1>&2
 }
 
-while getopts n:udflcrh flag
+while getopts n:t:udflcrh flag
 do
     case $flag in
         u)
