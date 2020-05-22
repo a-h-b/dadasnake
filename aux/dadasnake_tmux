@@ -1,7 +1,7 @@
 #! /bin/bash -i
 
 usage() {
-    echo "Usage: $0 [-u] [-d] [-c] [-r] [-n name] /absolute_path/to/config_file " 1>&2
+    echo "Usage: $0 [-u|d|c|f|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
     echo "       -d if set, a dryrun is performed" 1>&2
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
