@@ -1,15 +1,17 @@
 #! /bin/bash -i
 
 usage() {
-    echo "Usage: $0 [-u] [-d] [-c] [-r] [-n name] /absolute_path/to/config_file " 1>&2
+    echo "Usage: $0 [-u|d|c|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
     echo "       -d if set, a dryrun is performed" 1>&2
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
+    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to 50 for -c, 1 for -l. No effect on -r, -d or -u only." 1>&2
     echo "       -n <name for main job>, only works with -c" 1>&2
-    echo "       -r is set, a report is generated (it's recommended to run -c with -r)" 1>&2
+    echo "       -r is set, a report is generated (it's recommended to run -c or -l with -r)" 1>&2
 }
 
-while getopts n:udfcrh flag
+while getopts n:t:udlcrh flag
 do
     case $flag in
         u)
@@ -22,8 +24,10 @@ do
             JNAME=$OPTARG;;
         r)
             REPORT=true;;
-        f)
-            FRONTEND=true;;
+        l)
+            LAPTOP=true;;
+        t)
+            THREADS=$OPTARG;;
         h)
             usage
             exit;;
@@ -92,28 +96,34 @@ elif [ "$CLUSTER" = true ]; then
     else
         JNAME="${JNAME}_${NAMEHASH}"
     fi
+    if [ -z "$THREADS" ]; then
+        THREADS=50
+    fi
     echo "Submitting workflow to cluster"
     if [ "$REPORT" = true ]; then
-        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withReport.sh $CONFIGFILE $VARCONFIG $JNAME"
+        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withReport.sh $CONFIGFILE $VARCONFIG $JNAME $THREADS"
     else
-        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withoutReport.sh $CONFIGFILE $VARCONFIG $JNAME"
+        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withoutReport.sh $CONFIGFILE $VARCONFIG $JNAME $THREADS"
     fi
-elif [ "$FRONTEND" = true ]; then
-    echo "Running workflow on frontend - don't use this setting except with small datasets."
+elif [ "$LAPTOP" = true ]; then
+    echo "Running workflow in current session - don't use this setting except with small datasets."
     START_TIME=`date +%s`
     NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
-   if [ -z "$JNAME" ]; then
+    if [ -z "$JNAME" ]; then
         JNAME="dadasnake_${NAMEHASH}"
     else
         JNAME="${JNAME}_${NAMEHASH}"
     fi
+    if [ -z "$THREADS" ]; then
+        THREADS=1
+    fi
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$REPORT" = true ]; then
-        snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
-        snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html 
+        snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
+        snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html 
     else
-        snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
+        snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
     fi
     eval $CONDA_END
 elif [ "$REPORT" = true ]; then
@@ -123,7 +133,7 @@ elif [ "$REPORT" = true ]; then
     snakemake -j 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda
     eval $CONDA_END
 else
-    echo "Nothing was done, please give -u, -d, -r, -c, or -c -r to start anything."
+    echo "Nothing was done, please give -u, -d, -r, -c, or -l to start anything."
 fi
 
 
