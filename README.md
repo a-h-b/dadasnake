@@ -53,9 +53,10 @@ Dadasnake is meant to be used by multiple users. Set the permissions accordingly
 6) Test run:
 The test run does not need any databases. You should be able to start it by running 
 ```
-./dadasnake -c -n "TESTRUN" -r config/config.test.yaml
+./dadasnake -l -n "TESTRUN" -r config/config.test.yaml
 ```
-If all goes well, dadasnake will make and fill a directory called testoutput. A completed run contains a file "workflow.done". You can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail TESTRUN_XXXXXXXXXX.stderr`.
+If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". 
+If you don't want to see dadasnake's guts at this point, you can also run this with the -c or -f settings to submit to your cluster or start a tmux session (see How to run dadasnake below). 
 
 The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
@@ -111,11 +112,13 @@ To run the dadasnake, you need a config file and a sample table, plus data:
 
 ### Using the dadasnake wrapper
 As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. You can either:
-* run (submit to a cluster) dadasnake (-c) and make a report (-r)
+* -c run (submit to a cluster) dadasnake and make a report (-r), or
+* -l run (in the current terminal) dadasnake and make a report (-r), or
+* -f run (in a tmux session on the frontend) dadasnake *only available in the tmux installation* and make a report (-r), or
 * just make a report (-r), or 
 * run a dryrun (-d), or 
 * unlock a working directory, if a run was killed (-u). 
-It is recommended to first run a dryrun on a new configuration, which will tell you within a few seconds and without submission to a cluster whether your chosen steps work together, the input files are where you want them, and your sample file is formatted correctly. In all cases you need the config file as the last argument. 
+It is strongly recommended to **first run a dryrun on a new configuration**, which will tell you within a few seconds and without submission to a cluster whether your chosen steps work together, the input files are where you want them, and your sample file is formatted correctly. In all cases you need the config file as the last argument. 
 ```
 dadasnake -d -r config.yaml
 ```
@@ -123,7 +126,10 @@ You can add a name for your main job (-n NAME), e.g.:
 ```
 dadasnake -c -n RUNNAME -r config.yaml
 ```
+You can also set the number of cpus to maximally run at the same time with -t. The defaults (1 for local/frontend runs and 50 for clusters) are reasonable for many settings and if you don't know what this means, you probably don't have to worry. But you may want to increase the numbers for larger datasets or bigger infrastructure, or decrease the numbers to match your environment's constraints.
 Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish. 
+
+If you use the tmux version, you can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail RUNNAME_XXXXXXXXXX.stderr`.
 
 
 ### Running snakemake manually
