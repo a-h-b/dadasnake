@@ -60,8 +60,11 @@ If all goes well, dadasnake will make and fill a directory called testoutput. A 
 The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
 
 7) Databases:
-The dadasnake does not supply databases. I'd suggest to use the [silva database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [unite](https://doi.org//10.15156/BIO/786336) for ITS. Dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [data bases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
-**You need to set the path to the databases of your choice in the config file.** It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
+The dadasnake does not supply databases. I'd suggest to use the [SILVA database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [UNITE](https://doi.org//10.15156/BIO/786336) for ITS. 
+* dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). 
+* In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
+* You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+**You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
 
 8) R-package phyloseq:
 While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
@@ -95,7 +98,7 @@ conda deactivate
 ```
 
 9) Fasttree:
-The dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be very slow. If you have fasttreeMP, you can give the path to it in the config file.
+dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
 
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
@@ -291,3 +294,38 @@ Example 1:
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
 Example 2:
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
+
+## What if something goes wrong?
+If you gave dadasnake your email address and your system supports mailing (to that address), you will receive an email upon start and if the workflow encountered a problem or after the successful run. If there was a problem, you have to check the output and logs.
+* Use the -d option of dadasnake or the --dryrun option of Snakemake before the run to check that your input files are where you want them and that you have permissions to write to your target directory. This will also do some checks on the configuration and samples table, so it discovers the majority of errors on a suitable combination of dataset and configuration.
+* Reasons for dadasnake to encounter problems during the runs usually have something to do with empty outputs. For example: the filtering is too stringent and no sequences are left; the primers you expected to find are not present; the sequences were truncated too short to be merged. 
+* The best way to pinpoint those errors is to first check the .stderr file made by dadasnake (or the Snakemake output, if you run the workflow outside dadasnake). This will tell you which rule encountered the error, and, if you use the cluster submission, the job ID.
+* If you use the cluster submission, log files for every rule are written into the output directory and you can check the one with the job ID for additional information, other wise the same information is written to the Snakemake output.
+* The logs directory in the output directory contains log files for all steps that can produce comments. They are named with the step and then the name of the rule, so you can check the log file of the step that sent the error. Depending on the tool that sent the error, this will be easy to understand or cryptic. Don't hesitate to raise an issue at this repository if you get stuck.
+
+## How to ...?
+**I don't have primers on my reads, what do I do?**
+Set `do_primers: false` in the configuration file, but make sure that their orientation is the same.
+
+**I did paired end sequencing, but my reads are too short to overlap**
+You have two options: 
+1) use only one read (usually the first) by setting `paired: false` in the config file and providing only the read you want to use in the samples table. This will run a single-end workflow. The makers of DADA2 would probably recommend this option in most cases.
+2) use both reads, set a truncation length for filtering to make sure the sequences have the same lengths and use DADA2's option to "merge" reads without overlap e.g. 
+```
+filtering:
+  trunc_length:
+    fwd: 250
+    rvs: 200
+pair_merging:
+  min_overlap: 0
+  just_concatenate: true
+```
+
+**How do I restart a failed run?**
+Depends on why it failed...
+* If you ran into a time limit or similar, you can just run dadasnake on the same config with the -u option and then again with the -c option. This will make Snakemake pick up where it left off.
+* For most other situations, it's probably best to fix what caused the error in your config file and delete the output directory to start from scratch. If you're going to be loosing a lot of run time to that, and you're quite certain the problem is only in the last attempted step, you can try to restart. Ask us, if in doubt.
+
+**Can I restart from a certain step?**
+If you're familiar with Snakemake, you can use it to force re-running the steps you need. It's not (yet) part of the dadasnake to do this more comfortably.
+
