@@ -25,12 +25,12 @@ At this point, you have all the scripts you need to run the workflow using snake
 Only do one of the two:
 * if you want to submit the top snakemake call to the cluster:
 ```
-cp aux/dadasnake_allSubmit dadasnake
+cp auxiliary_files/dadasnake_allSubmit dadasnake
 chmod 755 dadasnake
 ```
 * if you want to keep snakemake on the frontend:
 ```
-cp aux/dadasnake_tmux dadasnake
+cp auxiliary_files/dadasnake_tmux dadasnake
 chmod 755 dadasnake
 ```
 
