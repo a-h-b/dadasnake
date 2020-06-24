@@ -46,6 +46,7 @@ or
 ```
 conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
+Dadasnake will run with Snakemake version >= 5.9.1 and hasn't been tested with any previous versions.
 
 5) Set permissions / PATH:
 Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path. It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
