@@ -86,11 +86,14 @@ plotQualityProfile <- function(fl, n = 5e+05){
 # File parsing
 path <- snakemake@params[['path']] 
 fastqs <- sort(list.files(path, pattern="fastq"))
+sizes <- sapply(paste0(path,"/",fastqs),function(x) file.info(x)$size)
+fastqs <- fastqs[sizes>0]
+
 
 # QC
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
-plotQualityProfile(paste0(path,"/",fastqs))
+if(length(sizes)>0) plotQualityProfile(paste0(path,"/",fastqs))
 dev.off()
 
 

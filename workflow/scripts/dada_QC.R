@@ -87,16 +87,20 @@ plotQualityProfile <- function(fl, n = 5e+05){
 path <- snakemake@params[['path']] 
 fastqFs <- sort(list.files(path, pattern="fwd.fastq"))
 fastqRs <- sort(list.files(path, pattern="rvs.fastq"))
+sizeFs <- sapply(paste0(path,"/",fastqFs),function(x) file.info(x)$size)
+fastqFs <- fastqFs[sizeFs>0]
+sizeRs <- sapply(paste0(path,"/",fastqRs),function(x) file.info(x)$size)
+fastqRs <- fastqRs[sizeRs>0]
 
 # QC
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
-plotQualityProfile(paste0(path,"/",fastqFs))
+if(length(fastqFs)>0) plotQualityProfile(paste0(path,"/",fastqFs))
 dev.off()
 
 pdf(snakemake@output[[2]],
     width=8,height=11,pointsize=7)
-plotQualityProfile(paste0(path,"/",fastqRs))
+if(length(fastqRs)>0) plotQualityProfile(paste0(path,"/",fastqRs))
 dev.off()
 
 
