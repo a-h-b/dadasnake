@@ -18,17 +18,23 @@ library(dada2)
 
 filts <- unlist(snakemake@input)
 
+sizes <- sapply(filts,function(x) file.info(x)$size)
+filts <- filts[sizes>0]
+
 errfile <- snakemake@output[[1]]
 errpath <- gsub("/.+","",errfile) 
 
 set.seed(snakemake@config[['error_seed']])
 
 print(paste0("learning error models ",snakemake@wildcards[['direction']]))
-errs <- learnErrors(filts, multithread=snakemake@threads)
-saveRDS(errs,errfile)
+if(length(filts)>0){
+    errs <- learnErrors(filts, multithread=snakemake@threads)
+    saveRDS(errs,errfile)
 pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
     plotErrors(errs, nominalQ=TRUE)
 dev.off()
-
+}else{
+   stop("No reads in any of the input files for learning errors.")
+}
 
 print("done")

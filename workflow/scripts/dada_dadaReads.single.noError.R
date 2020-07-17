@@ -40,6 +40,7 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
 
 
 # Sample inference and merger of paired-end reads
+if(file.info(filt)$size>0){
 print(paste0("make dada object, ",sampleName))
 derep <- derepFastq(filt)
 dada <- dada(derep, err=err, multithread=snakemake@threads,
@@ -59,5 +60,7 @@ dada <- dada(derep, err=err, multithread=snakemake@threads,
              errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]),
              USE_QUALS=as.logical(snakemake@config[['dada']][['use_quals']]))
 saveRDS(dada,mergefile)
-
+}else{
+  system(paste("touch",mergefile))
+}
 print("done")

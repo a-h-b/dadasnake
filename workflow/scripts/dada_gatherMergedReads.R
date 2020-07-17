@@ -17,6 +17,8 @@ if (snakemake@threads > 1) {
 library(dada2)
 
 merges <- sort(unlist(snakemake@input))
+sizes <- sapply(merges,function(x) file.info(x)$size)
+merges <- merges[sizes>0]
 
 sampleNames <- gsub("/","",gsub(".+/","",gsub(".RDS","",merges)))
 

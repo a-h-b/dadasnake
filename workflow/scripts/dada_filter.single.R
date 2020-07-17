@@ -126,7 +126,7 @@ fastqFilter0 <- function (fn, fout, truncQ = 2, truncLen = 0, maxLen = Inf,
   if (outseqs == 0) {
     message(paste("The filter removed all reads:", fout ))#, 
                 # "not written."))
-    if(!fout %in% list.files()) system(paste("touch",fout))
+      if(!fout %in% list.files()) system(paste("touch",fout))
     #file.remove(fout)
   }
   return(invisible(c(reads.in = inseqs, reads.out = outseqs)))

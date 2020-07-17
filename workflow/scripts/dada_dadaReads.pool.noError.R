@@ -19,6 +19,8 @@ library(Biostrings)
 
 # File parsing
 filt <- unlist(snakemake@input)
+sizes <- sapply(filt,function(x) file.info(x)$size)
+filt <- filt[sizes>0]
 
 filtNames <- sapply(filt,
                     function(x){

@@ -277,8 +277,8 @@ fastqPairedFilter0 <- function (fn, fout, maxN = c(0, 0), truncQ = c(2, 2), trun
   if (outseqs == 0) {
     message(paste("The filter removed all reads:", fout[[1]], 
       "and", fout[[2]] ))#, "not written."))
-  if(!fout[[1]] %in% list.files()) system(paste("touch",fout[[1]])) 
-  if(!fout[[2]] %in% list.files()) system(paste("touch",fout[[2]]))
+    if(!fout[[1]] %in% list.files()) system(paste("touch",fout[[1]])) 
+    if(!fout[[2]] %in% list.files()) system(paste("touch",fout[[2]]))
  #   file.remove(fout[[1]])
  #   file.remove(fout[[2]])
   }

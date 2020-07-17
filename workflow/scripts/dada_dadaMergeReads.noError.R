@@ -33,6 +33,8 @@ names(filtR) <- sampleName
 
 mergefile <- snakemake@output[[1]]
 
+if(file.info(filtF)$size>0 & file.info(filtR)$size>0){
+
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   errF <- NULL
   errR <- NULL
@@ -85,5 +87,7 @@ merger <- mergePairs(dadaF, derepF, dadaR, derepR,
                      justConcatenate=snakemake@config[['pair_merging']][['just_concatenate']],
                      trimOverhang=snakemake@config[['pair_merging']][['trim_overhang']])
 saveRDS(merger,mergefile)
-
+}else{
+system(paste("touch",mergefile))
+}
 print("done")
