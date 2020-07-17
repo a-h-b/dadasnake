@@ -25,12 +25,12 @@ At this point, you have all the scripts you need to run the workflow using snake
 Only do one of the two:
 * if you want to submit the top snakemake call to the cluster:
 ```
-cp aux/dadasnake_allSubmit dadasnake
+cp auxiliary_files/dadasnake_allSubmit dadasnake
 chmod 755 dadasnake
 ```
 * if you want to keep snakemake on the frontend:
 ```
-cp aux/dadasnake_tmux dadasnake
+cp auxiliary_files/dadasnake_tmux dadasnake
 chmod 755 dadasnake
 ```
 
@@ -46,6 +46,7 @@ or
 ```
 conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
+Dadasnake will run with Snakemake version >= 5.9.1 and hasn't been tested with any previous versions.
 
 5) Set permissions / PATH:
 Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path. It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
@@ -55,7 +56,7 @@ The test run does not need any databases. You should be able to start it by runn
 ```
 ./dadasnake -l -n "TESTRUN" -r config/config.test.yaml
 ```
-If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". 
+If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". Don't worry if you see a few warnings from `mv`, such as `mv: cannot stat ‘slurm*’: No such file or directory`. 
 If you don't want to see dadasnake's guts at this point, you can also run this with the -c or -f settings to submit to your cluster or start a tmux session (see How to run dadasnake below). 
 
 The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
