@@ -31,6 +31,9 @@ else:
     if 'primers' in STEPS:
         include:
             "workflow/rules/cutadapt.single.smk"
+    else:
+        include:
+            "workflow/rules/copying.single.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             include:
