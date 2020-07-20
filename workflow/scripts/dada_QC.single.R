@@ -86,7 +86,13 @@ plotQualityProfile <- function(fl, n = 5e+05){
 # File parsing
 path <- snakemake@params[['path']] 
 fastqs <- sort(list.files(path, pattern="fastq"))
-sizes <- sapply(paste0(path,"/",fastqs),function(x) file.info(x)$size)
+sizes <- sapply(paste0(path,"/",fastqs),function(x){
+            if(grepl(".gz$",x)){
+             as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1])
+            }else{
+             file.info(x)$size
+            }
+          })
 fastqs <- fastqs[sizes>0]
 
 

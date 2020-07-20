@@ -16,6 +16,7 @@ if (snakemake@threads > 1) {
     register(SerialParam())
 }
 library(dada2)
+library(ShortRead)
 
 fastqPairedFilter0 <- function (fn, fout, maxN = c(0, 0), truncQ = c(2, 2), truncLen = c(0,0),
                                  maxLen = c(Inf, Inf), minLen = c(20, 20), trimLeft = c(0, 0), 
@@ -218,11 +219,11 @@ fastqPairedFilter0 <- function (fn, fout, maxN = c(0, 0), truncQ = c(2, 2), trun
     qmat <- as(quality(fqF), "matrix")
     if (minQ[[1]] > truncQ[[1]]) suppressWarnings(keep <- keep & (apply(qmat, 1, 
         min, na.rm = TRUE) > minQ[[1]]))
-    if (maxEE[[1]] < Inf) keep <- keep & C_matrixEE(qmat) <= maxEE[[1]]
+    if (maxEE[[1]] < Inf) keep <- keep &  .Call('_dada2_C_matrixEE', PACKAGE = 'dada2',qmat) <= maxEE[[1]]
     qmat <- as(quality(fqR), "matrix")
     if (minQ[[2]] > truncQ[[2]]) suppressWarnings(keep <- keep & (apply(qmat, 1, 
         min, na.rm = TRUE) > minQ[[2]]))
-    if (maxEE[[2]] < Inf) keep <- keep & C_matrixEE(qmat) <= maxEE[[2]]
+    if (maxEE[[2]] < Inf) keep <- keep &  .Call('_dada2_C_matrixEE', PACKAGE = 'dada2',qmat) <= maxEE[[2]]
     fqF <- fqF[keep]
     fqR <- fqR[keep]
     rm(qmat)

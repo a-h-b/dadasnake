@@ -33,7 +33,7 @@ names(filtR) <- sampleName
 
 mergefile <- snakemake@output[[1]]
 
-if(file.info(filtF)$size>0 & file.info(filtR)$size>0){
+if(as.numeric(unlist(strsplit(system2("zcat",args=c(filtF,"| wc -l"),stdout=T),split=" "))[1])>0){
 
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   errF <- NULL

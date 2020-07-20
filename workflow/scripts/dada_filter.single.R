@@ -16,6 +16,7 @@ if (snakemake@threads > 1) {
     register(SerialParam())
 }
 library(dada2)
+library(ShortRead)
 
 fastqFilter0 <- function (fn, fout, truncQ = 2, truncLen = 0, maxLen = Inf, 
           minLen = 20, trimLeft = 0, trimRight = 0, maxN = 0, minQ = 0, 
@@ -98,7 +99,7 @@ fastqFilter0 <- function (fn, fout, truncQ = 2, truncLen = 0, maxLen = Inf,
       keep <- keep & (apply(qq, 1, min, na.rm = TRUE) > 
                         minQ)
     if (maxEE < Inf) {
-      keep <- keep & C_matrixEE(qq) <= maxEE
+      keep <- keep & .Call('_dada2_C_matrixEE', PACKAGE = 'dada2',qq) <= maxEE
     }
     fq <- fq[keep]
     if (rm.phix) {

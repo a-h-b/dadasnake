@@ -112,7 +112,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
     print("extracting read numbers")
     readnums <- rowSums(readRDS(filesOI))
     sampleTab$reads_tabled <- sapply(sampleTab$sample,
-                                       function(x) readnums[names(readnums)==x])
+                                       function(x) if(x %in% names(readnums))  readnums[names(readnums)==x] else 0)
   }else{
     sampleTab$reads_tabled <- 0
   }
@@ -123,11 +123,11 @@ if(snakemake@params[["currentStep"]] == "raw"){
     readnums <- rowSums(readRDS(filesOI[1]))
     if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
     sampleTab$reads_tabled <- sapply(sampleTab$sample,
-                                       function(x) readnums[names(readnums)==x])
+                                       function(x) if(x %in% names(readnums)) readnums[names(readnums)==x] else 0)
     readnums <- rowSums(readRDS(filesOI[2]))
     if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
     sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
-                                       function(x) readnums[names(readnums)==x])
+                                       function(x) if(x %in% names(readnums)) readnums[names(readnums)==x] else 0)
   }else{
    sampleTab$reads_tabled <- 0
    sampleTab$reads_chimera_checked <- 0
@@ -144,7 +144,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
       names(readnums) <- sampleTab$sample
     }
     sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
-                                       function(x) readnums[names(readnums)==x])
+                                       function(x) if(x %in% names(readnums)) readnums[names(readnums)==x] else 0)
   }else{
     sampleTab$reads_tax.length_filtered <- 0
   }

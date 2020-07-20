@@ -40,7 +40,7 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
 
 
 # Sample inference and merger of paired-end reads
-if(file.info(filt)$size>0){
+if(as.numeric(unlist(strsplit(system2("zcat",args=c(filt,"| wc -l"),stdout=T),split=" "))[1])>0){
 print(paste0("make dada object, ",sampleName))
 derep <- derepFastq(filt)
 dada <- dada(derep, err=err, multithread=snakemake@threads,

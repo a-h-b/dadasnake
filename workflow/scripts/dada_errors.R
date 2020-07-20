@@ -18,7 +18,7 @@ library(dada2)
 
 filts <- unlist(snakemake@input)
 
-sizes <- sapply(filts,function(x) file.info(x)$size)
+sizes <- sapply(filts,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1]))
 filts <- filts[sizes>0]
 
 errfile <- snakemake@output[[1]]
