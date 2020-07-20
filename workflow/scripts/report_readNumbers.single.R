@@ -78,13 +78,20 @@ if(snakemake@params[["currentStep"]] == "raw"){
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
   if(length(filesOI)>1 | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){
-    readnums <- sapply(filesOI,function(x) getN(readRDS(x)))
+    readnums <- sapply(filesOI,function(x){
+      if(file.info(x)$size>0){
+        getN(readRDS(x))
+      }else{
+        0
+      }
+    })
     runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
     sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
                                   function(x) readnums[which(runs_sams[2,]==x[1]
                                                              &runs_sams[3,]==x[2])])
   }else{
-    readnums <- getN(readRDS(filesOI))
+    if(file.info(filesOI)$size>0) readnums <- getN(readRDS(filesOI)) else readnums <- 0
+    names(readnums) <- filesOI
     runs_sams <- sapply(gsub(".RDS$","",names(readnums)),function(x) unlist(strsplit(x,split="/")))
     sampleTab$reads_merged <- apply(sampleTab[,c("run","sample")],1,
                                   function(x) readnums[which(runs_sams[1,]==x[1]
@@ -101,33 +108,46 @@ if(snakemake@params[["currentStep"]] == "raw"){
   perSample <- merge(tab2PerSample,nums2PerSample,by="sample")
   write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "table"){
-  print("extracting read numbers")
-  readnums <- rowSums(readRDS(filesOI))
-  sampleTab$reads_tabled <- sapply(sampleTab$sample,
+  if(file.info(filesOI)$size>0){
+    print("extracting read numbers")
+    readnums <- rowSums(readRDS(filesOI))
+    sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
+  }else{
+    sampleTab$reads_tabled <- 0
+  }
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "chimera"){
   print("extracting read numbers")
-  readnums <- rowSums(readRDS(filesOI[1]))
-  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
-  sampleTab$reads_tabled <- sapply(sampleTab$sample,
+  if(file.info(filesOI[1])$size>0){
+    readnums <- rowSums(readRDS(filesOI[1]))
+    if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
+    sampleTab$reads_tabled <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
-  readnums <- rowSums(readRDS(filesOI[2]))
-  if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
-  sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
+    readnums <- rowSums(readRDS(filesOI[2]))
+    if(length(readnums)==1 & is.null(names(readnums))) names(readnums) <- sampleTab$sample
+    sampleTab$reads_chimera_checked <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
+  }else{
+   sampleTab$reads_tabled <- 0
+   sampleTab$reads_chimera_checked <- 0
+  }
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "post"){
-  print("extracting read numbers")
-  tmpOTU <- readRDS(filesOI[1])
-  if(length(sampleTab$sample)>1){
-    readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
-  }else{
-    readnums <- sum(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
-    names(readnums) <- sampleTab$sample
-  }
-  sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
+  if(file.info(filesOI[1])$size>0){
+    print("extracting read numbers")
+    tmpOTU <- readRDS(filesOI[1])
+    if(length(sampleTab$sample)>1){
+      readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+    }else{
+      readnums <- sum(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+      names(readnums) <- sampleTab$sample
+    }
+    sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
                                        function(x) readnums[names(readnums)==x])
+  }else{
+    sampleTab$reads_tax.length_filtered <- 0
+  }
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 }
 

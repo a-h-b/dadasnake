@@ -43,7 +43,7 @@ if(snakemake@config[['dada']][['priors']]!=""){
   priorFasta <- readDNAStringSet(snakemake@config[['dada']][['priors']])
   priors <- as.character(priorFasta)
 }else{
-  priors=""
+  priors <- ""
 }
 
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
