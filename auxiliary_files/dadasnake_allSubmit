@@ -10,18 +10,17 @@ if [ -z "$MAX_THREADS" ]; then
 fi
 
 usage() {
-    echo "Usage: $0 [-u|d|c|f|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
+    echo "Usage: $0 [-u|d|c|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
     echo "       -d if set, a dryrun is performed" 1>&2
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
-    echo "       -f if set, the main snakemake thread and indivdual rules are run in a tmux session" 1>&2
     echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
-    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to $MAX_THREADS for -c, and to 1 for -l and -f. No effect on -r, -d or -u only." 1>&2
-    echo "       -n <name for main job>, only works with -c and -f" 1>&2
-    echo "       -r is set, a report is generated (it's recommended to run -c, -f and -l with -r)" 1>&2
+    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to $MAX_THREADS for -c, and to 1 for -l. No effect on -r, -d or -u only." 1>&2
+    echo "       -n <name for main job>, only works with -c" 1>&2
+    echo "       -r is set, a report is generated (it's recommended to run -c or -l with -r)" 1>&2
 }
 
-while getopts n:t:udflcrh flag
+while getopts n:t:udlcrh flag
 do
     case $flag in
         u)
@@ -34,8 +33,6 @@ do
             JNAME=$OPTARG;;
         r)
             REPORT=true;;
-        f)
-            FRONTEND=true;;
         l)
             LAPTOP=true;;
         t)
@@ -79,11 +76,9 @@ fi
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
-   CONDA_END_t="conda deactivate;"
 else
    CONDA_START=""
    CONDA_END=""
-   CONDA_END_t=""
 fi
 
 if [ "$UNLOCK" = true ]; then
@@ -109,40 +104,17 @@ elif [ "$CLUSTER" = true ]; then
     if [ -z "$THREADS" ]; then
         THREADS=$MAX_THREADS
     fi
-    echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
-    tmux new -s $JNAME -d
-    tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-    tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+    echo "Submitting workflow to cluster"
     if [ "$REPORT" = true ]; then
-        tmux send-keys -t $JNAME "snakemake -j $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withReport.sh $CONFIGFILE $VARCONFIG $JNAME $THREADS"
     else
-        tmux send-keys -t $JNAME "snakemake -j $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}\" --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
-    fi
-elif [ "$FRONTEND" = true ]; then
-    echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
-    START_TIME=`date +%s`
-    NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
-   if [ -z "$JNAME" ]; then
-        JNAME="dadasnake_${NAMEHASH}"
-    else
-        JNAME="${JNAME}_${NAMEHASH}"
-    fi
-    if [ -z "$THREADS" ]; then
-        THREADS=1
-    fi
-    tmux new -s $JNAME -d
-    tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-    tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-    if [ "$REPORT" = true ]; then
-        tmux send-keys -t $JNAME "snakemake -j $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr; snakemake -j 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
-    else
-        tmux send-keys -t $JNAME "snakemake -j $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+        eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withoutReport.sh $CONFIGFILE $VARCONFIG $JNAME $THREADS"
     fi
 elif [ "$LAPTOP" = true ]; then
-    echo "Running workflow in current session - don't use this setting except with small datasets."
+    echo "Running workflow in current session - don't use this setting except with small datasets (e.g. the test data set is okay)."
     START_TIME=`date +%s`
     NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
-   if [ -z "$JNAME" ]; then
+    if [ -z "$JNAME" ]; then
         JNAME="dadasnake_${NAMEHASH}"
     else
         JNAME="${JNAME}_${NAMEHASH}"
@@ -154,12 +126,11 @@ elif [ "$LAPTOP" = true ]; then
     eval $CONDA_START
     if [ "$REPORT" = true ]; then
         snakemake -j $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
-        snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html 
-        eval $CONDA_END
+        snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html 
     else
         snakemake -j $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda 
-        eval $CONDA_END
-    fi    
+    fi
+    eval $CONDA_END
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
     eval $LOADING_MODULES
@@ -167,7 +138,7 @@ elif [ "$REPORT" = true ]; then
     snakemake -j 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda
     eval $CONDA_END
 else
-    echo "Nothing was done, please give -u, -d, -r, -c, -f, or -l to start anything."
+    echo "Nothing was done, please give -u, -d, -r, -c, or -l to start anything."
 fi
 
 
