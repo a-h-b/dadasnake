@@ -33,8 +33,7 @@ rule taxonomy_to_OTUtab:
         "sequenceTables/all.seqTab.tax.tsv",
         "sequenceTables/all.seqTab.tax.RDS"
     threads: 12
-    params:
-        mem="30G",
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/taxonomy.log"
@@ -50,8 +49,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
             "sequenceTables/tax.decipher.tsv",
             "sequenceTables/tax.decipher.RDS"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="48:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/decipher_taxonomy.log"
@@ -66,8 +64,7 @@ else:
             "sequenceTables/tax.decipher.tsv", 
             "sequenceTables/tax.decipher.RDS"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="48:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/decipher_taxonomy.log"
@@ -82,9 +79,9 @@ if config['taxonomy']['mothur']['post_ITSx']:
         output:
             "sequenceTables/tax.mothur.tsv"
         threads: 6
+        resources:
+            runtime="48:00:00"
         params:
-            mem="8G",
-            runtime="48:00:00",
             outBase="sequenceTables/ITSx.seqs"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/mothur_taxonomy.log"
@@ -102,9 +99,9 @@ else:
         output:
             "sequenceTables/tax.mothur.tsv"
         threads: 1
+        resources:
+            runtime="48:00:00"
         params:
-            mem="30G",
-            runtime="48:00:00",
             outBase="sequenceTables/all.seqs"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/mothur_taxonomy.log"
@@ -124,8 +121,7 @@ if config['ITSx']['do']:
             directory("sequenceTables/ITSx_out"),
             "sequenceTables/ITSx.seqs.fasta"
         threads: 12
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         log: "logs/ITSx.log"
         conda: ENVDIR + "dada_env.yml"
@@ -148,8 +144,7 @@ if config['blast']['do']:
             output:
                 "sequenceTables/no_anno.seqs.fasta"
             threads: 12
-            params:
-                mem="30G",
+            resources:
                 runtime="2:00:00"
             log: "logs/prep_blastn.log"
             conda: ENVDIR + "dada_env.yml"
@@ -166,8 +161,7 @@ if config['blast']['do']:
             output:
                 "sequenceTables/blast_results.tsv"
             threads: 6
-            params:
-                mem="30G",
+            resources:
                 runtime="48:00:00"
             log: "logs/blastn.log"
             conda: ENVDIR + "blast_env.yml"
@@ -192,8 +186,7 @@ if config['blast']['do']:
             output:
                 "sequenceTables/blast_results.tsv"
             threads: 2
-            params:
-                mem="30G,highmem",
+            resources:
                 runtime="48:00:00"
             log: "logs/blastn.log"
             conda: ENVDIR + "blast_env.yml"
@@ -221,9 +214,8 @@ if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or confi
         output:
             "sequenceTables/all.seqTab.biom"
         threads: 12
-        params:
+        resources:
             currentStep = "taxonomy",
-            mem="30G",
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/biom_hand-off.log"
@@ -238,9 +230,8 @@ if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or c
         output:
             "sequenceTables/all.seqTab.phyloseq.RDS"
         threads: 1
-        params:
+        resources:
             currentStep = "taxonomy",
-            mem="8G",
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"

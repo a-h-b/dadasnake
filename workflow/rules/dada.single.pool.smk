@@ -25,8 +25,8 @@ rule filter_numbers:
         report("reporting/filteredNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "filtered",
-        mem="8G",
+        currentStep = "filtered"
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/countFilteredReads.log"
@@ -43,8 +43,8 @@ rule merged_numbers:
     threads: 1
     params:
         currentStep = "merged",
-        pooling = config['dada']['pool'],
-        mem="8G",
+        pooling = config['dada']['pool']
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/countMergedReads.log"
@@ -58,8 +58,8 @@ rule dada_qc1:
         report("stats/QC_1.{run}.pdf")
     threads: 1
     params:
-        path="preprocessing/{run}",
-        mem="8G",
+        path="preprocessing/{run}"
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_QC_1.{run}.log"
@@ -74,8 +74,8 @@ rule dada_qc_filtered:
         report("stats/QC_filtered.{run}.pdf")
     threads: 1
     params:
-        path="filtered/{run}",
-        mem="8G",
+        path="filtered/{run}"
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
@@ -89,8 +89,7 @@ rule dada_filter:
     output:
         "filtered/{run}/{sample}.fastq.gz"
     threads: 1
-    params:
-        mem="8G",
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
@@ -105,8 +104,7 @@ rule dada_errors:
         "errors/models.RDS",
         "stats/error_models.pdf",
     threads: 1
-    params:
-        mem="8G",
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/DADA2_errors.log"
@@ -122,9 +120,9 @@ if config['dada']['use_quals']:
         output:
             "merged/dada_merged.RDS"
         threads: 1
+        resources:
+            runtime="24:00:00"
         params:
-            mem="30G",
-            runtime="24:00:00",
             pooling=config['dada']['pool']
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_read2RDS.log"
@@ -138,9 +136,9 @@ else:
         output:
             "merged/dada_merged.RDS"
         threads: 1
+        resources:
+            runtime="24:00:00"
         params:
-            mem="30G",
-            runtime="24:00:00",
             pooling=config['dada']['pool']
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_read2RDS.log"
@@ -163,8 +161,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_poolTabs.log"
@@ -181,8 +178,8 @@ if config["chimeras"]["remove"]:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
         threads: 1
         params:
-            currentStep = "chimera",
-            mem="8G",
+            currentStep = "chimera"
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/countNonchimericReads.log"
@@ -198,8 +195,7 @@ else:
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_poolTabs.log"
@@ -215,8 +211,8 @@ else:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
         threads: 1
         params:
-            currentStep = "table",
-            mem="8G",
+            currentStep = "table"
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/countTabledReads.log"

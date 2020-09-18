@@ -30,8 +30,7 @@ rule rarefaction_curve_noFilter:
     output:
         "stats/rarefaction_curves.pdf"
     threads: 12
-    params:
-        mem="30G",
+    resources:
         runtime="120:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/rarefaction_curve.log"
@@ -46,9 +45,9 @@ rule guilds_noFilter:
     output:
         "post/all.seqTab.guilds.tsv"
     threads: 1
+    resources:
+        runtime="12:00:00"
     params:
-        mem="8G",
-        runtime="12:00:00",
         src_path=SCRIPTSDIR
     log: "logs/funguild.log"
     conda: ENVDIR + "dada_env.yml"
@@ -70,8 +69,8 @@ if config['hand_off']['phyloseq']:
             "sequenceTables/all.seqTab.phyloseq.RDS"
         threads: 1
         params:
-            currentStep = "post",
-            mem="8G",
+            currentStep = "post"
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"
@@ -87,8 +86,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
             "post/all.seqs.multi.fasta",
             "post/tree.newick"
         threads: 8
-        params:
-            mem="30G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
@@ -106,8 +104,7 @@ else:
             "post/all.seqs.multi.fasta",
             "post/tree.newick"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
@@ -120,12 +117,4 @@ else:
 
 
 
-
-#rule panFP:
-
-#rule pieCrust:
-
-#tax4fun
-
-#label non-target, non-ITSx, 
 

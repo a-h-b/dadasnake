@@ -28,9 +28,8 @@ rule combine_or_rename:
         sample='|'.join(samples['sample'])
     threads: 1
     log: "logs/combine_or_rename.{run}.{sample}.log"
-    params:
-        runtime="01:00:00",
-        mem="8G"
+    resources:
+        runtime="01:00:00"
     run:
         if len(input) > 1:
             shell("cat {input.files} > {output}")
@@ -46,9 +45,9 @@ rule input_numbers:
     threads: 1
     params:
         currentStep = "raw",
-        runtime="12:00:00",
-        mem="8G",
         raw_directory = RAW
+    resources:
+        runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -64,9 +63,9 @@ rule primer_numbers:
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "primers",
-        runtime="12:00:00",
-        mem="8G"
+        currentStep = "primers"
+    resources:
+        runtime="12:00:00"
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada_env.yml"
     script:
@@ -78,9 +77,8 @@ rule copy_fwd:
     output:
         "preprocessing/{run}/{library}.fastq",
     threads: 1
-    params:
+    resources:
         runtime="12:00:00",
-        mem="8G"
     log: "logs/copying.{run}.{library}.log"
     message: "Running copying {input} to {output}. Keeping forward reads."
     shell:

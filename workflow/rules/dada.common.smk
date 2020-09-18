@@ -7,8 +7,8 @@ if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['tax
             "sequenceTables/all.seqTab.biom"
         threads: 12
         params:
-            currentStep = "dada",
-            mem="30G",
+            currentStep = "dada"
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/biom_hand-off.log"
@@ -26,8 +26,8 @@ if config['hand_off']['phyloseq']:
                     "sequenceTables/all.seqTab.phyloseq.RDS"
                 threads: 1
                 params:
-                    currentStep = "dada",
-                    mem="8G",
+                    currentStep = "dada"
+                resources:
                     runtime="12:00:00"
                 conda: ENVDIR + "dada_env.yml"
                 log: "logs/phyloseq_hand-off.log"

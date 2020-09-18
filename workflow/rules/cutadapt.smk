@@ -30,9 +30,8 @@ rule combine_or_rename:
         sample='|'.join(samples['sample'])
     threads: 1
     log: "logs/combine_or_rename.{run}.{sample}.{direction}.log"
-    params:
+    resources:
         runtime="01:00:00",
-        mem="8G"
     run:
         if len(input) > 2:
             shell("cat {input.files} > {output}")
@@ -49,9 +48,9 @@ rule input_numbers:
     threads: 1
     params:
         currentStep = "raw",
-        runtime="12:00:00",
-        mem="8G",
         raw_directory = RAW
+    resources:
+        runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -67,9 +66,9 @@ rule primer_numbers:
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "primers",
-        runtime="12:00:00",
-        mem="8G"
+        currentStep = "primers"
+    resources:
+        runtime="12:00:00"
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada_env.yml"
     script:
@@ -85,9 +84,8 @@ if config['sequencing_direction'] == "fwd_1":
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
         threads: 1
-        params:
+        resources:
             runtime="12:00:00",
-            mem="8G"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
@@ -118,9 +116,8 @@ elif config['sequencing_direction'] == "rvs_1":
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
         threads: 1
-        params:
+        resources:
             runtime="12:00:00",
-            mem="8G"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
@@ -152,9 +149,8 @@ else:
             "preprocessing/{run}/{library}.fwd.fastq",
             "preprocessing/{run}/{library}.rvs.fastq"
         threads: 1
-        params:
+        resources:
             runtime="12:00:00",
-            mem="8G"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both  primers in both reads."

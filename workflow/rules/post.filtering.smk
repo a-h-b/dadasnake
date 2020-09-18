@@ -33,8 +33,7 @@ rule filtering_table:
        "post/filtered.seqTab.tsv",   
        "post/filtered.seqs.fasta"  
     threads: 1
-    params:
-        mem="8G",
+    resources:
         runtime="2:00:00"
     log: "logs/post_filtering_table.log"
     conda: ENVDIR + "dada_env.yml"
@@ -49,8 +48,8 @@ rule table_filter_numbers:
         "reporting/post_finalNumbers_perSample.tsv"
     threads: 1
     params:
-        currentStep = "post",
-        mem="8G",
+        currentStep = "post"
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/countPostfilteredReads.log"
@@ -65,8 +64,7 @@ rule rarefaction_curve_Filter:
     output:
         "stats/rarefaction_curves.pdf"
     threads: 1
-    params:
-        mem="8G",
+    resources:
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/rarefaction_curve.log"
@@ -80,9 +78,9 @@ rule guilds_Filter:
     output:
         "post/filtered.seqTab.guilds.tsv"
     threads: 1
+    resources:
+        runtime="12:00:00"
     params:
-        mem="8G",
-        runtime="12:00:00",
         src_path=SCRIPTSDIR
     log: "logs/funguild.log"
     conda: ENVDIR + "dada_env.yml"
@@ -104,8 +102,8 @@ if config['hand_off']['phyloseq']:
             "post/filtered.seqTab.phyloseq.RDS"
         threads: 1
         params:
-            currentStep = "post",
-            mem="8G",
+            currentStep = "post"
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/phyloseq_hand-off.log"
@@ -120,8 +118,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
             "post/filtered.seqs.multi.fasta",
             "post/tree.newick"
         threads: 10
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
@@ -139,8 +136,7 @@ else:
             "post/filtered.seqs.multi.fasta",
             "post/tree.newick"
         threads: 1
-        params:
-            mem="8G",
+        resources:
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"
