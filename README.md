@@ -104,6 +104,8 @@ conda deactivate
 9) Fasttree:
 dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
 
+##  
+
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
 
 ## How to run dadasnake
