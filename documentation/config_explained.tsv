@@ -28,13 +28,13 @@ filtering 	  	 	 	 	 dada 	 	" settings for quality / length filtering; note on 
 	  trunc_length				dada		length to truncate to (shorter reads are discarded)
 		    fwd	0	a positive integer	dada	length after which fwd read is cut - shorter reads are discarded	"0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting"
 		    rvs	0	a positive integer	dada	length after which rvs read is cut - shorter reads are discarded	"0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting"
-	  trunc_qual		13	0-40	dada	reads are cut before the first position with this quality	
+	  trunc_qual		2	0-40	dada	reads are cut before the first position with this quality	
 	  max_EE				dada		filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
-		    fwd 	2	 a positive number 	 dada 	" After truncation, read pairs with higher than maxEE ""expected errors"" in fwd read will be discarded "	" use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
-		    rvs	2	a positive number	dada	" After truncation, read pairs with higher than maxEE ""expected errors"" in rvs read will be discarded"	"ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
+		    fwd 	Inf	 a positive number 	 dada 	" After truncation, read pairs with higher than maxEE ""expected errors"" in fwd read will be discarded "	" use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
+		    rvs	2	Inf	a positive number	dada	" After truncation, read pairs with higher than maxEE ""expected errors"" in rvs read will be discarded"	"ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
 	  minLen				dada		filtering by mimum length
-		    fwd	200	a positive integer	dada	Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.	use with truncQ
-		    rvs	100	a positive integer	dada	Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.	" ignored in single-ende mode; use with truncQ"
+		    fwd	0	0 or a positive integer	dada	Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.	use with truncQ
+		    rvs	0	0 or a positive integer	dada	Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.	" ignored in single-ende mode; use with truncQ"
 	  maxLen				dada		filtering by maximum length
 		    fwd	 Inf	a positive integer or Inf	dada	Remove reads with length of fwd read greater than maxLen. maxLen is enforced before trimming and truncation.	
 		    rvs	 Inf	a positive integer or Inf	dada	Remove reads with length of rvs read greater than maxLen. maxLen is enforced before trimming and truncation.	ignored in single-ende mode
