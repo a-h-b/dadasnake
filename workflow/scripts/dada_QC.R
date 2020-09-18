@@ -108,11 +108,13 @@ fastqRs <- fastqRs[sizeRs>0]
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
 if(length(fastqFs)>0){
-  for(i in 1:floor(length(fastqFs)/36)){
-    plotQualityProfile(paste0(path,"/",fastqFs[(36*(i-1))+1:36]))
+  if(floor(length(fastqFs)/36)>0){
+    for(i in 1:floor(length(fastqFs)/36)){
+      plotQualityProfile(paste0(path,"/",fastqFs[(36*(i-1))+1:36]))
+    }
   }
-  if(length(fastqF) %% 36 > 0){
-    plotQualityProfile(paste0(path,"/",fastqFs[(36*(floor(length(fastqF)/36)+1):length(fastqFs)]))
+  if(length(fastqFs) %% 36 > 0){
+    plotQualityProfile(paste0(path,"/",fastqFs[(36*(floor(length(fastqFs)/36))+1):length(fastqFs)]))
   }
 }
 dev.off()
@@ -120,11 +122,13 @@ dev.off()
 pdf(snakemake@output[[2]],
     width=8,height=11,pointsize=7)
 if(length(fastqRs)>0){
-  for(i in 1:floor(length(fastqRs)/36)){
-    plotQualityProfile(paste0(path,"/",fastqRs[(36*(i-1))+1:36]))
+  if(floor(length(fastqRs)/36)>0){
+    for(i in 1:floor(length(fastqRs)/36)){
+      plotQualityProfile(paste0(path,"/",fastqRs[(36*(i-1))+1:36]))
+    }
   }
-  if(length(fastqR) %% 36 > 0){
-    plotQualityProfile(paste0(path,"/",fastqRs[(36*floor(length(fastqR)/36)+1):length(fastqRs)]))
+  if(length(fastqRs) %% 36 > 0){
+    plotQualityProfile(paste0(path,"/",fastqRs[(36*(floor(length(fastqRs)/36))+1):length(fastqRs)]))
   }
 }
 dev.off()

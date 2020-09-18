@@ -70,23 +70,15 @@ if(snakemake@config[['chimeras']][['remove']]){
 }else{
   seqs <- DNAStringSet(colnames(seqtab))
   names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
-  print("Saving sequences")
-  saveRDS(seqtab,snakemake@output[[1]])
-  writeXStringSet(seqs,snakemake@output[[3]])
-  print("Saving merged OTU table")
-  seqtab <- data.frame(t(seqtab),stringsAsFactors=F)
-  seqtab$Row.names <- rownames(seqtab)
-  seqtab$OTU <- names(seqs)
-  saveRDS(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[2]])
-  write.table(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[4]],row.names=F,sep="\t",quote=F)
 }
-#print("Saving sequences")
-#saveRDS(seqtab,snakemake@output[[1]])
-#writeXStringSet(seqs,snakemake@output[[3]])
-#print("Saving merged OTU table")
-#outtab <- merge(t(seqtab),data.frame("OTU"=names(seqs),"seq"=seqs,stringsAsFactors=F),
-#                   by.x=0,by.y="seq")
-#saveRDS(outtab,snakemake@output[[2]])
-#write.table(outtab,snakemake@output[[4]],row.names=F,sep="\t",quote=F)
+print("Saving sequences")
+saveRDS(seqtab,snakemake@output[[1]])
+writeXStringSet(seqs,snakemake@output[[3]])
+print("Saving merged OTU table")
+seqtab <- data.frame(t(seqtab),stringsAsFactors=F)
+seqtab$Row.names <- rownames(seqtab)
+seqtab$OTU <- names(seqs)
+saveRDS(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[2]])
+write.table(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[4]],row.names=F,sep="\t",quote=F)
 
 

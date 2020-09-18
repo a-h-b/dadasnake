@@ -24,12 +24,12 @@ dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = "
   tot <- rowSums(x)
   S <- specnumber(x)
   nr <- nrow(x)
-  out <- mclapply(seq_len(nr), function(i) {
+  out <- bplapply(seq_len(nr), function(i) {
     n <- seq(1, tot[i], by = step)
     if (n[length(n)] != tot[i]) 
       n <- c(n, tot[i])
     drop(rarefy(x[i, ], n))
-  },mc.cores=snakemake@threads)
+  })
   Nmax <- sapply(out, function(x) max(attr(x, "Subsample")))
   Smax <- sapply(out, max)
   if(missing(ymax)) ymax <- max(Smax)
@@ -69,23 +69,24 @@ ymax <- max(apply(seqTab[,sams],2,function(x) length(which(x>0))))
 xmax <- max(colSums(seqTab[,sams]))
 
 if(samno>0){
+  if(floor(samno/72)>0){
+    for(i in 1:floor(samno/72)){
+      print(i) 
+      print("formatting OTU table")
+      seqMat <- as.matrix(seqTab[,sams[(72*(i-1))+1:72]])
+      rownames(seqMat) <- seqTab$Row.names
 
-  for(i in 1:floor(samno/72)){
-    print(i) 
-    print("formatting OTU table")
-    seqMat <- as.matrix(seqTab[,sams[(72*(i-1))+1:72]])
-    rownames(seqMat) <- seqTab$Row.names
+      if(any(colSums(seqMat)<1)){
+        seqMat <- seqMat[,colSums(seqMat)>0]
+        print("Some samples contained no reads and are omitted from rarefaction curve:")
+        print(colnames(seqMat)[colSums(seqMat)<1])
+      }
 
-    if(any(colSums(seqMat)<1)){
-      seqMat <- seqMat[,colSums(seqMat)>0]
-      print("Some samples contained no reads and are omitted from rarefaction curve:")
-      print(colnames(seqMat)[colSums(seqMat)<1])
+      pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
+
+      print("plotting rarefaction curves")
+      dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
     }
-
-    pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
-
-    print("plotting rarefaction curves")
-    dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
   }
   if(samno %% 72 > 0){
     seqMat <- as.matrix(seqTab[,sams[(72*(floor(length(sams)/72))+1):length(sams)]])

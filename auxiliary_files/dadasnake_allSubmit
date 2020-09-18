@@ -106,7 +106,7 @@ elif [ "$CLUSTER" = true ]; then
         eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadasnake_withoutReport.sh $CONFIGFILE $VARCONFIG $JNAME $THREADS"
     fi
 elif [ "$LAPTOP" = true ]; then
-    echo "Running workflow in current session - don't use this setting except with small datasets."
+    echo "Running workflow in current session - don't use this setting except with small datasets (e.g. the test data set is okay)."
     START_TIME=`date +%s`
     NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
     if [ -z "$JNAME" ]; then

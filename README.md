@@ -35,14 +35,15 @@ chmod 755 dadasnake
 ```
 
 4) **optional**: Install snakemake via conda:
-If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment:
+If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment, as [recommended by Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html):
 ```
-conda create --prefix $PWD/conda/snakemake_env
+conda install -c conda-forge mamba
+mamba create --prefix $PWD/conda/snakemake_env
 conda activate $PWD/conda/snakemake_env
-conda install -c bioconda/label/cf201901 snakemake
+mamba install -c conda-forge -c bioconda snakemake
 conda deactivate
 ```
-or
+Alternatively, if the above does not work, you can install an older snakemake version without mamba like so:
 ```
 conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
