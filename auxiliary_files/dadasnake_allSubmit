@@ -1,12 +1,21 @@
 #! /bin/bash -i
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+VARCONFIG=$DIR/VARIABLE_CONFIG
+
+while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
+
+if [ -z "$MAX_THREADS" ]; then
+    MAX_THREADS=50
+fi
+
 usage() {
     echo "Usage: $0 [-u|d|c|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
     echo "       -d if set, a dryrun is performed" 1>&2
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
     echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
-    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to 50 for -c, 1 for -l. No effect on -r, -d or -u only." 1>&2
+    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to $MAX_THREADS for -c, and to 1 for -l. No effect on -r, -d or -u only." 1>&2
     echo "       -n <name for main job>, only works with -c" 1>&2
     echo "       -r is set, a report is generated (it's recommended to run -c or -l with -r)" 1>&2
 }
@@ -64,10 +73,6 @@ if [[ !  -e "$1" ]]; then
    exit 1
 fi
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-VARCONFIG=$DIR/VARIABLE_CONFIG
-
-while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
@@ -97,7 +102,7 @@ elif [ "$CLUSTER" = true ]; then
         JNAME="${JNAME}_${NAMEHASH}"
     fi
     if [ -z "$THREADS" ]; then
-        THREADS=50
+        THREADS=$MAX_THREADS
     fi
     echo "Submitting workflow to cluster"
     if [ "$REPORT" = true ]; then

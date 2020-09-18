@@ -20,6 +20,7 @@ At this point, you have all the scripts you need to run the workflow using snake
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
 * SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version. You need to have [tmux](https://github.com/tmux/tmux/wiki) installed.
 * SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml
+* MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
 
 3) Decide how you want to run dadasnake:
 Only do one of the two:

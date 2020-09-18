@@ -24,15 +24,15 @@ primer_cutting:
   both_primers_in_read: false
 filtering:
   trunc_length:
-    fwd: 170
-    rvs: 130
-  trunc_qual: 13
-  max_EE:
-    fwd: 0.2
-    rvs: 0.2
-  minLen:
     fwd: 0
     rvs: 0
+  trunc_qual: 2
+  max_EE:
+    fwd: Inf
+    rvs: Inf
+  minLen:
+    fwd: 20
+    rvs: 20
   maxLen:
     fwd: Inf
     rvs: Inf

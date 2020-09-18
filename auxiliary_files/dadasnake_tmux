@@ -1,5 +1,14 @@
 #! /bin/bash -i
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+VARCONFIG=$DIR/VARIABLE_CONFIG
+
+while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
+
+if [ -z "$MAX_THREADS" ]; then
+    MAX_THREADS=50
+fi
+
 usage() {
     echo "Usage: $0 [-u|d|c|f|l] [-r] [-n name] /absolute_path/to/config_file " 1>&2
     echo "       -u if set, the working directory will be unlocked (only necessary for crash/kill recovery)" 1>&2
@@ -7,7 +16,7 @@ usage() {
     echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
     echo "       -f if set, the main snakemake thread and indivdual rules are run in a tmux session" 1>&2
     echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
-    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to 50 for -c, 1 for -l and -f. No effect on -r, -d or -u only." 1>&2
+    echo "       -t <max_threads> maximum number of cpus to use for all rules at a time. Defaults to $MAX_THREADS for -c, and to 1 for -l and -f. No effect on -r, -d or -u only." 1>&2
     echo "       -n <name for main job>, only works with -c and -f" 1>&2
     echo "       -r is set, a report is generated (it's recommended to run -c, -f and -l with -r)" 1>&2
 }
@@ -67,10 +76,6 @@ if [[ !  -e "$1" ]]; then
    exit 1
 fi
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-VARCONFIG=$DIR/VARIABLE_CONFIG
-
-while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
@@ -102,7 +107,7 @@ elif [ "$CLUSTER" = true ]; then
         JNAME="${JNAME}_${NAMEHASH}"
     fi
     if [ -z "$THREADS" ]; then
-        THREADS=50
+        THREADS=$MAX_THREADS
     fi
     echo "Submitting workflow to cluster - snakemake stays on the frontend, via tmux."
     tmux new -s $JNAME -d
@@ -134,7 +139,7 @@ elif [ "$FRONTEND" = true ]; then
         tmux send-keys -t $JNAME "snakemake -j $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
     fi
 elif [ "$LAPTOP" = true ]; then
-    echo "Running workflow in current session - don't use this setting except with small datasets (e.g. the test data set is okay)."
+    echo "Running workflow in current session - don't use this setting except with small datasets."
     START_TIME=`date +%s`
     NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
    if [ -z "$JNAME" ]; then

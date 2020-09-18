@@ -30,15 +30,6 @@ filtering:
   max_EE:
     fwd: 0.2
     rvs: 0.2
-  minLen:
-    fwd: 0
-    rvs: 0
-  maxLen:
-    fwd: Inf
-    rvs: Inf
-  minQ:
-    fwd: 0
-    rvs: 0
 blast:
   do: true
 hand_off:
