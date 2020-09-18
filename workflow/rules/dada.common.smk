@@ -5,10 +5,10 @@ if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['tax
             "reporting/finalNumbers_perSample.tsv"
         output:
             "sequenceTables/all.seqTab.biom"
-        threads: 1
+        threads: 12
         params:
             currentStep = "dada",
-            mem="8G",
+            mem="30G",
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/biom_hand-off.log"

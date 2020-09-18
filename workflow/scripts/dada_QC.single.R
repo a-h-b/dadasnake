@@ -99,7 +99,15 @@ fastqs <- fastqs[sizes>0]
 # QC
 pdf(snakemake@output[[1]],
     width=8,height=11,pointsize=7)
-if(length(sizes)>0) plotQualityProfile(paste0(path,"/",fastqs))
+if(length(fastqs)>0){
+  for(i in 1:floor(length(fastqs)/36)){
+    print(i)
+    plotQualityProfile(paste0(path,"/",fastqs[(36*(i-1))+1:36]))
+  }
+  if(length(fastqs) %% 36 > 0){
+    plotQualityProfile(paste0(path,"/",fastqs[(36*(floor(length(fastqs)/36))+1):length(fastqs)]))
+  }
+}
 dev.off()
 
 

@@ -154,7 +154,7 @@ rule dada_mergeSamples:
         "merged/dada_merged.{run}.RDS",
         "sequenceTables/seqTab.{run}.RDS",
         "sequenceTables/seqTab.{run}.tsv"
-    threads: 1
+    threads: 4
     params:
         mem="30G",
         runtime="12:00:00"
@@ -176,10 +176,10 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
-        threads: 1
+        threads: 8
         params:
-            mem="8G",
-            runtime="12:00:00"
+            mem="30G",
+            runtime="120:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
@@ -193,11 +193,11 @@ if config["chimeras"]["remove"]:
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
-        threads: 1
+        threads: 8
         params:
             currentStep = "chimera",
-            mem="8G",
-            runtime="12:00:00"
+            mem="30G",
+            runtime="120:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
@@ -212,10 +212,10 @@ else:
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
-        threads: 1
+        threads: 12
         params:
-            mem="8G",
-            runtime="12:00:00"
+            mem="30G",
+            runtime="120:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
@@ -228,11 +228,11 @@ else:
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
-        threads: 1
+        threads: 4
         params:
             currentStep = "table",
-            mem="8G",
-            runtime="12:00:00"
+            mem="30G",
+            runtime="120:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/countTabledReads.log"
         script:

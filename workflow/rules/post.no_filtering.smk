@@ -29,10 +29,10 @@ rule rarefaction_curve_noFilter:
         "reporting/finalNumbers_perSample.tsv"
     output:
         "stats/rarefaction_curves.pdf"
-    threads: 1
+    threads: 12
     params:
-        mem="8G",
-        runtime="12:00:00"
+        mem="30G",
+        runtime="120:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/rarefaction_curve.log"
     script:
@@ -86,9 +86,9 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         output:
             "post/all.seqs.multi.fasta",
             "post/tree.newick"
-        threads: 10
+        threads: 8
         params:
-            mem="8G",
+            mem="30G",
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/treeing.log"

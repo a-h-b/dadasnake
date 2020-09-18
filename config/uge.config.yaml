@@ -17,6 +17,18 @@ dada_dadaSingle_pool:
   partition: "-l highmem"
   mem_per_cpu: "-l h_vmem=30G"
 
+dada_mergeruns:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+nochime_numbers:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+tabled_numbers:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
 mothur_taxonomy:
   partition: "-l highmem"
   mem_per_cpu: "-l h_vmem=30G"
@@ -24,4 +36,30 @@ mothur_taxonomy:
 blastn:
   partition: "-l highmem"
   mem_per_cpu: "-l h_vmem=30G"
+
+rarefaction_curve_noFilter:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+treeing_noFilter_fasttreeMP:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+taxonomy_to_OTUtab:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+prepare_blastn:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+biom_handoff_preTax:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+biom_handoff_tax:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+
 

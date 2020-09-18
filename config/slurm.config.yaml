@@ -25,3 +25,17 @@ blastn:
   partition: "-p bigmem --qos qos-bigmem"
   mem_per_cpu: "--mem-per-cpu 30G"
 
+dada_mergeruns:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+nochime_numbers:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+tabled_numbers:
+  partition: "-l highmem"
+  mem_per_cpu: "-l h_vmem=30G"
+
+
+

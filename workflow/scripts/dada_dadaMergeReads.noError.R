@@ -33,7 +33,7 @@ names(filtR) <- sampleName
 
 mergefile <- snakemake@output[[1]]
 
-if(as.numeric(unlist(strsplit(system2("zcat",args=c(filtF,"| wc -l"),stdout=T),split=" "))[1])>0){
+if(as.numeric(unlist(strsplit(system2("zcat",args=c(filtF,"| wc -l"),stdout=T),split=" "))[1])>4){
 
 if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   errF <- NULL
@@ -48,6 +48,7 @@ print("merging")
 # Sample inference and merger of paired-end reads
 print(paste0("make dada object and merge, ",sampleName))
 derepF <- derepFastq(filtF)
+if(any(derepF$quals<0)) derepF$quals <- derepF$quals+33
 dadaF <- dada(derepF, err=errF, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
@@ -65,6 +66,7 @@ dadaF <- dada(derepF, err=errF, multithread=snakemake@threads,
                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]),
                USE_QUALS=as.logical(snakemake@config[['dada']][['use_quals']]))
 derepR <- derepFastq(filtR)
+if(any(derepR$quals<0)) derepR$quals <- derepR$quals+33
 dadaR <- dada(derepR, err=errR, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],

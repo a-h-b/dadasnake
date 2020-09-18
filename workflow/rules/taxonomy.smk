@@ -32,9 +32,9 @@ rule taxonomy_to_OTUtab:
     output:
         "sequenceTables/all.seqTab.tax.tsv",
         "sequenceTables/all.seqTab.tax.RDS"
-    threads: 1
+    threads: 12
     params:
-        mem="8G",
+        mem="30G",
         runtime="12:00:00"
     conda: ENVDIR + "dada_env.yml"
     log: "logs/taxonomy.log"
@@ -147,9 +147,9 @@ if config['blast']['do']:
                 expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do']) else "")
             output:
                 "sequenceTables/no_anno.seqs.fasta"
-            threads: 1
+            threads: 12
             params:
-                mem="8G",
+                mem="30G",
                 runtime="2:00:00"
             log: "logs/prep_blastn.log"
             conda: ENVDIR + "dada_env.yml"
@@ -220,10 +220,10 @@ if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or confi
             "reporting/finalNumbers_perSample.tsv"
         output:
             "sequenceTables/all.seqTab.biom"
-        threads: 1
+        threads: 12
         params:
             currentStep = "taxonomy",
-            mem="8G",
+            mem="30G",
             runtime="12:00:00"
         conda: ENVDIR + "dada_env.yml"
         log: "logs/biom_hand-off.log"

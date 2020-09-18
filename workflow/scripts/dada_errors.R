@@ -28,7 +28,22 @@ set.seed(snakemake@config[['error_seed']])
 
 print(paste0("learning error models ",snakemake@wildcards[['direction']]))
 if(length(filts)>0){
-    errs <- learnErrors(filts, multithread=snakemake@threads)
+    #dereps <- derepFastq(filts)
+    NBASES <- 0
+    NREADS <- 0
+    drps <- vector("list", length(filts))
+    filts <- sample(filts)
+    for (i in seq_along(filts)) {
+      drps[[i]] <- derepFastq(filts[[i]])
+      if(any( drps[[i]]$quals<0)) drps[[i]]$quals <- drps[[i]]$quals+33
+      NREADS <- NREADS + sum(drps[[i]]$uniques)
+      NBASES <- NBASES + sum(drps[[i]]$uniques * nchar(names(drps[[i]]$uniques)))
+      if (NBASES > 1e8) {
+        break
+      }
+    }
+    drps <- drps[1:i]
+    errs <- learnErrors(drps, multithread=snakemake@threads)
     saveRDS(errs,errfile)
 pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
     plotErrors(errs, nominalQ=TRUE)

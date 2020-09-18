@@ -27,6 +27,7 @@ if(length(seqTabList)>1){
   for(i in 1:length(seqTabList)){
      tmpTab <- readRDS(seqTabList[i])
      tabname <- gsub("sequenceTables/seqTab.","",gsub(".RDS","",seqTabList[i]))
+     print(tabname)
      if(all(dim(tmpTab)>0)){
        seqTabs[[tabname]] <- tmpTab
      }else{
@@ -34,10 +35,12 @@ if(length(seqTabList)>1){
      }
   }
   if(length(seqTabs)>1){
+    print("merging tabs")
     seqtab <- mergeSequenceTables(tables=seqTabs,repeats="sum")
   }else{
     seqtab <- seqTabs[[1]]
   }
+  rm(seqTabs)
 }else{
   seqtab <- readRDS(seqTabList[1])
 }
@@ -61,16 +64,29 @@ if(snakemake@config[['chimeras']][['remove']]){
   outtab1 <- merge(t(seqtab1),data.frame("OTU"=names(seqs1set),"seq"=seqs1set,stringsAsFactors=F),
                    by.x=0,by.y="seq")
   write.table(outtab1,snakemake@output[[7]],row.names=F,sep="\t",quote=F)
+  rm(outtab1)
+  rm(seqs1set)
+  rm(seqtab1)
 }else{
   seqs <- DNAStringSet(colnames(seqtab))
   names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
+  print("Saving sequences")
+  saveRDS(seqtab,snakemake@output[[1]])
+  writeXStringSet(seqs,snakemake@output[[3]])
+  print("Saving merged OTU table")
+  seqtab <- data.frame(t(seqtab),stringsAsFactors=F)
+  seqtab$Row.names <- rownames(seqtab)
+  seqtab$OTU <- names(seqs)
+  saveRDS(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[2]])
+  write.table(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[4]],row.names=F,sep="\t",quote=F)
 }
-print("Saving merged OTU table")
-saveRDS(seqtab,snakemake@output[[1]])
-writeXStringSet(seqs,snakemake@output[[3]])
-outtab <- merge(t(seqtab),data.frame("OTU"=names(seqs),"seq"=seqs,stringsAsFactors=F),
-                   by.x=0,by.y="seq")
-saveRDS(outtab,snakemake@output[[2]])
-write.table(outtab,snakemake@output[[4]],row.names=F,sep="\t",quote=F)
+#print("Saving sequences")
+#saveRDS(seqtab,snakemake@output[[1]])
+#writeXStringSet(seqs,snakemake@output[[3]])
+#print("Saving merged OTU table")
+#outtab <- merge(t(seqtab),data.frame("OTU"=names(seqs),"seq"=seqs,stringsAsFactors=F),
+#                   by.x=0,by.y="seq")
+#saveRDS(outtab,snakemake@output[[2]])
+#write.table(outtab,snakemake@output[[4]],row.names=F,sep="\t",quote=F)
 
 

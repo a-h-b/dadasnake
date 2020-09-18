@@ -23,7 +23,7 @@ library(Biostrings)
 seqs <- readDNAStringSet(snakemake@input[[1]])
 seqTab <- readRDS(snakemake@input[[2]])
 
-if(snakemake@config[['final_table_filtering']][['keep_target_taxa']]!="."){
+if(!snakemake@config[['final_table_filtering']][['keep_target_taxa']] %in% c(".","")){
  if(any(grepl("taxonomy",colnames(seqTab)))){
   taxcols <- grep("taxonomy",colnames(seqTab))
   if(length(taxcols)>1){
