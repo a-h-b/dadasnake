@@ -13,7 +13,7 @@ Change into the dadasnake directory:
 ```
 cd dadasnake
 ```
-At this point, you have all the scripts you need to run the workflow using snakemake, and you'd just need to get some data and databases (see point 7). If you want to use the **comfortable dadasnake wrapper**, follow the points 2-6. 
+At this point, you have all the scripts you need to run the workflow using snakemake, and you'd just need to get some data and databases (see point 8). If you want to use the **comfortable dadasnake wrapper**, follow the points 2-6. 
 
 2) Adjust the file VARIABLE_CONFIG to your requirements:
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
@@ -22,14 +22,14 @@ At this point, you have all the scripts you need to run the workflow using snake
 * SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml
 * MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
 
-3) Decide how you want to run dadasnake:
+3) Decide how you want to run dadasnake, if you let it submit jobs to the cluster:
 Only do one of the two:
-* if you want to submit the top snakemake call to the cluster:
+* if you want to submit the process running snakemake to the cluster:
 ```
 cp auxiliary_files/dadasnake_allSubmit dadasnake
 chmod 755 dadasnake
 ```
-* if you want to keep snakemake on the frontend:
+* if you want to keep the process running snakemake on the frontend using tmux:
 ```
 cp auxiliary_files/dadasnake_tmux dadasnake
 chmod 755 dadasnake
@@ -44,7 +44,7 @@ conda activate $PWD/conda/snakemake_env
 mamba install -c conda-forge -c bioconda snakemake
 conda deactivate
 ```
-Alternatively, if the above does not work, you can install an older snakemake version without mamba like so:
+Alternatively, if the above does not work, you can install an fixed snakemake version without mamba like so:
 ```
 conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
@@ -53,53 +53,32 @@ Dadasnake will run with Snakemake version >= 5.9.1 and hasn't been tested with a
 5) Set permissions / PATH:
 Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path. It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
 
-6) Test run:
+6) Initialize conda environments:
+This run sets up the conda environments that will be usable by all users:
+```
+./dadasnake -i config/config.init.yaml 
+```
+This step will take several minutes. It will also create a folder with the name "dadasnake_initialized". You can safely remove it or keep it.
+I strongly suggest to **remove one line from the activation script** after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble. You can do this by running:
+```
+sed -i "s/R CMD javareconf/#R CMD javareconf/" conda/*/etc/conda/activate.d/activate-r-base.sh
+```
+
+7) **Optional** test run:
 The test run does not need any databases. You should be able to start it by running 
 ```
 ./dadasnake -l -n "TESTRUN" -r config/config.test.yaml
 ```
-If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. The first step (getting the conda environment) will take several minutes. A completed run contains a file "workflow.done". Don't worry if you see a few warnings from `mv`, such as `mv: cannot stat ‘slurm*’: No such file or directory`. 
+If all goes well, dadasnake will run in the current session, load the conda environment, and make and fill a directory called testoutput. A completed run contains a file "workflow.done". 
 If you don't want to see dadasnake's guts at this point, you can also run this with the -c or -f settings to submit to your cluster or start a tmux session (see How to run dadasnake below). 
 
-The first run will install the conda environment containing DADA2 and the other programs that will be used by all users. I'd strongly suggest to **remove one line from the activation script** ( conda/XXXXXXXX/etc/conda/activate.d/activate-r-base.sh ) after the installation, namely the one reading: `R CMD javareconf > /dev/null 2>&1 || true`, because you don't need this line later and if two users run this at the same time it can cause trouble.
-
-7) Databases:
+8) Databases:
 The dadasnake does not supply databases. I'd suggest to use the [SILVA database](https://www.arb-silva.de/no_cache/download/archive/current/Exports/) for 16S data and [UNITE](https://doi.org//10.15156/BIO/786336) for ITS. 
-* dadasnake uses [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). 
-* In addition to mothur, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
+* dadasnake can use [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the legacy DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). 
+* dadasnake can alternatively use the DADA2 implementation of the same classifier. You can find some databases maintained by Michael R. McLaren [here](https://zenodo.org/record/3986799). More information on the format is in the [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html).
+* In addition to the bayesian classifier, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
 * You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
 **You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
-
-8) R-package phyloseq:
-While DADA2 and other useful R-packages are part of the conda-environment, phyloseq does not like being installed via conda right now. If you want a phyloseq hand-off, install phyloseq into the common conda environment after the testrun. First, check which environment was created: 
-```
-ls ./conda
-```
-This will show a .yaml file and a directory with the same name. Use this name in activating the environment:
-```
-conda activate ./conda/XXXXXXXX
-```
-In the conda environment, run R:
-```
-R
-```
-Within R, set the path to the R-library in the conda environment and install phyloseq. This depends on regular building utilities of your operating system, e.g. gcc. Choose a mirror from the list when prompted. Don't update packages in the end (choose n):
-```
-.libPaths(paste0(Sys.getenv("CONDA_PREFIX"),"/lib/R/library"))
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("phyloseq")
-```
-Leave R without saving the workspace (choose n when prompted):
-```
-quit()
-```
-Deactivate the environment:
-```
-conda deactivate
-```
 
 9) Fasttree:
 dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
@@ -111,9 +90,9 @@ dadasnake comes with fasttree for treeing, but if you have a decent number of se
 ## How to run dadasnake
 To run the dadasnake, you need a config file and a sample table, plus data: 
 * The config file (in yaml format) is read by Snakemake to determine the inputs, steps, arguments and outputs. 
-* The sample table (tab-separated text) gives sample names and file names in the simplest case, with column headers named library and r1_file (and r2_file for paired-end data sets) - its path has to be mentioned in the config file. You can add columns labeled `run` and `sample` to indicate libraries that should be combined into one final column and different sequencing runs. 
+* The sample table (tab-separated text) always gives sample names and file names, with column headers named library and r1_file (and r2_file for paired-end data sets). The path to the sample table has to be mentioned in the config file. You can add columns labeled `run` and `sample` to indicate libraries that should be combined into one final column and different sequencing runs (see the section about the sample table below). 
 * All raw data (usually fastq files) need to be in one directory (which has to be given in the config file). 
-* It is possible (and the best way to do this) to have a config file per run, which defines all settings that differ from the default config file.
+* It is possible (and the best way to do this) to have one config file per run, which defines all settings that differ from the default config file.
 
 ### Using the dadasnake wrapper
 As shown in the installation description above, dadasnake can be run in a single step, by calling dadasnake. Since most of the configuration is done via the config file, the options are very limited. You can either:
@@ -122,20 +101,22 @@ As shown in the installation description above, dadasnake can be run in a single
 * -f run (in a tmux session on the frontend) dadasnake *only available in the tmux installation* and make a report (-r), or
 * just make a report (-r), or 
 * run a dryrun (-d), or 
-* unlock a working directory, if a run was killed (-u). 
+* unlock a working directory, if a run was killed (-u)
+* initialize the conda environmnets only (-i) - you should only need this during the installation. 
 It is strongly recommended to **first run a dryrun on a new configuration**, which will tell you within a few seconds and without submission to a cluster whether your chosen steps work together, the input files are where you want them, and your sample file is formatted correctly. In all cases you need the config file as the last argument. 
 ```
 dadasnake -d -r config.yaml
 ```
+You can also set the number of cpus to maximally run at the same time with -t. The defaults (1 for local/frontend runs and 50 for clusters) are reasonable for many settings and if you don't know what this means, you probably don't have to worry. But you may want to increase the numbers for larger datasets or bigger infrastructure, or decrease the numbers to match your environment's constraints.
 You can add a name for your main job (-n NAME), e.g.:
 ```
 dadasnake -c -n RUNNAME -r config.yaml
 ```
-You can also set the number of cpus to maximally run at the same time with -t. The defaults (1 for local/frontend runs and 50 for clusters) are reasonable for many settings and if you don't know what this means, you probably don't have to worry. But you may want to increase the numbers for larger datasets or bigger infrastructure, or decrease the numbers to match your environment's constraints.
-Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish. 
+Note that spaces in RUNNAME are not allowed and dots will be replaced by underscores.
 
 If you use the tmux version, you can see the tmux process running by typing `tmux ls`. You can also see the progress by checking the stdandard error file `tail RUNNAME_XXXXXXXXXX.stderr`.
 
+Depending on your dataset and settings and your cluster's scheduler, the workflow will take a few minutes to days to finish. 
 
 ### Running snakemake manually
 Once raw data, config file and sample file are present, the workflow can be started from the dadasnake directory by the snakemake command:
@@ -144,11 +125,11 @@ snakemake -s Snakefile --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
 ```
 If you're using a computing cluster, add your cluster's submission command and the number of jobs you want to maximally run at the same time, e.g.:
 ```
-snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={params.runtime},h_vmem={params.mem} -pe smp {threads} -cwd" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
+snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={resources.runtime},h_vmem=8G -pe smp {threads} -cwd" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda 
 ```
 This will submit most steps as their own job to your cluster's queue. The same can be achieved with a [cluster configuration](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution):
 ```
-snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
+snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
 ```
 If you want to share the conda installation with colleagues, use the `--conda-prefix` argument of Snakemake
 ```
@@ -310,15 +291,15 @@ Example 2:
 If you gave dadasnake your email address and your system supports mailing (to that address), you will receive an email upon start and if the workflow encountered a problem or after the successful run. If there was a problem, you have to check the output and logs.
 * Use the -d option of dadasnake or the --dryrun option of Snakemake before the run to check that your input files are where you want them and that you have permissions to write to your target directory. This will also do some checks on the configuration and samples table, so it discovers the majority of errors on a suitable combination of dataset and configuration.
 * You can not make two runs of dadasnake write to the same output directory. If you start the second run while the first is still running, you will get an error either indicating that the directory can't be locked, or that the metadata is incomplete. If you've finished the first run already, the dadasnake will tell you that there's nothing to be done. Change the output directory in the config file to be unique for each run.
-* Reasons for dadasnake to encounter problems during the runs usually have something to do with empty outputs. For example: the filtering is too stringent and no sequences are left; the primers you expected to find are not present; the sequences were truncated too short to be merged. 
-* The second reason are misformatted inputs, e.g. the databases for the classification or the read files.
-* The best way to pinpoint those errors is to first check the .stderr file made by dadasnake (or the Snakemake output, if you run the workflow outside dadasnake). This will tell you which rule encountered the error, and, if you use the cluster submission, the job ID.
-* If you use the cluster submission, log files for every rule are written into the output directory and you can check the one with the job ID for additional information, other wise the same information is written to the Snakemake output.
-* The logs directory in the output directory contains log files for all steps that can produce comments. They are named with the step and then the name of the rule, so you can check the log file of the step that sent the error. Depending on the tool that sent the error, this will be easy to understand or cryptic. Don't hesitate to raise an issue at this repository if you get stuck.
+* A common reason for errors are misformatted inputs, e.g. the databases for the classification or the read files.
+* dadasnake should catch most errors related to empty outputs. For example: the filtering is too stringent and no sequences are left; the primers you expected to find are not present; the sequences were truncated too short to be merged. Please report issues where this didn't happen.
+* The best way to pinpoint those errors is to first check the .stderr file made by dadasnake (or the Snakemake output, if you run the workflow outside dadasnake). This will tell you which rule encountered the error, and, if you use the cluster submission, the job ID. You may have to search for the error a bit, because dadasnake will try to finish as much as possible of your run before dying. Hint: you can find errors by colour or by searching for "Error in rule".
+* If you use the cluster submission, log files for every rule are written into the output directory and you can check the one with the job ID for additional information, otherwise the same information is written to the Snakemake output.
+* The logs directory in the output directory contains log files for all steps that can produce comments. They are named with the step and then the name of the rule, so you can check the log file of the step that sent the error. Depending on the tool that sent the error, this will be easy to understand or cryptic. Don't hesitate to raise an issue in this repository if you get stuck.
 
 ## How to ...?
 **I don't have primers on my reads, what do I do?**
-Set `do_primers: false` in the configuration file, but make sure that their orientation is the same.
+Set `do_primers: false` in the configuration file, but make sure that orientation of the reads is the same.
 
 **I did paired end sequencing, but my reads are too short to overlap**
 You have two options: 
