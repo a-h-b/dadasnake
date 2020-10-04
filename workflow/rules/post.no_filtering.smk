@@ -32,7 +32,7 @@ rule rarefaction_curve_noFilter:
     threads: 12
     resources:
         runtime="120:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/rarefaction_curve.log"
     script:
         SCRIPTSDIR+"rarefaction_curve.R"
@@ -50,7 +50,7 @@ rule guilds_noFilter:
     params:
         src_path=SCRIPTSDIR
     log: "logs/funguild.log"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dadasnake_env.yml"
     message: "Running funguild on {input}."
     shell:
         """
@@ -72,7 +72,7 @@ if config['hand_off']['phyloseq']:
             currentStep = "post"
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "add_R_env.yml"
         log: "logs/phyloseq_hand-off.log"
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
@@ -88,13 +88,13 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         threads: 8
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force
+            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             {config[postprocessing][treeing][fasttreeMP]} -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]}
+             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
             """
 else:
     rule treeing_noFilter:
@@ -106,13 +106,13 @@ else:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force
+            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             fasttree -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]}
+             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
             """
 
 

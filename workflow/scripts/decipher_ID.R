@@ -7,7 +7,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 library(BiocParallel)
 if (snakemake@threads > 1) {
-    library("BiocParallel")
     # setup parallelization
     register(MulticoreParam(snakemake@threads))
     parallel <- TRUE
@@ -17,7 +16,10 @@ if (snakemake@threads > 1) {
 }
 library(DECIPHER)
 library(Biostrings)
-library(dada2)
+if(!require(dada2)){
+  BiocManager::install("GenomeInfoDbData",update=F,ask=F)
+  require(dada2)
+}
 
 print("loading training set:")
 theoPath <- paste0(snakemake@config[['taxonomy']][['decipher']][['db_path']],"/",snakemake@config[['taxonomy']][['decipher']][['tax_db']])
@@ -43,16 +45,17 @@ ids <- IdTaxa(seqs, trainingSet, strand=snakemake@config[['taxonomy']][['deciphe
                bootstraps=snakemake@config[['taxonomy']][['decipher']][['bootstraps']], 
                processors=snakemake@threads, verbose=T)
 taxid <- t(sapply(ids, function(x) {
-        m <- match(ranks, x$rank)
+        m <- match(tolower(ranks), x$rank)
         taxa <- x$taxon[m]
         taxa[startsWith(taxa, "unclassified_")] <- NA
         taxa
 }))
 colnames(taxid) <- ranks
-rownames(taxid) <- names(seqs)
+rownames(taxid) <- as.character(seqs)
 if(snakemake@config[['taxonomy']][['decipher']][['look_for_species']]){
   taxid <- addSpecies(taxid,snakemake@config[['taxonomy']][['decipher']][['spec_db']])
 }
+rownames(taxid) <- names(seqs)
 taxid <- taxid[order(rownames(taxid)),]
 
 write.table(data.frame("taxonomy"=apply(taxid,1,function(x) paste(x[!is.na(x)],sep=";",collapse=";")),

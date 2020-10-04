@@ -8,7 +8,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 library(BiocParallel)
 #parallel <- FALSE
 if (snakemake@threads > 1) {
-    library("BiocParallel")
     # setup parallelization
     register(MulticoreParam(snakemake@threads))
     parallel <- TRUE

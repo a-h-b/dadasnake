@@ -49,7 +49,7 @@ rule input_numbers:
         raw_directory = RAW
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R" 
@@ -68,7 +68,7 @@ rule primer_numbers:
     resources:
         runtime="12:00:00"
     log: "logs/countPrimerReads.log"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R"
 
@@ -91,7 +91,7 @@ if config['sequencing_direction'] == "fwd_1":
             runtime="12:00:00"
         params:
             both_match=BOTHMATCH
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
         shell:
@@ -123,7 +123,7 @@ elif config['sequencing_direction'] == "rvs_1":
             runtime="12:00:00"
         params:
             both_match=BOTHMATCH
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming reverse primer is in read."
         shell:
@@ -158,7 +158,7 @@ else:
             runtime="12:00:00"
         params:
             both_match=BOTHMATCH
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
         shell:
@@ -188,7 +188,7 @@ else:
              -o $TMPD/{wildcards.library}.tr2.fastq \
              $TMPD/{wildcards.library}.unt.fastq >> {log} 2>&1
 
-            fastx_reverse_complement -i $TMPD/{wildcards.library}.tr2.fastq -o $TMPD/{wildcards.library}.tr2.rc.fastq
+            fastx_reverse_complement -i $TMPD/{wildcards.library}.tr2.fastq -o $TMPD/{wildcards.library}.tr2.rc.fastq &>> {log} || touch $TMPD/{wildcards.library}.tr2.rc.fastq
 
             cutadapt -a {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \

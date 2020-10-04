@@ -7,7 +7,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 library(BiocParallel)
 if (snakemake@threads > 1) {
-    library("BiocParallel")
     # setup parallelization
     register(MulticoreParam(snakemake@threads))
     parallel <- TRUE
@@ -69,6 +68,7 @@ ymax <- max(apply(seqTab[,sams],2,function(x) length(which(x>0))))
 xmax <- max(colSums(seqTab[,sams]))
 
 if(samno>0){
+  pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
   if(floor(samno/72)>0){
     for(i in 1:floor(samno/72)){
       print(i) 
@@ -82,8 +82,6 @@ if(samno>0){
         print(colnames(seqMat)[colSums(seqMat)<1])
       }
 
-      pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
-
       print("plotting rarefaction curves")
       dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
     }
@@ -94,5 +92,7 @@ if(samno>0){
     dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
   }
   dev.off()
+}else{
+  print("No columns to rarefy")
 }
 

@@ -48,7 +48,7 @@ rule input_numbers:
         raw_directory = RAW
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R" 
@@ -67,7 +67,7 @@ rule primer_numbers:
     resources:
         runtime="12:00:00"
     log: "logs/countPrimerReads.log"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R"
 

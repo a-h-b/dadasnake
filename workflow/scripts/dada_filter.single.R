@@ -7,7 +7,6 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 library(BiocParallel)
 if (snakemake@threads > 1) {
-    library("BiocParallel")
     # setup parallelization
     register(MulticoreParam(snakemake@threads))
     parallel <- TRUE
@@ -15,7 +14,10 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-library(dada2)
+if(!require(dada2)){
+  BiocManager::install("GenomeInfoDbData",update=F,ask=F)
+  require(dada2)
+}
 library(ShortRead)
 
 fastqFilter0 <- function (fn, fout, truncQ = 2, truncLen = 0, maxLen = Inf, 

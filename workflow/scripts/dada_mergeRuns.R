@@ -7,14 +7,16 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 library(BiocParallel)
 if (snakemake@threads > 1) {
-    library("BiocParallel")
     register(MulticoreParam(snakemake@threads))
     parallel <- TRUE
 }else{
     parallel <- FALSE
     register(SerialParam())
 }
-library(dada2)
+if(!require(dada2)){
+  BiocManager::install("GenomeInfoDbData",update=F,ask=F)
+  require(dada2)
+}
 library(Biostrings)
 
 

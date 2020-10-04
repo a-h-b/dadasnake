@@ -61,6 +61,13 @@ if(snakemake@config[['taxonomy']][['mothur']][['do']]){
   colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
                                                             ".mothur")
 #  seqTab <- merge(seqTab,mothTax,by="OTU",all=T)
+}else{
+ if(snakemake@config[['taxonomy']][['dada']][['do']]){
+   print("reading DADA2 classifier result")
+   dadTax <- readRDS(snakemake@input[[length(snakemake@input)]])
+   dadTax <- dadTax[,-ncol(dadTax)]
+   colnames(dadTax) <- paste0(colnames(dadTax),".dada2")
+ }
 }
 print("reading OTU table")
 seqTab <- readRDS(snakemake@input[[1]])
@@ -78,6 +85,10 @@ if(snakemake@config[['taxonomy']][['decipher']][['do']]){
 }
 if(snakemake@config[['taxonomy']][['mothur']][['do']]){
   seqTab <- merge(seqTab,mothTax,by="OTU",all=T)
+}else{
+  if(snakemake@config[['taxonomy']][['dada']][['do']]){
+  seqTab <- merge(seqTab,dadTax,by="OTU",by.y=0,all=T)
+  }
 }
 print("Saving OTU table with taxonomy")
 saveRDS(seqTab,snakemake@output[[2]])

@@ -1,0 +1,9 @@
+outputdir: "dadasnake_initialize"
+taxonomy:
+  mothur:
+    do: true
+blast:
+  do: true
+hand_off:
+  biom: true
+  phyloseq: true

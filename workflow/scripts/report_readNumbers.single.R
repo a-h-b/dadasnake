@@ -74,7 +74,10 @@ if(snakemake@params[["currentStep"]] == "raw"){
   perSample <- merge(tab2PerSample,nums2PerSample,by="sample")
   write.table(perSample,snakemake@output[[2]],sep="\t",quote=F,row.names=F)
 }else if(snakemake@params[["currentStep"]] == "merged"){
-  library(dada2)
+  if(!require(dada2)){
+    BiocManager::install("GenomeInfoDbData",update=F,ask=F)
+    require(dada2)
+  }
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
   if(length(filesOI)>1 | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){

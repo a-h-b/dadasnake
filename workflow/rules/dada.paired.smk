@@ -28,7 +28,7 @@ rule filter_numbers:
         currentStep = "filtered"
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countFilteredReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.R"
@@ -45,7 +45,7 @@ rule merged_numbers:
         currentStep = "merged",
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countMergedReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.R"
@@ -62,7 +62,7 @@ rule dada_qc1:
         path="preprocessing/{run}",
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -80,7 +80,7 @@ rule dada_qc_filtered:
         path="filtered/{run}",
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -96,7 +96,7 @@ rule dada_filter:
     threads: 1
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
@@ -112,7 +112,7 @@ rule dada_errors:
     threads: 1
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_errors.{run}.{direction}.log"
     message: "Running error models on {input}."
     script:
@@ -130,7 +130,7 @@ if config['dada']['use_quals']:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
         message: "merging reads for {wildcards.run} {wildcards.sample}."
         script:
@@ -145,7 +145,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
         message: "merging reads for {wildcards.run} {wildcards.sample}."
         script:
@@ -162,7 +162,7 @@ rule dada_mergeSamples:
     threads: 1
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"
     message: "preparing sequence table for {wildcards.run}."
     script:
@@ -183,7 +183,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
@@ -201,7 +201,7 @@ if config["chimeras"]["remove"]:
             currentStep = "chimera"
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
             SCRIPTSDIR+"report_readNumbers.R"
@@ -217,7 +217,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
         script:
@@ -234,7 +234,7 @@ else:
             currentStep = "table",
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"
         script:
             SCRIPTSDIR+"report_readNumbers.R"

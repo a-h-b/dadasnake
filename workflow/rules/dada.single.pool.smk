@@ -28,7 +28,7 @@ rule filter_numbers:
         currentStep = "filtered"
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countFilteredReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R"
@@ -46,7 +46,7 @@ rule merged_numbers:
         pooling = config['dada']['pool']
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countMergedReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.single.R"
@@ -61,7 +61,7 @@ rule dada_qc1:
         path="preprocessing/{run}"
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -77,7 +77,7 @@ rule dada_qc_filtered:
         path="filtered/{run}"
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
@@ -91,7 +91,7 @@ rule dada_filter:
     threads: 1
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
@@ -106,7 +106,7 @@ rule dada_errors:
     threads: 1
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_errors.log"
     message: "Running error models on {input}."
     script:
@@ -124,7 +124,7 @@ if config['dada']['use_quals']:
             runtime="24:00:00"
         params:
             pooling=config['dada']['pool']
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
@@ -140,7 +140,7 @@ else:
             runtime="24:00:00"
         params:
             pooling=config['dada']['pool']
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_read2RDS.log"
         message: "converting fastq to dada-RDS."
         script:
@@ -163,7 +163,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "removing chimeras for {input}."
         script:
@@ -181,7 +181,7 @@ if config["chimeras"]["remove"]:
             currentStep = "chimera"
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
             SCRIPTSDIR+"report_readNumbers.single.R"
@@ -197,7 +197,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "writing tables and fasta file for {input}."
         script:
@@ -214,7 +214,7 @@ else:
             currentStep = "table"
         resources:
             runtime="12:00:00"
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"
         script:
             SCRIPTSDIR+"report_readNumbers.single.R"

@@ -1,0 +1,40 @@
+name: mothur_env
+channels:
+  - bioconda
+  - conda-forge/label/cf201901
+  - bioconda/label/cf201901
+  - defaults
+  - r
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - blas=1.0=mkl
+  - blast-legacy=2.2.26=2
+  - boost=1.67.0=py36h3e44d54_0
+  - boost-cpp=1.67.0=h3a22d5f_0
+  - bzip2=1.0.6=h470a237_2
+  - ca-certificates=2018.11.29=ha4d7672_0
+  - certifi=2018.11.29=py36_1000
+  - icu=58.2=hfc679d8_0
+  - intel-openmp=2020.2=254
+  - libffi=3.2.1=hfc679d8_5
+  - libgcc-ng=9.1.0=hdf63c60_0
+  - libstdcxx-ng=7.2.0=hdf63c60_3
+  - mkl=2020.2=256
+  - mkl-service=2.3.0=py36he904b0f_0
+  - mkl_fft=1.0.10=py36_0
+  - mkl_random=1.0.2=py36_0
+  - mothur=1.40.5=hb16dc7f_0
+  - ncurses=6.1=hfc679d8_2
+  - numpy=1.19.1=py36hbc911f0_0
+  - numpy-base=1.19.1=py36hfa32c7d_0
+  - openssl=1.0.2p=h470a237_2
+  - pip=18.1=py36_1000
+  - python=3.6.7=h5001a0f_1
+  - readline=7.0=haf1bffa_1
+  - setuptools=40.6.3=py36_0
+  - six=1.12.0=py36_1000
+  - sqlite=3.26.0=hb1c47c0_0
+  - tk=8.6.9=ha92aebf_0
+  - wheel=0.32.3=py36_0
+  - xz=5.2.4=h470a237_1
+  - zlib=1.2.11=h470a237_4

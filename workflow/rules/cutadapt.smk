@@ -51,7 +51,7 @@ rule input_numbers:
         raw_directory = RAW
     resources:
         runtime="12:00:00"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.R" 
@@ -70,7 +70,7 @@ rule primer_numbers:
     resources:
         runtime="12:00:00"
     log: "logs/countPrimerReads.log"
-    conda: ENVDIR + "dada_env.yml"
+    conda: ENVDIR + "dada2_env.yml"
     script:
         SCRIPTSDIR+"report_readNumbers.R"
 
@@ -86,7 +86,7 @@ if config['sequencing_direction'] == "fwd_1":
         threads: 1
         resources:
             runtime="12:00:00",
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
         shell:
@@ -118,7 +118,7 @@ elif config['sequencing_direction'] == "rvs_1":
         threads: 1
         resources:
             runtime="12:00:00",
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
         shell:
@@ -151,7 +151,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-        conda: ENVDIR + "dada_env.yml"
+        conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both  primers in both reads."
         shell:
