@@ -133,6 +133,7 @@ elif [ "$FRONTEND" = true ]; then
    if [ -z "$JNAME" ]; then
         JNAME="dadasnake_${NAMEHASH}"
     else
+        JNAME=${JNAME//./_}
         JNAME="${JNAME}_${NAMEHASH}"
     fi
     if [ -z "$THREADS" ]; then
@@ -153,6 +154,7 @@ elif [ "$LAPTOP" = true ]; then
    if [ -z "$JNAME" ]; then
         JNAME="dadasnake_${NAMEHASH}"
     else
+        JNAME=${JNAME//./_}
         JNAME="${JNAME}_${NAMEHASH}"
     fi
     if [ -z "$THREADS" ]; then
