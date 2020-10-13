@@ -248,6 +248,16 @@ chimeras|||||dada||settings for chimera removal
 &nbsp;|  minOneOffParentDistance|| 4|a number > 1|dada|if flagging sequences with one mismatch as potential one-off parents, how many mismatches are needed| Don't change unless you know what you're doing.
 &nbsp;|  maxShift|| 16|a number|dada|maximum shift when aligning to potential parents| Don't change unless you know what you're doing.
 taxonomy|||||taxonomy||settings for taxonomic annotation
+&nbsp;|  dada||||taxonomy||settings for DADA2 implementation of bayesian classifier
+&nbsp;||    do| false|true or false|taxonomy|whether DADA2 should be used for taxonomic annotation| the DADA2 implementation may work less well than the mothur classifier, and it may be slower; you can run either the DADA classifier or mothur (not both)
+&nbsp;||    post_ITSx| false|true or false|taxonomy|whether the classifier should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
+&nbsp;||    db_path|"../DBs/DADA2"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
+&nbsp;||    refFasta|"silva_nr99_v138_train_set.fa.gz"||taxonomy|training database name|
+&nbsp;||    minBoot|50|1-100|taxonomy|bootstrap value for classification|see DADA2 documentation for details
+&nbsp;||    tryRC| false|false or true|taxonomy|if your reads are in the direction of the database (false), or reverse complement or you don't know (true)|true takes longer than false
+&nbsp;||    seed|101|a positive integer|taxonomy|seed for DADA2 taxonomy classifier|keep constant in re-runs
+&nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
+&nbsp;||    spec_db|"../DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|change when setting up dadasnake on a new system
 &nbsp;|  decipher||||taxonomy||settings for DECIPHER
 &nbsp;||    do| false|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation| DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
