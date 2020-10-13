@@ -1,10 +1,11 @@
 email: ""
+big_data: true
 raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"
-do_primers: true
+do_primers: false
 do_dada: true
 do_taxonomy: false
-do_postprocessing: false
+do_postprocessing: true
 primers:
   fwd: 
     sequence: GTGYCAGCMGCCGCGGTAA
@@ -12,7 +13,9 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-paired: true
+paired: false
+dada:
+  pool: false
 sequencing_direction: "unknown"
 filtering:
   trunc_length:
@@ -33,6 +36,8 @@ filtering:
     rvs: 0
 tmp_dir: "tmp"
 outputdir: "testoutput"
+final_table_filtering:
+  do: true
 hand_off:
-  biom: false
-  phyloseq: false
+  biom: true
+  phyloseq: true

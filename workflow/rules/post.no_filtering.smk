@@ -80,15 +80,29 @@ if config['hand_off']['phyloseq']:
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
 
+rule multiAlign_noFilter:
+    input:
+        "sequenceTables/all.seqs.fasta"
+    output:
+        "post/all.seqs.multi.fasta"
+    threads: 10
+    resources:
+        runtime="12:00:00",
+        mem=config['normalMem']
+    conda: ENVDIR + "dadasnake_env.yml"
+    log: "logs/treeing_multiAlign.log"
+    shell:
+        """
+        clustalo -i {input} -o {output} --outfmt=fasta --threads={threads} --force &> {log} || touch {output}
+        """
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
     rule treeing_noFilter_fasttreeMP:
         input:
-            "sequenceTables/all.seqs.fasta"
+            "post/all.seqs.multi.fasta"
         output:
-            "post/all.seqs.multi.fasta",
             "post/tree.newick"
-        threads: 8
+        threads: 10
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -96,16 +110,14 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             {config[postprocessing][treeing][fasttreeMP]} -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
+             -log {log} -quiet {input} > {output} 2> {log}
             """
 else:
     rule treeing_noFilter:
         input:
-            "sequenceTables/all.seqs.fasta"
+            "post/all.seqs.multi.fasta"
         output:
-            "post/all.seqs.multi.fasta",
             "post/tree.newick"
         threads: 1
         resources:
@@ -115,9 +127,8 @@ else:
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             fasttree -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
+             -log {log} -quiet {input} > {output} 2>> {log} || touch {output}
             """
 
 

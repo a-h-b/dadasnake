@@ -43,37 +43,111 @@ if os.path.exists(CUSTOM_CONFIG_PATH):
         config = dict_merge(config, data)
 #validate(config,schema="schemas/config.schema.yaml")
 
+
+config['sessionKind'] = ori_sessionKind
 if ori_sessionKind == "cluster":
-    if config['settingsLocked']:
+    if str(ori_lock).lower() in ['true','t']:
+        config['settingsLocked'] = True
+        if config['normalMem'] != ori_normalMem or config['bigMem'] != ori_bigMem or config['bigCores'] != ori_bigCores:
+            print("You've attempted to change the numbers or size of the available cores in your config file, but the person who set up dadasnake disabled changing these settings. The original settings will be used.")
+        else:
+            print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
         config['normalMem'] = ori_normalMem
         config['bigMem'] = ori_bigMem
         config['bigCores'] = ori_bigCores
-        print("You've attempted to change the numbers or size of the available cores in your config file, but the person who set up dadasnake disabled changing these settings. The original settings will be used.")
-        print("normalMem:" + config['normalMem'])
-        print("bigMem:" + config['bigMem'])
-        print("bigCores:" + config['bigCores'])
+        print("normalMem: " + config['normalMem'])
+        print("bigMem: " + config['bigMem'])
+        print("bigCores: " + str(config['bigCores']))
+    else:
+        config['settingsLocked'] = False
     if config['normalMem'] == "" and ori_normalMem != "" and not config['settingsLocked']:
         config['normalMem'] = ori_normalMem
     if config['normalMem'] == "":
-        raise Exception('You're attempting to submit dadasnake to a cluster and haven't specified the memory requirements. Please specify NORMAL_MEM_EACH in ' + ROOTDIR + 'VARIABLE_CONFIG, or normalMem in the config file unless LOCK_SETTINGS is true.')
+        if config['settingsLocked']:
+            raise Exception("You're attempting to submit dadasnake to a cluster and haven't specified the memory requirements. Ask the person who set up dadasnake to specify NORMAL_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG")
+        else:
+            raise Exception("You're attempting to submit dadasnake to a cluster and haven't specified the memory requirements. Set normalMem in your config file.")
     if config['bigMem'] == "" and ori_bigMem != "" and not config['settingsLocked']:
         config['bigMem'] = ori_bigMem
     if config['bigCores'] == "" and ori_bigCores != "" and not config['settingsLocked']:
         config['bigCores'] = ori_bigCores
     if config['bigCores'] == "" or int(config['bigCores']) == 0:
         if config['big_data']:
-            raise Exception('You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Change BIGMEM_CORES in ' + ROOTDIR + 'VARIABLE_CONFIG, or change bigCores in the config file (unless LOCK_SETTINGS is true) to run a big data set, or set big_data to false in your config file.') 
+            if config['settingsLocked']:
+                raise Exception("You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Ask the person who set up dadasnake to change BIGMEM_CORES in " + ROOTDIR + "VARIABLE_CONFIG to run a big data set, or set big_data to false in your config file.") 
+            else:
+                raise Exception("You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Change bigCores in the config file to run a big data set, or set big_data to false in your config file.")
         else:
             config['bigMem'] = config['normalMem']
             config['bigCores'] = workflow.cores
-            print("You haven't specified more than 0 bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] ".")
+            print("You haven't specified more than 0 bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] + ".")
     elif config['bigMem'] == "":
         if config['big_data']:
-            raise Exception('You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Change BIGMEM_MEM_EACH in ' + ROOTDIR + 'VARIABLE_CONFIG or bigMem in the config file to run a big data set, or set big_data to false in your config file.')
+            if config['settingsLocked']:
+                raise Exception("You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Ask the person who installed dadasnake to change BIGMEM_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG to run a big data set, or set big_data to false in your config file, if your dataset isn't that big.")
+            else:
+                raise Exception("You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Change bigMem to an adequate number in the config file to run a big data set, or set big_data to false in your config file.")
         else:
             config['bigMem'] = config['normalMem']
             config['bigCores'] = workflow.cores
-            print("You haven't specified the size of your bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] ".")
+            print("You haven't specified the size of your bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] + ".")
+# get dryruns to have realistic output:
+elif ori_sessionKind == "dryrun":
+    if str(ori_lock).lower() in ['true','t']:
+        config['settingsLocked'] = True
+        if config['normalMem'] != ori_normalMem or config['bigMem'] != ori_bigMem or config['bigCores'] != ori_bigCores:
+            print("You've attempted to change the numbers or size of the available cores in your config file, but the person who set up dadasnake disabled changing these settings. The original settings will be used.")
+        else:
+            print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
+        config['normalMem'] = ori_normalMem
+        config['bigMem'] = ori_bigMem
+        config['bigCores'] = ori_bigCores
+        print("normalMem: " + config['normalMem'])
+        print("bigMem: " + config['bigMem'])
+        print("bigCores: " + str(config['bigCores']))
+    else:
+        config['settingsLocked'] = False
+    if config['normalMem'] == "" and ori_normalMem != "" and not config['settingsLocked']:
+        config['normalMem'] = ori_normalMem
+    if config['normalMem'] == "":
+        if config['settingsLocked']:
+            print("You will not be able to submit dadasnake to a cluster unless you ask the person who set up dadasnake to specify NORMAL_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG")
+        else:
+            print("You will not be able to submit dadasnake to a cluster unless you set normalMem in your config file.")
+    if config['bigMem'] == "" and ori_bigMem != "" and not config['settingsLocked']:
+        config['bigMem'] = ori_bigMem
+    if config['bigCores'] == "" and ori_bigCores != "" and not config['settingsLocked']:
+        config['bigCores'] = ori_bigCores
+    if config['bigCores'] == "" or int(config['bigCores']) == 0:
+        if config['big_data']:
+            if config['settingsLocked']:
+                print("You will not be able to submit a big dataset in dadasnake to a cluster, unless you ask the person who set up dadasnake to change BIGMEM_CORES in " + ROOTDIR + "VARIABLE_CONFIG to run a big data set, or set big_data to false in your config file.")
+            else:
+                print("You will not be able to submit a big dataset in dadasnake to a cluster, unless you change bigCores in the config file to run a big data set, or set big_data to false in your config file.")
+        else:
+            config['bigMem'] = config['normalMem']
+            config['bigCores'] = workflow.cores
+            print("You haven't specified more than 0 bigmem cores, in cluster mode, all rules would be performed on normal cores with " + config['normalMem'] + ".")
+    elif config['bigMem'] == "":
+        if config['big_data']:
+            if config['settingsLocked']:
+                print("You will not be able to submit a big dataset in dadasnake to a cluster, unless you ask the person who installed dadasnake to change BIGMEM_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG to run a big data set, or set big_data to false in your config file, if your dataset isn't that big.")
+            else:
+                print("You will not be able to submit a big dataset in dadasnake to a cluster, unless you change bigMem to an adequate number in the config file to run a big data set, or set big_data to false in your config file.")
+        else:
+            config['bigMem'] = config['normalMem']
+            config['bigCores'] = workflow.cores
+            print("You haven't specified the size of your bigmem cores, in cluster mode, all rules would be performed on normal cores with " + config['normalMem'] + ".")
+    config['bigCores'] = workflow.cores
+#for non-cluster runs:
+else:
+    config['bigCores'] = workflow.cores
+print("Final resource settings:")
+print("normalMem: " + config['normalMem'])
+print("bigMem: " + config['bigMem'])
+print("bigCores: " + str(config['bigCores']))
+
+
 
 # get parameters from the command line
 OUTPUTDIR = os.path.expandvars(config['outputdir'])
@@ -138,7 +212,7 @@ if os.path.isabs(os.path.expandvars(config['raw_directory'])):
 else:
     RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
 
-if config['big'] and config['dada']['pool']:
+if config['big_data'] and config['dada']['pool']:
     raise Exception("No workflow is defined for pooled analysis of large datasets. Use per-sample analysis for large datasets by setting dada:pool: to true.")
 
 #validate(samples, schema="schemas/sample.schema.yaml")

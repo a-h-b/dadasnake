@@ -115,12 +115,28 @@ if config['hand_off']['phyloseq']:
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
 
+rule bigmultiAlign_Filter:
+    input:
+        "post/filtered.seqs.fasta"
+    output:
+        "post/filtered.seqs.multi.fasta"
+    threads: config['bigCores']
+    resources:
+        runtime="12:00:00",
+        mem=config['bigMem']
+    conda: ENVDIR + "dadasnake_env.yml"
+    log: "logs/treeing_multiAlign.log"
+    shell:
+        """
+        clustalo -i {input} -o {output} --outfmt=fasta --threads={threads} --force &> {log} || touch {output}
+        """
+
+
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
     rule bigtreeing_Filter_fasttreeMP:
         input:
-            "post/filtered.seqs.fasta"
+            "post/filtered.seqs.multi.fasta"
         output:
-            "post/filtered.seqs.multi.fasta",
             "post/tree.newick"
         threads: config['bigCores']
         resources:
@@ -130,16 +146,14 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             {config[postprocessing][treeing][fasttreeMP]} -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
+             -log {log} -quiet {input} > {output} 2>> {log} || touch {output}
             """
 else:
     rule bigtreeing_Filter:
         input:
-            "post/filtered.seqs.fasta"
+            "post/filtered.seqs.multi.fasta"
         output:
-            "post/filtered.seqs.multi.fasta",
             "post/tree.newick"
         threads: 1
         resources:
@@ -149,9 +163,8 @@ else:
         log: "logs/treeing.log"
         shell:
             """
-            clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
             fasttree -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {output[0]} > {output[1]} 2> {log}
+             -log {log} -quiet {input} > {output} 2>> {log} || touch {output}
             """
 
 

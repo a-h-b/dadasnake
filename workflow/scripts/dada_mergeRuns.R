@@ -27,13 +27,15 @@ print(length(seqTabList))
 if(length(seqTabList)>1){
   seqTabs <- list()
   for(i in 1:length(seqTabList)){
-     tmpTab <- readRDS(seqTabList[i])
-     tabname <- gsub("sequenceTables/seqTab.","",gsub(".RDS","",seqTabList[i]))
-     print(tabname)
-     if(all(dim(tmpTab)>0)){
-       seqTabs[[tabname]] <- tmpTab
-     }else{
-       print(paste0("No reads were recovered from run ",tabname,"!")) 
+     if(file.info(seqTabList[i])$size > 0){
+       tmpTab <- readRDS(seqTabList[i])
+       tabname <- gsub("sequenceTables/seqTab.","",gsub(".RDS","",seqTabList[i]))
+       print(tabname)
+       if(all(dim(tmpTab)>0)){
+         seqTabs[[tabname]] <- tmpTab
+       }else{
+         print(paste0("No reads were recovered from run ",tabname,"!")) 
+       }
      }
   }
   if(length(seqTabs)>1){

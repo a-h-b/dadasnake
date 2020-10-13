@@ -4,6 +4,7 @@ normalMem: ""
 bigMem: ""
 bigCores: ""
 sessionKind: ""
+settingsLocked: false
 big_data: false
 tmp_dir: "tmp"
 raw_directory: "testdata"
