@@ -167,7 +167,14 @@ The config file must be in .yaml format. The order within the yaml file does not
 
 **top-level parameters** | **sub-parameters** | **subsub-parameters** | **default value** | **possible values** | **used in stage** | **explanation** | **comments / recommendations**
 ---|---|---|---|---|---|---|---
-email |  | | "" | "" or a valid email address | all | email address for mail notification | keep empty if you don't want emails. Check spelling, it's not tested.
+email |  |  | "" | "" or a valid email address | all | email address for mail notification | keep empty if you don't want emails. Check spelling, it's not tested.
+sessionName |  |  | "" | "" or a single word | all | session name | only read, if you're not using the dadasnake wrapper
+normalMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your normal copute nodes (e.g. 8G) | may be fixed during installation, only necessary for cluster submission 
+bigMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your high memory copute nodes (e.g. 30G) | may be fixed during installation, only necessary for cluster submission
+bigCores |  |  | "" | "" or a number and letter | all | maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
+sessionKind |  |  | "" | a string | all | automatically set by dadasnake wrapper | keep "" 
+settingsLocked |  |  | false | a boolean or string | all | automatically set by dadasnake wrapper | it doesn't matter what you do
+big_data |  |  | false | a boolean | dada, taxonomy, post | whether to use big data settings | set to true, if you have extra high memory nodes and more than 1000 samples 
 tmp_dir |  |  | "/work/$USER/tmp" | any path that you have permissions for writing to | all | directory for temporary, intermediate files that shouldn't be kept | keep this in your /work so you don't need to worry about removing its contents
 raw_directory |  |  | "/work/$USER"| any one path where you might have your raw data | all | directory with all raw data | you will usually have this somewhere in a project folder
 sample_table |  |  | "/work/$USER/samples.tsv" | any one location of your samples table | all | path to the samples table | you can keep this in your /work, because the dadasnake will copy it to your output directory
@@ -196,13 +203,13 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;|  trunc_length||||dada||length to truncate to (shorter reads are discarded)
 &nbsp;||    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;||    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
-&nbsp;|  trunc_qual||13|0-40|dada|reads are cut before the first position with this quality|
+&nbsp;|  trunc_qual||2|0-40|dada|reads are cut before the first position with this quality|
 &nbsp;|  max_EE||||dada||filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
 &nbsp;| |    fwd | 2 | a positive number | dada | After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded | use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;||    rvs|2|a positive number|dada| After truncation, read pairs with higher than maxEE "expected errors" in rvs read will be discarded|ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;|  minLen||||dada||filtering by mimum length
-&nbsp;||    fwd|200|a positive integer|dada|Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.|use with truncQ
-&nbsp;||    rvs|100|a positive integer|dada|Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.| ignored in single-ende mode; use with truncQ
+&nbsp;||    fwd|20|a positive integer|dada|Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.|use with truncQ
+&nbsp;||    rvs|20|a positive integer|dada|Remove reads with length less than minLen on rvs read. minLen is enforced after trimming and truncation.| ignored in single-ende mode; use with truncQ
 &nbsp;|  maxLen||||dada||filtering by maximum length
 &nbsp;||    fwd| Inf|a positive integer or Inf|dada|Remove reads with length of fwd read greater than maxLen. maxLen is enforced before trimming and truncation.|
 &nbsp;||    rvs| Inf|a positive integer or Inf|dada|Remove reads with length of rvs read greater than maxLen. maxLen is enforced before trimming and truncation.|ignored in single-ende mode
