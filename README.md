@@ -15,12 +15,16 @@ cd dadasnake
 ```
 At this point, you have all the scripts you need to run the workflow using snakemake, and you'd just need to get some data and databases (see point 8). If you want to use the **comfortable dadasnake wrapper**, follow the points 2-6. 
 
-2) Adjust the file VARIABLE_CONFIG to your requirements:
+2) Adjust the file VARIABLE_CONFIG to your requirements (have a tab between the variable name and your setting):
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
-* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You also have the option to run it on the frontend via tmux. Leave empty, if you want to use the frontend version. You need to have [tmux](https://github.com/tmux/tmux/wiki) installed.
-* SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml
+* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You alternatively have the option to run it on the frontend via tmux. Leave empty, if you want to use this frontend version and have [tmux](https://github.com/tmux/tmux/wiki) installed.
+* SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml . Also check that the settings in this file is correct. If you have a different system, contact us ( https://github.com/a-h-b/dadasnake/issues ).
 * MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
+* NORMAL_MEM_EACH - set the size of the RAM of one core of your normal copute nodes (e.g. 8G). If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. 
+* BIGMEM_MEM_EACH - set the size of the RAM of one core of your bigmem (or highmem) compute nodes. If you're not planning to use dadasnake to submit to a cluster or don't have separate bigmem nodes, you don't need to set this.
+* BIGMEM_CORES - set this to the maximum number of bigmem cores you want to require for a task. Set to 0, if you don't have separate bigmem nodes. You don't need to set this, if you're not planning to use dadasnake to submit to a cluster.
+* LOCK_SETTINGS - set this to true, if you don't want users to choose numbers and sizes of compute nodes at run time. If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. Setting LOCK_SETTINGS  makes the workflow slightly less flexible, as all large data sets will be run with the maximum number of bigmem nodes you set up here (see big_data settings below). On the other hand, it can be helpful, if you're setting up dadasnake for inexperienced users or have only one possible setting anyhow. If you're not locking, it's advised to set useful settings in the config/config.default.yaml file for normalMem, bigMem, and bigCores.
 
 3) Decide how you want to run dadasnake, if you let it submit jobs to the cluster:
 Only do one of the two:
@@ -51,7 +55,12 @@ conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemak
 Dadasnake will run with Snakemake version >= 5.9.1 and hasn't been tested with any previous versions.
 
 5) Set permissions / PATH:
-Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest to have read access for all files for the users plus execution rights for the dadasnake file and the .sh scripts in the subfolder dada_scripts and the conda environment. Add the dadasnake directory to your path. It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
+Dadasnake is meant to be used by multiple users. Set the permissions accordingly. I'd suggest:
+* to have read access for all files for the users plus 
+* execution rights for the dadasnake file and the .sh scripts in the subfolder submit_scripts
+* read, write and execution rights for the conda subfolder 
+* Add the dadasnake directory to your path. 
+* It can also be useful to make the VARIABLE_CONFIG file not-writable, because you will always need it. The same goes for config.default.yaml once you've set the paths to the databases you want to use (see below).
 
 6) Initialize conda environments:
 This run sets up the conda environments that will be usable by all users:
@@ -129,11 +138,11 @@ snakemake -j 50 -s Snakefile --cluster "qsub -l h_rt={resources.runtime},h_vmem=
 ```
 This will submit most steps as their own job to your cluster's queue. The same can be achieved with a [cluster configuration](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution):
 ```
-snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
+snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition}" --configfile /PATH/TO/YOUR/CONFIGFILE --use-conda
 ```
 If you want to share the conda installation with colleagues, use the `--conda-prefix` argument of Snakemake
 ```
-snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}" --use-conda --conda-prefix /PATH/TO/YOUR/COMMON/CONDA/DIRECTORY
+snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition}" --use-conda --conda-prefix /PATH/TO/YOUR/COMMON/CONDA/DIRECTORY
 ```
 Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
 
@@ -281,7 +290,8 @@ postprocessing|||||postprocessing||settings for postprocessinf
 
 
 ## The samples table
-Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If several fastq files should end up in the same column of the OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
+Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If you have many (>500 samples), it is also useful to split them into runs for the analysis, as some of the most memory-intensive steps are done by run.  
+If several fastq files should end up in the same column of the OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
 Example 1:
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
 Example 2:
@@ -314,6 +324,9 @@ pair_merging:
   min_overlap: 0
   just_concatenate: true
 ```
+
+**I have a very large dataset**
+Great, if you have the computing power to match it, dadasnake will help you. It has successfully processed >27,000 samples in the same run. If you run out of memory in your run, set big_data to true in the config file and allow the use of multiple bigmem cores (we needed 360GB RAM for the 27,000 dataset). Disable highly memory intensive steps, such as treeing, chimera removal, plotting of rarefaction curves. If you didn't use the grouping by runs in your sample table, invent some runs of approx 100 samples each - these will be treated separately for some of the heavier DADA2 steps (error estimation).
 
 **How do I restart a failed run?**
 Depends on why it failed...
