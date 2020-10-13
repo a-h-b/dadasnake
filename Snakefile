@@ -3,6 +3,7 @@ configfile: srcdir("config/config.default.yaml")
 
 SCRIPTSDIR = srcdir("workflow/scripts/")
 ENVDIR = srcdir("workflow/envs/")
+ROOTDIR = srcdir("/")
 
 include:
     "workflow/rules/get_config.smk"
@@ -22,8 +23,12 @@ if config['paired']:
             "workflow/rules/copying.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
-            include:
-                "workflow/rules/dada.paired.smk"
+            if not config['big_data']: 
+                include:
+                    "workflow/rules/dada.paired.smk"
+            else:
+                include:
+                    "workflow/rules/bigdada.paired.smk"
         else:
             include:
                 "workflow/rules/dada.paired.pool.smk"
@@ -36,25 +41,44 @@ else:
             "workflow/rules/copying.single.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
-            include:
-                "workflow/rules/dada.single.smk"
+            if not config['big_data']:
+                include:
+                    "workflow/rules/dada.single.smk"
+            else:
+                include:
+                    "workflow/rules/bigdada.single.smk"
         else:
             include:
                 "workflow/rules/dada.single.pool.smk"
 if 'dada' in STEPS:
-    include:
-        "workflow/rules/dada.common.smk"
-if 'taxonomy' in STEPS:
-    include:
-        "workflow/rules/taxonomy.smk"
-if 'postprocessing' in STEPS:
-    if config['final_table_filtering']['do']:
+    if config['big_data']:
         include:
-            "workflow/rules/post.filtering.smk"
+            "workflow/rules/bigdada.common.smk"
     else:
         include:
-            "workflow/rules/post.no_filtering.smk"
-
+            "workflow/rules/dada.common.smk"
+if 'taxonomy' in STEPS:
+    if config['big_data']:
+        include:
+            "workflow/rules/bigtaxonomy.smk"
+    else:
+        include:
+            "workflow/rules/taxonomy.smk"
+if 'postprocessing' in STEPS:
+    if config['final_table_filtering']['do']:
+        if config['big_data']:
+            include:
+                "workflow/rules/bigpost.filtering.smk"
+        else:
+            include:
+                "workflow/rules/post.filtering.smk"
+    else:
+        if config['big_data']:
+            include:
+                "workflow/rules/bigpost.no_filtering.smk"
+        else:
+            include:
+                "workflow/rules/post.no_filtering.smk"
 
 
 inputs = []

@@ -25,65 +25,65 @@ if config['do_taxonomy'] and (config['taxonomy']['decipher']['do'] or config['ta
     filtTabs.append("sequenceTables/all.seqTab.tax.RDS")
 else:
     filtTabs.append("sequenceTables/all.seqTab.RDS")
-rule filtering_table:
+rule bigfiltering_table:
     input: 
        filtTabs
     output:
        "post/filtered.seqTab.RDS",
        "post/filtered.seqTab.tsv",   
        "post/filtered.seqs.fasta"  
-    threads: 1
+    threads: config['bigCores']
     resources:
-        runtime="2:00:00",
-        mem=config['normalMem']
-    log: "logs/post_filtering_table.log"
+        runtime="12:00:00",
+        mem=config['bigMem']
+    log: "logs/bigpost_filtering_table.log"
     conda: ENVDIR + "dada2_env.yml"
     script:
         SCRIPTSDIR+"post_filtering.R"
 
-rule table_filter_numbers:
+rule bigtable_filter_numbers:
     input:
         "reporting/finalNumbers_perSample.tsv",
         "post/filtered.seqTab.RDS"
     output:
         "reporting/post_finalNumbers_perSample.tsv"
-    threads: 1
+    threads: config['bigCores']
     params:
         currentStep = "post"
     resources:
         runtime="12:00:00",
-        mem=config['normalMem']
+        mem=config['bigMem']
     conda: ENVDIR + "dada2_env.yml"
-    log: "logs/countPostfilteredReads.log"
+    log: "logs/bigcountPostfilteredReads.log"
     script:
         SCRIPTSDIR+"report_readNumbers.R"
 
 
-rule rarefaction_curve_Filter:
+rule bigrarefaction_curve_Filter:
     input:
         "post/filtered.seqTab.RDS",
         "reporting/post_finalNumbers_perSample.tsv"
     output:
         "stats/rarefaction_curves.pdf"
-    threads: 1
+    threads: config['bigCores']
     resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
+        runtime="120:00:00",
+        mem=config['bigMem']
     conda: ENVDIR + "dada2_env.yml"
-    log: "logs/rarefaction_curve.log"
+    log: "logs/bigrarefaction_curve.log"
     script:
         SCRIPTSDIR+"rarefaction_curve.R"
 
 
-rule guilds_Filter:
+rule bigguilds_Filter:
     input:
         "post/filtered.seqTab.tsv"
     output:
         "post/filtered.seqTab.guilds.tsv"
     threads: 1
     resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
+        runtime="120:00:00",
+        mem=config['bigMem']
     params:
         src_path=SCRIPTSDIR
     log: "logs/funguild.log"
@@ -99,33 +99,33 @@ if config['hand_off']['phyloseq']:
     physOutputs = "post/filtered.seqTab.phyloseq.RDS"
     if config['postprocessing']['treeing']['do']:
         physInputs.append("post/tree.newick")
-    rule phyloseq_handoff_postFilter:
+    rule bigphyloseq_handoff_postFilter:
         input:
             physInputs
         output:
             "post/filtered.seqTab.phyloseq.RDS"
-        threads: 1
+        threads: config['bigCores']
         params:
             currentStep = "post"
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "add_R_env.yml"
-        log: "logs/phyloseq_hand-off.log"
+        log: "logs/bigphyloseq_hand-off.log"
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
-    rule treeing_Filter_fasttreeMP:
+    rule bigtreeing_Filter_fasttreeMP:
         input:
             "post/filtered.seqs.fasta"
         output:
             "post/filtered.seqs.multi.fasta",
             "post/tree.newick"
-        threads: 10
+        threads: config['bigCores']
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
         shell:
@@ -135,7 +135,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
              -log {log} -quiet {output[0]} > {output[1]} 2> {log}
             """
 else:
-    rule treeing_Filter:
+    rule bigtreeing_Filter:
         input:
             "post/filtered.seqs.fasta"
         output:
@@ -144,7 +144,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
         shell:

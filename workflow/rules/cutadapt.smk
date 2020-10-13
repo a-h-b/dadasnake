@@ -32,6 +32,7 @@ rule combine_or_rename:
     log: "logs/combine_or_rename.{run}.{sample}.{direction}.log"
     resources:
         runtime="01:00:00",
+        mem=config['normalMem']
     run:
         if len(input) > 2:
             shell("cat {input.files} > {output}")
@@ -50,7 +51,8 @@ rule input_numbers:
         currentStep = "raw",
         raw_directory = RAW
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -68,7 +70,8 @@ rule primer_numbers:
     params:
         currentStep = "primers"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada2_env.yml"
     script:
@@ -86,6 +89,7 @@ if config['sequencing_direction'] == "fwd_1":
         threads: 1
         resources:
             runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 1. {config[primers][fwd][sequence]}"
@@ -118,6 +122,7 @@ elif config['sequencing_direction'] == "rvs_1":
         threads: 1
         resources:
             runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read 2."
@@ -151,6 +156,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both  primers in both reads."

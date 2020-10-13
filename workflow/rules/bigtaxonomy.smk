@@ -28,18 +28,18 @@ if config['taxonomy']['mothur']['do']:
 else:
     taxTabs.append("sequenceTables/tax.dada.RDS")
 
-rule taxonomy_to_OTUtab:
+rule bigtaxonomy_to_OTUtab:
     input:
         taxTabs
     output:
         "sequenceTables/all.seqTab.tax.tsv",
         "sequenceTables/all.seqTab.tax.RDS"
-    threads: 1
+    threads: config['bigCores']
     resources:
         runtime="12:00:00",
-        mem=config['normalMem']
+        mem=config['bigMem']
     conda: ENVDIR + "dada2_env.yml"
-    log: "logs/taxonomy.log"
+    log: "logs/bigtaxonomy_to_OTUtab.log"
     message: "Combining taxa and OTU tables {input}."
     script:
         SCRIPTSDIR+"add_taxonomy.R"
@@ -48,65 +48,65 @@ if config['taxonomy']['dada']['do'] and config['taxonomy']['mothur']['do']:
     print("dadasnake will run Only one implementation of the bayesian classifier (default: mothur). Disable mothur to run the DADA2 implementation.")
 
 if config['taxonomy']['dada']['post_ITSx']:
-    rule dada_taxonomy:
+    rule bigdada_taxonomy:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
             "sequenceTables/tax.dada.tsv",
             "sequenceTables/tax.dada.RDS"
-        threads: 1
+        threads: config['bigCores']
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/dada_taxonomy.log"
+        log: "logs/bigdada_taxonomy.log"
         message: "Running DADA2's classifier on {input}."
         script:
             SCRIPTSDIR+"dadatax_ID.R"
 else:
-    rule dada_taxonomy:
+    rule bigdada_taxonomy:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
             "sequenceTables/tax.dada.tsv",
             "sequenceTables/tax.dada.RDS"
-        threads: 1
+        threads: config['bigCores']
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/dada_taxonomy.log"
+        log: "logs/bigdada_taxonomy.log"
         message: "Running DADA2's classifier on {input}."
         script:
             SCRIPTSDIR+"dadatax_ID.R"
 
 if config['taxonomy']['decipher']['post_ITSx']:
-    rule decipher_taxonomy:
+    rule bigdecipher_taxonomy:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
             "sequenceTables/tax.decipher.tsv",
             "sequenceTables/tax.decipher.RDS"
-        threads: 1
+        threads: config['bigCores']
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/decipher_taxonomy.log"
+        log: "logs/bigdecipher_taxonomy.log"
         message: "Running decipher on {input}."
         script:
             SCRIPTSDIR+"decipher_ID.R"
 else:
-    rule decipher_taxonomy:
+    rule bigdecipher_taxonomy:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
             "sequenceTables/tax.decipher.tsv", 
             "sequenceTables/tax.decipher.RDS"
-        threads: 1
+        threads: config['bigCores']
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -119,7 +119,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
             "sequenceTables/ITSx.seqs.fasta"
         output:
             "sequenceTables/tax.mothur.tsv"
-        threads: 1 
+        threads: config['bigCores'] 
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
@@ -140,7 +140,7 @@ else:
             "sequenceTables/all.seqs.fasta"
         output:
             "sequenceTables/tax.mothur.tsv"
-        threads: 1
+        threads: config['bigCores']
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
@@ -182,20 +182,20 @@ if config['ITSx']['do']:
 
 if config['blast']['do']:
     if not config['blast']['all']:
-        rule prepare_blastn:
+        rule bigprepare_blastn:
             input:
                 expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] or config['taxonomy']['dada']['do']) else "")
             output:
                 "sequenceTables/no_anno.seqs.fasta"
-            threads: 1
+            threads: config['bigCores']
             resources:
-                runtime="2:00:00",
-                mem=config['normalMem']
+                runtime="4:00:00",
+                mem=config['bigMem']
             log: "logs/prep_blastn.log"
             conda: ENVDIR + "dada2_env.yml"
             message: "Preparing blast: extracting un-annotated sequences."
             script:
-                SCRIPTSDIR+"prepare_blastn.R"
+                SCRIPTSDIR+"bigprepare_blastn.R"
         BLAST_IN="sequenceTables/no_anno.seqs.fasta"
     else:
         BLAST_IN="sequenceTables/all.seqs.fasta"
@@ -255,38 +255,38 @@ if config['blast']['do']:
                 """
 
 if config['hand_off']['biom'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] or config['taxonomy']['dada']['do']):
-    rule biom_handoff_tax:
+    rule bigbiom_handoff_tax:
         input:
             "sequenceTables/all.seqTab.tax.RDS",
             "reporting/finalNumbers_perSample.tsv"
         output:
             "sequenceTables/all.seqTab.biom"
-        threads: 1
+        threads: config['bigCores']
         params:
             currentStep = "taxonomy"
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "add_R_env.yml"
-        log: "logs/biom_hand-off.log"
+        log: "logs/bigbiom_hand-off.log"
         script:
             SCRIPTSDIR+"biom_handoff.R"
 
 if config['hand_off']['phyloseq'] and (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] or config['taxonomy']['dada']['do']) and not config['do_postprocessing']:
-    rule phyloseq_handoff_tax:
+    rule bigphyloseq_handoff_tax:
         input:
             "sequenceTables/all.seqTab.tax.RDS",
             "reporting/finalNumbers_perSample.tsv"
         output:
             "sequenceTables/all.seqTab.phyloseq.RDS"
-        threads: 1
+        threads: config['bigCores']
         params:
             currentStep = "taxonomy"
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "add_R_env.yml"
-        log: "logs/phyloseq_hand-off.log"
+        log: "logs/bigphyloseq_hand-off.log"
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
 

@@ -1,65 +1,94 @@
 __default__: 
   call: "qsub -cwd"
-  mem_per_cpu: "-l h_vmem=8G"
+  mem_per_cpu: "-l h_vmem="
   partition: ""
   runtime: "-l h_rt="
   threads: "-pe smp "
 
-dada_mergeSamples:
-  partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
-
 dada_dadaPairs_pool:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
 dada_dadaSingle_pool:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
-
-dada_mergeruns:
-  partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
-
-nochime_numbers:
-  partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
-
-tabled_numbers:
-  partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
 mothur_taxonomy:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
+
+mothur_taxonomy_postITSx:
+  partition: "-l highmem"
 
 blastn:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-rarefaction_curve_noFilter:
+bigbiom_handoff_preTax:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-treeing_noFilter_fasttreeMP:
+bigphyloseq_handoff_preTax:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-taxonomy_to_OTUtab:
+bigdada_mergeruns:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-prepare_blastn:
+bignochime_numbers:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-biom_handoff_preTax:
+bigtabled_numbers:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
-biom_handoff_tax:
+bigrarefaction_curve_noFilter:
   partition: "-l highmem"
-  mem_per_cpu: "-l h_vmem=30G"
 
+bigphyloseq_handoff_post:
+  partition: "-l highmem"
 
+bigphyloseq_handoff_postFilter:
+  partition: "-l highmem"
+
+bigtreeing_Filter_fasttreeMP:
+  partition: "-l highmem"
+
+bigtreeing_noFilter_fasttreeMP:
+  partition: "-l highmem"
+
+bigtreeing_noFilter:
+  partition: "-l highmem"
+
+bigtreeing_Filter:
+  partition: "-l highmem"
+
+bigfiltering_table:
+  partition: "-l highmem"
+
+bigtable_filter_numbers:
+  partition: "-l highmem"
+
+bigrarefaction_curve_Filter:
+  partition: "-l highmem"
+
+bigtaxonomy_to_OTUtab:
+  partition: "-l highmem"
+
+bigdada_taxonomy:
+  partition: "-l highmem"
+
+bigdecipher_taxonomy:
+  partition: "-l highmem"
+
+bigmothur_taxonomy_postITSx:
+  partition: "-l highmem"
+
+bigprepare_blastn:
+  partition: "-l highmem"
+
+bigguilds_noFilter:
+  partition: "-l highmem"
+
+bigguilds_Filter:
+  partition: "-l highmem"
+
+bigbiom_handoff_tax:
+  partition: "-l highmem"
+
+bigphyloseq_handoff_tax:
+  partition: "-l highmem"
 

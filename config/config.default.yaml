@@ -1,5 +1,10 @@
 email: ""
 sessionName: ""
+normalMem: ""
+bigMem: ""
+bigCores: ""
+sessionKind: ""
+big_data: false
 tmp_dir: "tmp"
 raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"

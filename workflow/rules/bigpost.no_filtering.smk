@@ -23,32 +23,32 @@ rule post_control_noFilter:
         touch {output}
         """
 
-rule rarefaction_curve_noFilter:
+rule bigrarefaction_curve_noFilter:
     input:
         "sequenceTables/all.seqTab.RDS",
         "reporting/finalNumbers_perSample.tsv"
     output:
         "stats/rarefaction_curves.pdf"
-    threads: 12
+    threads: config['bigCores']
     resources:
         runtime="120:00:00",
-        mem=config['normalMem']
+        mem=config['bigMem']
     conda: ENVDIR + "dada2_env.yml"
-    log: "logs/rarefaction_curve.log"
+    log: "logs/bigrarefaction_curve.log"
     script:
         SCRIPTSDIR+"rarefaction_curve.R"
 
 
 
-rule guilds_noFilter:
+rule bigguilds_noFilter:
     input:
         "sequenceTables/all.seqTab.tax.tsv"
     output:
         "post/all.seqTab.guilds.tsv"
     threads: 1
     resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
+        runtime="120:00:00",
+        mem=config['bigMem']
     params:
         src_path=SCRIPTSDIR
     log: "logs/funguild.log"
@@ -64,36 +64,36 @@ if config['hand_off']['phyloseq']:
     physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
     if config['postprocessing']['treeing']['do']:
         physInputs.append("post/tree.newick")
-    rule phyloseq_handoff_post:
+    rule bigphyloseq_handoff_post:
         input:
             physInputs
         output:
             "sequenceTables/all.seqTab.phyloseq.RDS"
-        threads: 1
+        threads: config['bigCores']
         params:
             currentStep = "post"
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "add_R_env.yml"
-        log: "logs/phyloseq_hand-off.log"
+        log: "logs/bigphyloseq_hand-off.log"
         script:
             SCRIPTSDIR+"phyloseq_handoff.R"
 
 
 if config['postprocessing']['treeing']['fasttreeMP'] != "":
-    rule treeing_noFilter_fasttreeMP:
+    rule bigtreeing_noFilter_fasttreeMP:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
             "post/all.seqs.multi.fasta",
             "post/tree.newick"
-        threads: 8
+        threads: config['bigCores']
         resources:
-            runtime="12:00:00",
-            mem=config['normalMem']
+            runtime="120:00:00",
+            mem=config['bigMem']
         conda: ENVDIR + "dadasnake_env.yml"
-        log: "logs/treeing.log"
+        log: "logs/bigtreeing.log"
         shell:
             """
             clustalo -i {input} -o {output[0]} --outfmt=fasta --threads={threads} --force &> {log}
@@ -101,7 +101,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
              -log {log} -quiet {output[0]} > {output[1]} 2> {log}
             """
 else:
-    rule treeing_noFilter:
+    rule bigtreeing_noFilter:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
@@ -110,7 +110,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
         shell:

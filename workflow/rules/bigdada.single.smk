@@ -161,7 +161,7 @@ rule dada_mergeSamples:
     threads: 1
     resources:
         runtime="12:00:00",
-        mem=config['bigMem']
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_mergeSamples.{run}.log"
     message: "preparing sequence table for {wildcards.run}."
@@ -169,7 +169,7 @@ rule dada_mergeSamples:
         SCRIPTSDIR+"dada_gatherMergedReads.R"
 
 if config["chimeras"]["remove"]:
-    rule dada_mergeruns:
+    rule bigdada_mergeruns:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
@@ -180,36 +180,36 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
-        threads: 8
+        threads: config['bigCores']
         resources:
             runtime="120:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_mergeRuns.log"
+        log: "logs/bigDADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
             SCRIPTSDIR+"dada_mergeRuns.R"
 
-    rule nochime_numbers:
+    rule bignochime_numbers:
         input:
             "reporting/mergedNumbers_perSample.tsv",
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
-        threads: 8
+        threads: config['bigCores']
         params:
             currentStep = "chimera"
         resources:
             runtime="120:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/countNonchimericReads.log"
+        log: "logs/bignochime_numbers.log"
         script:
             SCRIPTSDIR+"report_readNumbers.single.R"
 
 else:
-    rule dada_mergeruns:
+    rule bigdada_mergeruns:
         input:
             expand("sequenceTables/seqTab.{run}.RDS",run=samples.run.unique())
         output:
@@ -217,30 +217,30 @@ else:
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
-        threads: 12
+        threads: config['bigCores']
         resources:
             runtime="120:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_mergeRuns.log"
+        log: "logs/bigdada_mergeruns.log"
         message: "merging runs for {input}."
         script:
             SCRIPTSDIR+"dada_mergeRuns.R"
 
-    rule tabled_numbers:
+    rule bigtabled_numbers:
         input:
             "reporting/mergedNumbers_perSample.tsv",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
-        threads: 4
+        threads: config['bigCores']
         params:
             currentStep = "table"
         resources:
             runtime="120:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/countTabledReads.log"
+        log: "logs/bigtabled_numbers.log"
         script:
             SCRIPTSDIR+"report_readNumbers.single.R"
 

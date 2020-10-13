@@ -30,7 +30,8 @@ rule combine_or_rename:
     threads: 1
     log: "logs/combine_or_rename.{run}.{sample}.log"
     resources:
-        runtime="01:00:00"
+        runtime="01:00:00",
+        mem=config['normalMem']
     run:
         if len(input) > 2:
             shell("cat {input.files} > {output}")
@@ -48,7 +49,8 @@ rule input_numbers:
         currentStep = "raw",
         raw_directory = RAW
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -66,7 +68,8 @@ rule primer_numbers:
     params:
         currentStep = "primers"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada2_env.yml"
     script:
@@ -88,7 +91,8 @@ if config['sequencing_direction'] == "fwd_1":
             "preprocessing/{run}/{library}.fastq"
         threads: 1
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         params:
             both_match=BOTHMATCH
         conda: ENVDIR + "dadasnake_env.yml"
@@ -120,7 +124,8 @@ elif config['sequencing_direction'] == "rvs_1":
             "preprocessing/{run}/{library}.fastq",
         threads: 1
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         params:
             both_match=BOTHMATCH
         conda: ENVDIR + "dadasnake_env.yml"
@@ -155,7 +160,8 @@ else:
             "preprocessing/{run}/{library}.fastq"
         threads: 1
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         params:
             both_match=BOTHMATCH
         conda: ENVDIR + "dadasnake_env.yml"

@@ -1,4 +1,4 @@
-outputdir: "dadasnake_initialize"
+outputdir: "dadasnake_initialized"
 taxonomy:
   mothur:
     do: true

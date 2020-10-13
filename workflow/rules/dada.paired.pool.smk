@@ -27,7 +27,8 @@ rule filter_numbers:
     params:
         currentStep = "filtered"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countFilteredReads.log"
     script:
@@ -44,7 +45,8 @@ rule merged_numbers:
     params:
         currentStep = "merged"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countMergedReads.log"
     script:
@@ -61,7 +63,8 @@ rule dada_qc1:
     params:
         path="preprocessing/{run}"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
@@ -79,7 +82,8 @@ rule dada_qc_filtered:
     params:
         path="filtered/{run}"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
@@ -95,7 +99,8 @@ rule dada_filter:
         "filtered/{run}/{sample}.rvs.fastq.gz"
     threads: 1
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
@@ -110,7 +115,8 @@ rule dada_errors_pool:
         "stats/error_models.{direction}.pdf",
     threads: 1
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_errors.{direction}.log"
     message: "Running error models on {input}."
@@ -129,7 +135,8 @@ if config['dada']['use_quals']:
         params:
             pool=config['dada']['pool']
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
         message: "converting to DADA reads for {wildcards.direction}."
@@ -146,7 +153,8 @@ else:
         params:
             pool=config['dada']['pool']
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
         message: "converting to DADA reads for {wildcards.direction}."
@@ -164,7 +172,8 @@ rule dada_mergeReadPairs_pool:
         "merged/dada.RDS"
     threads: 1
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_mergeReadPairs.log"
     message: "merging reads."
@@ -185,7 +194,8 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
@@ -200,9 +210,11 @@ if config["chimeras"]["remove"]:
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
         threads: 1
+        params:
+            currentStep = "chimera"
         resources:
-            currentStep = "chimera",
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
@@ -218,7 +230,8 @@ else:
             "sequenceTables/all.seqTab.tsv"
         threads: 1
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."
@@ -235,7 +248,8 @@ else:
         params:
             currentStep = "table"
         resources:
-            runtime="12:00:00"
+            runtime="12:00:00",
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"
         script:

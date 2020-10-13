@@ -29,7 +29,8 @@ rule combine_or_rename:
     threads: 1
     log: "logs/combine_or_rename.{run}.{sample}.log"
     resources:
-        runtime="01:00:00"
+        runtime="01:00:00",
+        mem=config['normalMem']
     run:
         if len(input) > 1:
             shell("cat {input.files} > {output}")
@@ -47,7 +48,8 @@ rule input_numbers:
         currentStep = "raw",
         raw_directory = RAW
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -65,7 +67,8 @@ rule primer_numbers:
     params:
         currentStep = "primers"
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada2_env.yml"
     script:
@@ -79,6 +82,7 @@ rule copy_fwd:
     threads: 1
     resources:
         runtime="12:00:00",
+        mem=config['normalMem']
     log: "logs/copying.{run}.{library}.log"
     message: "Running copying {input} to {output}. Keeping forward reads."
     shell:

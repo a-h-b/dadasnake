@@ -31,6 +31,7 @@ rule combine_or_rename:
     log: "logs/combine_or_rename.{run}.{sample}.{direction}.log"
     resources:
         runtime="01:00:00",
+        mem=config['normalMem']
     run:
         if len(input) > 2:
             shell("cat {input.files} > {output}")
@@ -49,7 +50,8 @@ rule input_numbers:
         currentStep = "raw",
         raw_directory = RAW
     resources:
-        runtime="12:00:00"
+        runtime="12:00:00",
+        mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countInputReads.log"
     script:
@@ -68,6 +70,7 @@ rule primer_numbers:
         currentStep = "primers"
     resources:
         runtime="12:00:00",
+        mem=config['normalMem']
     log: "logs/countPrimerReads.log"
     conda: ENVDIR + "dada2_env.yml"
     script:
@@ -84,6 +87,7 @@ if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] =
         threads: 1
         resources:
             runtime="12:00:00",
+            mem=config['normalMem']
         log: "logs/copying.{run}.{library}.log"
         message: "Running copying {input} to {output}. Keeping forward and reverse reads."
         shell:
@@ -112,6 +116,7 @@ elif config['sequencing_direction'] == "rvs_1":
         threads: 1
         resources:
             runtime="12:00:00",
+            mem=config['normalMem']
         log: "logs/copying.{run}.{library}.log"
         message: "Running copying {input} to {output}. Exchanging forward and reverse reads."
         shell:
