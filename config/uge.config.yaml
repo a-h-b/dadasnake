@@ -11,6 +11,9 @@ dada_dadaPairs_pool:
 dada_dadaSingle_pool:
   partition: "-l highmem"
 
+dada_mergeruns:
+  partition: "-l highmem"
+
 mothur_taxonomy:
   partition: "-l highmem"
 
@@ -54,6 +57,12 @@ bigtreeing_noFilter:
   partition: "-l highmem"
 
 bigtreeing_Filter:
+  partition: "-l highmem"
+
+bigmultiAlign_noFilter:
+  partition: "-l highmem"
+
+bigmultiAlign_Filter:
   partition: "-l highmem"
 
 bigfiltering_table:

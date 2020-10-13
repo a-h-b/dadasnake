@@ -1,0 +1,4 @@
+Exception in line 77 of /data/project/metaamp/TOOLS/dada_pipe_versions/0.7/workflow/rules/get_config.smk:
+You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Ask the person who set up dadasnake to change BIGMEM_CORES in /VARIABLE_CONFIG to run a big data set, or set big_data to false in your config file.
+  File "/data/project/metaamp/TOOLS/dada_pipe_versions/0.7/Snakefile", line 9, in <module>
+  File "/data/project/metaamp/TOOLS/dada_pipe_versions/0.7/workflow/rules/get_config.smk", line 77, in <module>

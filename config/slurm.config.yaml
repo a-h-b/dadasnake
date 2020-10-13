@@ -1,41 +1,101 @@
 __default__: 
   call: "sbatch"
-  mem_per_cpu: "--mem-per-cpu 8G"
+  mem_per_cpu: "--mem-per-cpu "
   partition: "-p batch"
   runtime: "-t"
   threads: "-n"
 
-dada_mergeSamples:
-  partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
-
 dada_dadaPairs_pool:
   partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
 
 dada_dadaSingle_pool:
   partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
-
-mothur_taxonomy:
-  partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
-
-blastn:
-  partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
 
 dada_mergeruns:
   partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
 
-nochime_numbers:
+mothur_taxonomy:
   partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
 
-tabled_numbers:
+mothur_taxonomy_postITSx:
   partition: "-p bigmem -q qos-bigmem"
-  mem_per_cpu: "--mem-per-cpu 30G"
 
+blastn:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigbiom_handoff_preTax:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigphyloseq_handoff_preTax:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigdada_mergeruns:
+  partition: "-p bigmem -q qos-bigmem"
+
+bignochime_numbers:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtabled_numbers:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigrarefaction_curve_noFilter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigphyloseq_handoff_post:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigphyloseq_handoff_postFilter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtreeing_Filter_fasttreeMP:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtreeing_noFilter_fasttreeMP:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtreeing_noFilter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtreeing_Filter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigmultiAlign_noFilter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigfiltering_table:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtable_filter_numbers:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigrarefaction_curve_Filter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigtaxonomy_to_OTUtab:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigdada_taxonomy:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigdecipher_taxonomy:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigmothur_taxonomy_postITSx:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigprepare_blastn:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigguilds_noFilter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigguilds_Filter:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigbiom_handoff_tax:
+  partition: "-p bigmem -q qos-bigmem"
+
+bigphyloseq_handoff_tax:
+  partition: "-p bigmem -q qos-bigmem"
 
 

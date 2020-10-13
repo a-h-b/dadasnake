@@ -1,0 +1,125 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job counts:
+	count	jobs
+	1	ALL
+	1	bigfiltering_table
+	1	bigmultiAlign_Filter
+	1	bigphyloseq_handoff_postFilter
+	1	bigrarefaction_curve_Filter
+	1	bigtable_filter_numbers
+	1	bigtreeing_Filter_fasttreeMP
+	1	dada_control
+	1	post_control_Filter
+	9
+
+[Tue Oct 13 13:03:33 2020]
+localrule dada_control:
+    input: sequenceTables/all.seqTab.RDS, sequenceTables/all.seqs.fasta, reporting/finalNumbers_perSample.tsv, stats/QC_1.1.pdf, stats/QC_1.2.pdf, stats/QC_filtered.1.pdf, stats/QC_filtered.2.pdf
+    output: dada.done
+    jobid: 1
+
+
+[Tue Oct 13 13:03:33 2020]
+rule bigfiltering_table:
+    input: sequenceTables/all.seqs.fasta, sequenceTables/all.seqTab.RDS
+    output: post/filtered.seqTab.RDS, post/filtered.seqTab.tsv, post/filtered.seqs.fasta
+    log: logs/bigpost_filtering_table.log
+    jobid: 10
+    resources: runtime=12:00:00, mem=30G
+
+[Tue Oct 13 13:03:33 2020]
+Finished job 1.
+1 of 9 steps (11%) done
+Submitted job 10 with external jobid 'Your job 7125691 ("snakejob.bigfiltering_table.10.sh") has been submitted'.
+[Tue Oct 13 13:04:12 2020]
+Finished job 10.
+2 of 9 steps (22%) done
+
+[Tue Oct 13 13:04:12 2020]
+rule bigmultiAlign_Filter:
+    input: post/filtered.seqs.fasta
+    output: post/filtered.seqs.multi.fasta
+    log: logs/treeing_multiAlign.log
+    jobid: 24
+    resources: runtime=12:00:00, mem=30G
+
+Submitted job 24 with external jobid 'Your job 7125692 ("snakejob.bigmultiAlign_Filter.24.sh") has been submitted'.
+
+[Tue Oct 13 13:04:13 2020]
+rule bigtable_filter_numbers:
+    input: reporting/finalNumbers_perSample.tsv, post/filtered.seqTab.RDS
+    output: reporting/post_finalNumbers_perSample.tsv
+    log: logs/bigcountPostfilteredReads.log
+    jobid: 11
+    resources: runtime=12:00:00, mem=30G
+
+Submitted job 11 with external jobid 'Your job 7125693 ("snakejob.bigtable_filter_numbers.11.sh") has been submitted'.
+[Tue Oct 13 13:04:22 2020]
+Finished job 24.
+3 of 9 steps (33%) done
+
+[Tue Oct 13 13:04:22 2020]
+rule bigtreeing_Filter_fasttreeMP:
+    input: post/filtered.seqs.multi.fasta
+    output: post/tree.newick
+    log: logs/treeing.log
+    jobid: 13
+    resources: runtime=12:00:00, mem=30G
+
+Submitted job 13 with external jobid 'Your job 7125694 ("snakejob.bigtreeing_Filter_fasttreeMP.13.sh") has been submitted'.
+[Tue Oct 13 13:04:32 2020]
+Finished job 11.
+4 of 9 steps (44%) done
+[Tue Oct 13 13:04:32 2020]
+Finished job 13.
+5 of 9 steps (56%) done
+
+[Tue Oct 13 13:04:32 2020]
+rule bigrarefaction_curve_Filter:
+    input: post/filtered.seqTab.RDS, reporting/post_finalNumbers_perSample.tsv
+    output: stats/rarefaction_curves.pdf
+    log: logs/bigrarefaction_curve.log
+    jobid: 14
+    resources: runtime=120:00:00, mem=30G
+
+Submitted job 14 with external jobid 'Your job 7125695 ("snakejob.bigrarefaction_curve_Filter.14.sh") has been submitted'.
+
+[Tue Oct 13 13:04:33 2020]
+rule bigphyloseq_handoff_postFilter:
+    input: post/filtered.seqTab.RDS, reporting/post_finalNumbers_perSample.tsv, post/tree.newick
+    output: post/filtered.seqTab.phyloseq.RDS
+    log: logs/bigphyloseq_hand-off.log
+    jobid: 12
+    resources: runtime=12:00:00, mem=30G
+
+Submitted job 12 with external jobid 'Your job 7125696 ("snakejob.bigphyloseq_handoff_postFilter.12.sh") has been submitted'.
+[Tue Oct 13 13:04:42 2020]
+Finished job 14.
+6 of 9 steps (67%) done
+[Tue Oct 13 13:05:02 2020]
+Finished job 12.
+7 of 9 steps (78%) done
+
+[Tue Oct 13 13:05:03 2020]
+localrule post_control_Filter:
+    input: post/filtered.seqTab.RDS, reporting/post_finalNumbers_perSample.tsv, post/filtered.seqTab.phyloseq.RDS, post/tree.newick, stats/rarefaction_curves.pdf
+    output: postprocessing.done
+    jobid: 2
+
+[Tue Oct 13 13:05:03 2020]
+Finished job 2.
+8 of 9 steps (89%) done
+
+[Tue Oct 13 13:05:03 2020]
+localrule ALL:
+    input: dada.done, postprocessing.done, sequenceTables/all.seqTab.biom
+    output: workflow.done
+    jobid: 0
+
+Touching output file workflow.done.
+[Tue Oct 13 13:05:03 2020]
+Finished job 0.
+9 of 9 steps (100%) done
+Complete log: /gpfs1/data/project/metaamp/TOOLS/dada_pipe_versions/0.7/.snakemake/log/2020-10-13T130323.574570.snakemake.log
