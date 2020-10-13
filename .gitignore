@@ -11,6 +11,7 @@ conda/
 .conda/
 TESTRUN_*
 aux/config.default.yaml
+auxiliary_files/config.default.yaml
 config/config.default.yaml
 .snakemake/
 dadasnake_initialized/
