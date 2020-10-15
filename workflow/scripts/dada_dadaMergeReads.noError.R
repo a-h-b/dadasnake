@@ -51,7 +51,7 @@ print("merging")
 # Sample inference and merger of paired-end reads
 print(paste0("make dada object and merge, ",sampleName))
 derepF <- derepFastq(filtF)
-if(any(derepF$quals<0)) derepF$quals <- derepF$quals+33
+if(any(derepF$quals[!is.na(derepF$quals)]<0)) derepF$quals <- derepF$quals+33
 dadaF <- dada(derepF, err=errF, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
@@ -69,7 +69,7 @@ dadaF <- dada(derepF, err=errF, multithread=snakemake@threads,
                errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]),
                USE_QUALS=as.logical(snakemake@config[['dada']][['use_quals']]))
 derepR <- derepFastq(filtR)
-if(any(derepR$quals<0)) derepR$quals <- derepR$quals+33
+if(any(derepR$quals[!is.na(derepR$quals)]<0)) derepR$quals <- derepR$quals+33
 dadaR <- dada(derepR, err=errR, multithread=snakemake@threads,
                BAND_SIZE=snakemake@config[['dada']][['band_size']],
                HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],

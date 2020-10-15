@@ -1,7 +1,7 @@
 email: ""
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
-outputdir: "/work/$USER/outputITS"
+outputdir: "/work/$USER/outputITS1"
 do_primers: true
 do_dada: true
 do_taxonomy: true
@@ -13,14 +13,14 @@ taxonomy:
     do: true
     post_ITSx: true
     db_path: "../DBs/amplicon"
-    tax_db: "unite_8.2_fungi.ITS2"
+    tax_db: "unite_8.2_fungi.ITS1"
 primers:
   fwd: 
-    sequence: TCCTCCGCTTATTGATATGC
-    name: ITS4
+    sequence: CTTGGTCATTTAGAGGAAGTAA
+    name: ITS1f
   rvs: 
-    sequence: GTGARTCATCGAATCTTTG
-    name: fITS7
+    sequence: GCTGCGTTCTTCATCGATGC 
+    name: ITS2
 paired: true
 sequencing_direction: "unknown"
 primer_cutting:
@@ -38,8 +38,8 @@ filtering:
     fwd: 3
     rvs: 3
   minLen:
-    fwd: 70
-    rvs: 70
+    fwd: 40
+    rvs: 40
   maxLen:
     fwd: Inf
     rvs: Inf
@@ -58,7 +58,7 @@ blast:
 ITSx:
   do: true
   min_regions: 1
-  region: ITS2
+  region: ITS1
   e_val: 1e-5
 hand_off:
   biom: true

@@ -21,7 +21,7 @@ library(biomformat)
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
 
-if(length(c(1,ncol(seqTab)))+1 > ncol(seqTab)){
+if(length(which(colnames(seqTab) %in% rownames(sInfo))) > 0){
   if(snakemake@params[["currentStep"]]=="dada"){
    seqMat <- seqTab[,-c(1,ncol(seqTab))]
    rownames(seqMat) <- seqTab[,1]

@@ -38,7 +38,7 @@ if(length(filts)>0){
     filts <- sample(filts)
     for (i in seq_along(filts)) {
       drps[[i]] <- derepFastq(filts[[i]])
-      if(any( drps[[i]]$quals<0)) drps[[i]]$quals <- drps[[i]]$quals+33
+      if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+33
       NREADS <- NREADS + sum(drps[[i]]$uniques)
       NBASES <- NBASES + sum(drps[[i]]$uniques * nchar(names(drps[[i]]$uniques)))
       if (NBASES > 1e8) {

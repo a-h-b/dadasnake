@@ -47,10 +47,10 @@ errR <- readRDS(errRfile)
 # Sample inference and merger of paired-end reads
 print(paste0("make dada object and merge, ",sampleName))
 derepF <- derepFastq(filtF)
-if(any(derepF$quals<0)) derepF$quals <- derepF$quals+33
+if(any(derepF$quals[!is.na(derepF$quals)]<0)) derepF$quals <- derepF$quals+33
 dadaF <- dada(derepF, err=errF, multithread=snakemake@threads)
 derepR <- derepFastq(filtR)
-if(any(derepR$quals<0)) derepR$quals <- derepR$quals+33
+if(any(derepR$quals[!is.na(derepR$quals)]<0)) derepR$quals <- derepR$quals+33
 dadaR <- dada(derepR, err=errR, multithread=snakemake@threads)
 merger <- mergePairs(dadaF, derepF, dadaR, derepR,
                      minOverlap=snakemake@config[['pair_merging']][['min_overlap']],

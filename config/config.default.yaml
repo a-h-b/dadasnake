@@ -126,8 +126,8 @@ hand_off:
 final_table_filtering:
   do: true
   keep_target_taxa: "."
-  target_min_length: 245
-  target_max_length: 275
+  target_min_length: 1
+  target_max_length: 10000
 postprocessing:
   rarefaction_curve: true
   funguild:

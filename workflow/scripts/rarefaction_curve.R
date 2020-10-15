@@ -21,6 +21,10 @@ dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = "
                                  ymax,xmax,
                                  label = TRUE, col="black", ...) {
   tot <- rowSums(x)
+  if(any(tot < step)){
+    step <- min(tot)
+    print(paste0("New step size: ",step))
+  }
   S <- specnumber(x)
   nr <- nrow(x)
   out <- sapply(seq_len(nr), function(i) {
@@ -81,9 +85,9 @@ if(file.info(snakemake@input[[1]])$size == 0){
         rownames(seqMat) <- seqTab$Row.names
 
         if(any(colSums(seqMat)<1)){
-          seqMat <- seqMat[,colSums(seqMat)>0]
           print("Some samples contained no reads and are omitted from rarefaction curve:")
           print(colnames(seqMat)[colSums(seqMat)<1])
+          seqMat <- seqMat[,colSums(seqMat)>0]
         }
 
         print("plotting rarefaction curves")
@@ -91,8 +95,16 @@ if(file.info(snakemake@input[[1]])$size == 0){
       }
     }
     if(samno %% 72 > 0){
+      print(i+1)
       seqMat <- as.matrix(seqTab[,sams[(72*(floor(length(sams)/72))+1):length(sams)]])
       rownames(seqMat) <- seqTab$Row.names
+      if(any(colSums(seqMat)<1)){
+          print("Some samples contained no reads and are omitted from rarefaction curve:")
+          print(colnames(seqMat)[colSums(seqMat)<1])
+          seqMat <- seqMat[,colSums(seqMat)>0]
+        }
+
+        print("plotting rarefaction curves")
       dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
     }
     dev.off()
