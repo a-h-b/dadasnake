@@ -20,7 +20,7 @@ library(biomformat)
 # File parsing
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
-
+rownames(sInfo) <- gsub("-",".",rownames(sInfo))
 if(length(which(colnames(seqTab) %in% rownames(sInfo))) > 0){
   if(snakemake@params[["currentStep"]]=="dada"){
    seqMat <- seqTab[,-c(1,ncol(seqTab))]
@@ -34,6 +34,7 @@ if(length(which(colnames(seqTab) %in% rownames(sInfo))) > 0){
   seqBiom <- make_biom(seqMat,observation_metadata = seqMeta,sample_metadata=sInfo)
   write_biom(seqBiom,snakemake@output[[1]])
 }else{
+  print("Nothing to write.")
   write.table("",snakemake@output[[1]],quote=F,col.names=F,row.names=F)
 }
 
