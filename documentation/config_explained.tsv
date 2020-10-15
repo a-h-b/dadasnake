@@ -1,5 +1,12 @@
 top-level parameters	sub-parameters	subsub-parameters	default value	possible values	used in stage	explanation	comments / recommendations
 email 	  	 	" """" "	" """" or a valid email address "	 all 	 email address for mail notification 	 keep empty if you don't want emails. Check spelling, it does not test.
+sessionName			""""""	""""" or a single word"	all	session name	only read, if you're not using the dadasnake wrapper
+normalMem			""""""	""""" or a number and a letter"	all	size of the RAM of one core of your normal copute nodes (e.g. 8G)	may be fixed during installation, only necessary for cluster submission
+bigMem			""""""	""""" or a number and a letter"	all	size of the RAM of one core of your high memory copute nodes (e.g. 30G)	may be fixed during installation, only necessary for cluster submission
+bigCores			""""""	""""" or a number"	all	maximum number of high memory copute nodes to use (e.g. 4)	0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
+sessionKind			""""""	a string	all	automatically set by dadasnake wrapper	"keep """""
+settingsLocked			false	true or false	all	automatically set by dadasnake wrapper	it doesn't matter what you do
+big_data			false	true or false	dada, taxonomy, post	whether to use big data settings	set to true, if you have extra high memory nodes and more than 1000 samples
 tmp_dir 	  	  	" ""/work/$USER/tmp"" "	 any path that you have permissions for writing to 	 all 	 directory for temporary, intermediate files that shouldn't be kept 	 keep this in your /work so you don't need to worry about removing its contents
 raw_directory 	  	  	" ""/work/$USER"""	 any one path where you might have your raw data 	 all 	 directory with all raw data 	 you will usually have this somewhere in a project folder
 sample_table 	  	  	" ""/work/$USER/samples.tsv"" "	 any one location of your samples table 	 all 	 path to the samples table 	 you can keep this in your /work, because the dadasnake will copy it to your output directory
@@ -30,11 +37,11 @@ filtering 	  	 	 	 	 dada 	 	" settings for quality / length filtering; note on 
 		    rvs	0	a positive integer	dada	length after which rvs read is cut - shorter reads are discarded	"0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting"
 	  trunc_qual		2	0-40	dada	reads are cut before the first position with this quality	
 	  max_EE				dada		filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
-		    fwd 	Inf	 a positive number 	 dada 	" After truncation, read pairs with higher thanÊmaxEE ""expected errors"" in fwd read will be discarded "	" use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
-		    rvs	2	Inf	a positive number	dada	" After truncation, read pairs with higher thanÊmaxEE ""expected errors"" in rvs read will be discarded"	"ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
+		    fwd 	2	 a positive number 	 dada 	" After truncation, read pairs with higher thanÊmaxEE ""expected errors"" in fwd read will be discarded "	" use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
+		    rvs	2	a positive number	dada	" After truncation, read pairs with higher thanÊmaxEE ""expected errors"" in rvs read will be discarded"	"ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values"
 	  minLen				dada		filtering by mimum length
-		    fwd	0	0 or a positive integer	dada	Remove reads with length less than minLen on fwd read. minLen is enforcedÊafterÊtrimming and truncation.	use with truncQ
-		    rvs	0	0 or a positive integer	dada	Remove reads with length less than minLen on rvs read. minLen is enforcedÊafterÊtrimming and truncation.	" ignored in single-ende mode; use with truncQ"
+		    fwd	20	a positive integer	dada	Remove reads with length less than minLen on fwd read. minLen is enforcedÊafterÊtrimming and truncation.	use with truncQ
+		    rvs	20	a positive integer	dada	Remove reads with length less than minLen on rvs read. minLen is enforcedÊafterÊtrimming and truncation.	" ignored in single-ende mode; use with truncQ"
 	  maxLen				dada		filtering by maximum length
 		    fwd	 Inf	a positive integer or Inf	dada	Remove reads with length of fwd read greater than maxLen. maxLen is enforcedÊbeforeÊtrimming and truncation.	
 		    rvs	 Inf	a positive integer or Inf	dada	Remove reads with length of rvs read greater than maxLen. maxLen is enforcedÊbeforeÊtrimming and truncation.	ignored in single-ende mode
@@ -73,26 +80,36 @@ chimeras					dada		settings for chimera removal
 	  minOneOffParentDistance		4	a number > 1	dada	if flagging sequences with one mismatch as potential one-off parents, how many mismatches are needed	 Don't change unless you know what you're doing.
 	  maxShift		16	a number	dada	maximum shift when aligning to potential parents	 Don't change unless you know what you're doing.
 taxonomy					taxonomy		settings for taxonomic annotation
+	dada				taxonomy		settings for DECIPHER
+		    do	 false	true or false	taxonomy	whether the DADA2 implementation of the bayesian classifier should be used for taxonomic annotation	"the DADA2 implementation may work less well than the mothur classifier, and it may be slower; you can run either the DADA classifier or mothur (not both)"
+		    post_ITSx	 false	true or false	taxonomy	whether the DADA2 implementation of the bayesian classifier should be run before or after ITSx	" if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region"
+		    db_path	"""../DBs/DADA2"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
+		    refFasta	"""silva_nr99_v138_train_set.fa.gz"""		taxonomy	decipher database name	
+		    minBoot	50	1-100	taxonomy	threshold for classification	see the DADA2 implementation of the bayesian classifier documentation for details
+		    tryRC	 false	true or false	taxonomy	if your reads are in the direction of the database (false), or reverse complement or you don't know (true)	true takes longer than false
+		    seed	100	a positive integer	taxonomy	seed for the DADA2 implementation of the bayesian classifier	keep constant in re-runs
+		    look_for_species	 false	true or false	taxonomy	whether you want to run a species-level annotation after the DADA2 implementation of the bayesian classifier	"species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)"
+		    spec_db	"""../DBs/DADA2/silva_species_assignment_v138.fa.gz"""		taxonomy	a DADA2-formatted species assignment database with path	change when setting up dadasnake on a new system
 	  decipher				taxonomy		settings for DECIPHER
 		    do	 false	true or false	taxonomy	whether DECIPHER should be used for taxonomic annotation	" DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)"
 		    post_ITSx	 false	true or false	taxonomy	whether DECIPHER should be run before or after ITSx	" if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region"
 		    db_path	"""../DBs/decipher"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
-		    tax_db	"""SILVA_SSU_r132_March2018.RData"""		taxonomy	decipher database name	
+		    tax_db	"""SILVA_SSU_r138_2019.RData"""		taxonomy	decipher database name	
 		    threshold	60	1-100	taxonomy	threshold for classification	see DECIPHER documentation for details
 		    strand	 bottom	bottom, top or both	taxonomy	if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)	both takes roughly twice as long as the others
 		    bootstraps	100	a positive integer	taxonomy	number of bootstraps	
 		    seed	100	a positive integer	taxonomy	seed for DECIPHER run	keep constant in re-runs
 		    look_for_species	 false	true or false	taxonomy	whether you want to run a species-level annotation after DECIPHER	"species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)"
-		    spec_db	"""../DBs/decipher/silva_species_assignment_v132.fa.gz"""		taxonomy	a DADA2-formatted species assignment database with path	change when setting up dadasnake on a new system
+		    spec_db	"""../DBs/DADA2/silva_species_assignment_v138.fa.gz"""		taxonomy	a DADA2-formatted species assignment database with path	change when setting up dadasnake on a new system
 	  mothur				taxonomy		settings for Bayesian classifier (mothur implementation)
 		    do	 true	true or false	taxonomy	whether mothur's classify.seqs should be used for taxonomix annotation	"we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)"
 		    post_ITSx	 false	true or false	taxonomy	whether mothur's classify.seqs should be run before or after ITSx	"if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards"
-		    db_path	"""../DBs/amplicon"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
-		    tax_db	"""ifoh_515f.iroh_806r.silva_132"""		taxonomy	the beginning of the filename of a mothur-formatted database	don't add .taxonomy or .fasta
+		    db_path	"""../DBs/mothur"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
+		    tax_db	"""SILVA_138_SSURef_NR99_prok.515F.806R"""		taxonomy	the beginning of the filename of a mothur-formatted database	don't add .taxonomy or .fasta
 		    cutoff	60	1-100	taxonomy	cut-off for classification	
 blast					taxonomy		
 	    do	FALSE		true or false	taxonomy	whether blast should be run	
-	    db_path	"""../DBs/nt/2018-09-07"""			taxonomy	path to blast database	
+	    db_path	"""../DBs/blast"""			taxonomy	path to blast database	
 	    tax_db	nt			taxonomy	name (without suffix) of blast database	
 	    e_val	0.01			taxonomy	e-value for blast	
 	    tax2id	""""""		"""tax2id table or ""none"""	taxonomy	whether taxonomic data is available in a tax2id table	"this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database"
@@ -103,19 +120,19 @@ ITSx					taxonomy		settings for ITSx
 	  region		 ITS2	ITS1 or ITS2	taxonomy	which region to extract	
 	  e_val		1.00E-05	0-1	taxonomy	e-value for ITS detection	
 hand_off					dada, taxonomy, postprocessing		settings deciding if additional formats should be given
-	  biom		TRUE	true or false	dada, taxonomy	whether a biome format output should be written	"biome contains OTU table or OTU table and taxonomy (if taxonomy was run); biome table is never filtered"
-	  phyloseq		FALSE	true or false	taxonomy, postprocessing	whether a phyloseq object should be returned	"contains OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU table, phyloseq object contains filtered dataset)"
+	  biom		true	true or false	dada, taxonomy	whether a biome format output should be written	"biome contains OTU table or OTU table and taxonomy (if taxonomy was run); biome table is never filtered"
+	  phyloseq		false	true or false	taxonomy, postprocessing	whether a phyloseq object should be returned	"contains OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU table, phyloseq object contains filtered dataset)"
 final_table_filtering					postprocessing		settings for filtering the final OTU table (before postprocessing, if postprocessing is done)
-	do		TRUE	true or false	postprocessing	whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps	
+	do		true	true or false	postprocessing	whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps	
 	 keep_target_taxa		"""."""	"""."" or a regular expression for taxa to keep, e.g. ""Bacteria"""	postprocessing	pattern to look for in the taxstrings	" done based on mothur and DECIPHER result; ""."" means all are kept; both taxstrings are searched, if both classifiers were used"
-	target_min_length		0		postprocessing	minimal length sequence	doesn't care for ITSx results
-	target_max_length		Inf		postprocessing	maximum length of sequence	doesn't care for ITSx results
+	target_min_length		1		postprocessing	minimal length sequence	doesn't care for ITSx results
+	target_max_length		10000		postprocessing	maximum length of sequence	doesn't care for ITSx results
 postprocessing					postprocessing		settings for postprocessinf
 	  funguild				postprocessing		settings for funguild
-		    do	FALSE	true or false	postprocessing	whether funguild should be run	
-		    funguild_db	"""../DBs/amplicon/funguild_db.json"""		postprocessing	path to funguild DB	change when setting up dadasnake on a new system
+		    do	false	true or false	postprocessing	whether funguild should be run	
+		    funguild_db	"""../DBs/functions/funguild_db.json"""		postprocessing	path to funguild DB	change when setting up dadasnake on a new system
 		    classifier	mothur	mothur or decipher, depending on what was used	postprocessing	which classifier to use	can only be one
 	  treeing			true or false	postprocessing		
-		    do	TRUE		postprocessing	whether a phylogenetic tree should be made	
-		    fasttreeMP	"""FastTreeMP"""		postprocessing	path to fasttreeMP executable	change when setting up dadasnake on a new system
-	  rarefaction_curve		TRUE	true or false	postprocessing	whether a rarefaction curve should be made	
+		    do	true		postprocessing	whether a phylogenetic tree should be made	
+		    fasttreeMP	""""""		postprocessing	path to fasttreeMP executable	change when setting up dadasnake on a new system
+	  rarefaction_curve		true	true or false	postprocessing	whether a rarefaction curve should be made	

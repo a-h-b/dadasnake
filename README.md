@@ -48,7 +48,7 @@ conda activate $PWD/conda/snakemake_env
 mamba install -c conda-forge -c bioconda snakemake
 conda deactivate
 ```
-Alternatively, if the above does not work, you can install an fixed snakemake version without mamba like so:
+Alternatively, if the above does not work, you can install a fixed snakemake version without mamba like so:
 ```
 conda env create -f workflow/envs/snakemake_env.yml --prefix $PWD/conda/snakemake_env
 ```
@@ -171,7 +171,7 @@ email |  |  | "" | "" or a valid email address | all | email address for mail no
 sessionName |  |  | "" | "" or a single word | all | session name | only read, if you're not using the dadasnake wrapper
 normalMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your normal copute nodes (e.g. 8G) | may be fixed during installation, only necessary for cluster submission 
 bigMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your high memory copute nodes (e.g. 30G) | may be fixed during installation, only necessary for cluster submission
-bigCores |  |  | "" | "" or a number and letter | all | maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
+bigCores |  |  | "" | "" or a number | all | maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
 sessionKind |  |  | "" | a string | all | automatically set by dadasnake wrapper | keep "" 
 settingsLocked |  |  | false | a boolean or string | all | automatically set by dadasnake wrapper | it doesn't matter what you do
 big_data |  |  | false | a boolean | dada, taxonomy, post | whether to use big data settings | set to true, if you have extra high memory nodes and more than 1000 samples 
@@ -257,27 +257,27 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;||    tryRC| false|false or true|taxonomy|if your reads are in the direction of the database (false), or reverse complement or you don't know (true)|true takes longer than false
 &nbsp;||    seed|101|a positive integer|taxonomy|seed for DADA2 taxonomy classifier|keep constant in re-runs
 &nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
-&nbsp;||    spec_db|"../DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|change when setting up dadasnake on a new system
+&nbsp;||    spec_db|"../DBs/DADA2/silva_species_assignment_v138.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|change when setting up dadasnake on a new system
 &nbsp;|  decipher||||taxonomy||settings for DECIPHER
 &nbsp;||    do| false|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation| DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
 &nbsp;||    db_path|"../DBs/decipher"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
-&nbsp;||    tax_db|"SILVA_SSU_r132_March2018.RData"||taxonomy|decipher database name|
+&nbsp;||    tax_db|"SILVA_SSU_r138_2019.RData"||taxonomy|decipher database name|
 &nbsp;||    threshold|60|1-100|taxonomy|threshold for classification|see DECIPHER documentation for details
 &nbsp;||    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
 &nbsp;||    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
 &nbsp;||    seed|100|a positive integer|taxonomy|seed for DECIPHER run|keep constant in re-runs
 &nbsp;||    look_for_species| false|true or false|taxonomy|whether you want to run a species-level annotation after DECIPHER|species is an overkill for 16S data; if you set this, you need to have a specialised database (currently available for 16S silva 132)
-&nbsp;||    spec_db|"../DBs/decipher/silva_species_assignment_v132.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|change when setting up dadasnake on a new system
+&nbsp;||    spec_db|"../DBs/DADA2/silva_species_assignment_v138.fa.gz"||taxonomy|a DADA2-formatted species assignment database with path|change when setting up dadasnake on a new system
 &nbsp;|  mothur||||taxonomy||settings for Bayesian classifier (mothur implementation)
 &nbsp;||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
 &nbsp;||    db_path|"../DBs/amplicon"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
-&nbsp;||    tax_db|"ifoh_515f.iroh_806r.silva_132"||taxonomy|the beginning of the filename of a mothur-formatted database|don't add .taxonomy or .fasta
+&nbsp;||    tax_db|"SILVA_138_SSURef_NR99_prok.515F.806R"||taxonomy|the beginning of the filename of a mothur-formatted database|don't add .taxonomy or .fasta
 &nbsp;||    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
 &nbsp;|    do|false||true or false|taxonomy|whether blast should be run|
-&nbsp;|    db_path|"../DBs/nt/2018-09-07"|||taxonomy|path to blast database|
+&nbsp;|    db_path|"../DBs/blast"|||taxonomy|path to blast database|
 &nbsp;|    tax_db|nt|||taxonomy|name (without suffix) of blast database|
 &nbsp;|    e_val|0.01|||taxonomy|e-value for blast|
 &nbsp;|    tax2id|""||"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database
@@ -298,11 +298,11 @@ final_table_filtering|||||postprocessing||settings for filtering the final OTU t
 postprocessing|||||postprocessing||settings for postprocessinf
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
-&nbsp;||    funguild_db|"../DBs/amplicon/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
+&nbsp;||    funguild_db|"../DBs/functions/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
 &nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
 &nbsp;|  treeing|||true or false|postprocessing||
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
-&nbsp;||    fasttreeMP|"FastTreeMP"||postprocessing|path to fasttreeMP executable|change when setting up dadasnake on a new system
+&nbsp;||    fasttreeMP|""||postprocessing|path to fasttreeMP executable|change when setting up dadasnake on a new system
 &nbsp;|  rarefaction_curve||true|true or false|postprocessing|whether a rarefaction curve should be made|
 
 
