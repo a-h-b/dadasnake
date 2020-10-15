@@ -79,7 +79,7 @@ if ori_sessionKind == "cluster":
                 raise Exception("You're attempting to submit a big dataset in dadasnake to a cluster, but haven't specified more than 0 cores to be used. Change bigCores in the config file to run a big data set, or set big_data to false in your config file.")
         else:
             config['bigMem'] = config['normalMem']
-            config['bigCores'] = workflow.cores
+            config['bigCores'] = workflow.nodes
             print("You haven't specified more than 0 bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] + ".")
     elif config['bigMem'] == "":
         if config['big_data']:
@@ -143,6 +143,7 @@ elif ori_sessionKind == "dryrun":
 else:
     config['bigCores'] = workflow.cores
 print("Final resource settings:")
+print("maxCores: " + str(workflow.cores))
 print("normalMem: " + config['normalMem'])
 print("bigMem: " + config['bigMem'])
 print("bigCores: " + str(config['bigCores']))

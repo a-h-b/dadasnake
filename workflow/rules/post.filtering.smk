@@ -120,7 +120,7 @@ rule multiAlign_Filter:
         "post/filtered.seqs.fasta"
     output:
         "post/filtered.seqs.multi.fasta"
-    threads: 10
+    threads: getThreads(10)
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -137,7 +137,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
             "post/filtered.seqs.multi.fasta"
         output:
             "post/tree.newick"
-        threads: 10
+        threads: getThreads(10)
         resources:
             runtime="12:00:00",
             mem=config['normalMem']

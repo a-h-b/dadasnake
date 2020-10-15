@@ -5,12 +5,6 @@ __default__:
   runtime: "-t"
   threads: "-n"
 
-dada_dadaPairs_pool:
-  partition: "-p bigmem -q qos-bigmem"
-
-dada_dadaSingle_pool:
-  partition: "-p bigmem -q qos-bigmem"
-
 dada_mergeruns:
   partition: "-p bigmem -q qos-bigmem"
 

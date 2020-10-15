@@ -14,6 +14,15 @@ workdir:
 f = open('full.config.yaml', 'w+')
 yaml.dump(config, f, allow_unicode=True,default_flow_style=False)
 
+def getThreads(max):
+    if workflow.cores:
+        realThreads = max if max <= workflow.cores else workflow.cores
+    elif workflow.nodes:
+        realThreads = max if max <= workflow.nodes else workflow.nodes
+    else:
+        realThreads = max
+    return realThreads
+
 if config['paired']:
     if 'primers' in STEPS:
         include:

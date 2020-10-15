@@ -29,7 +29,7 @@ rule rarefaction_curve_noFilter:
         "reporting/finalNumbers_perSample.tsv"
     output:
         "stats/rarefaction_curves.pdf"
-    threads: 12
+    threads: getThreads(12)
     resources:
         runtime="120:00:00",
         mem=config['normalMem']
@@ -85,7 +85,7 @@ rule multiAlign_noFilter:
         "sequenceTables/all.seqs.fasta"
     output:
         "post/all.seqs.multi.fasta"
-    threads: 10
+    threads: getThreads(10)
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -102,7 +102,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
             "post/all.seqs.multi.fasta"
         output:
             "post/tree.newick"
-        threads: 10
+        threads: getThreads(10)
         resources:
             runtime="12:00:00",
             mem=config['normalMem']

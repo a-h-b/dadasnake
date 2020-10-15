@@ -163,7 +163,7 @@ if config['ITSx']['do']:
         output:
             directory("sequenceTables/ITSx_out"),
             "sequenceTables/ITSx.seqs.fasta"
-        threads: 12
+        threads: getThreads(12)
         resources:
             runtime="12:00:00",
             mem=config['normalMem']

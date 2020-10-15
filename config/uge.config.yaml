@@ -5,12 +5,6 @@ __default__:
   runtime: "-l h_rt="
   threads: "-pe smp "
 
-dada_dadaPairs_pool:
-  partition: "-l highmem"
-
-dada_dadaSingle_pool:
-  partition: "-l highmem"
-
 dada_mergeruns:
   partition: "-l highmem"
 

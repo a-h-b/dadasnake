@@ -180,7 +180,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
-        threads: 8
+        threads: 1
         resources:
             runtime="120:00:00",
             mem=config['normalMem']
@@ -197,7 +197,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
-        threads: 8
+        threads: 1
         params:
             currentStep = "chimera"
         resources:
@@ -217,7 +217,7 @@ else:
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
-        threads: 12
+        threads: 1
         resources:
             runtime="120:00:00",
             mem=config['normalMem']

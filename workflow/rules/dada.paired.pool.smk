@@ -131,12 +131,12 @@ if config['dada']['use_quals']:
         output:
             "merged/derep.{direction}.RDS",
             "merged/dada.{direction}.RDS"
-        threads: 1
+        threads: getThreads(12)
         params:
             pool=config['dada']['pool']
         resources:
             runtime="12:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
         message: "converting to DADA reads for {wildcards.direction}."
@@ -149,12 +149,12 @@ else:
         output:
             "merged/derep.{direction}.RDS",
             "merged/dada.{direction}.RDS"
-        threads: 1
+        threads: getThreads(12)
         params:
             pool=config['dada']['pool']
         resources:
             runtime="12:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
         message: "converting to DADA reads for {wildcards.direction}."
@@ -195,7 +195,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
@@ -231,7 +231,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."

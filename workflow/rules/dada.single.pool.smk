@@ -125,10 +125,10 @@ if config['dada']['use_quals']:
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 1
+        threads: getThreads(12)
         resources:
             runtime="24:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         params:
             pooling=config['dada']['pool']
         conda: ENVDIR + "dada2_env.yml"
@@ -142,10 +142,10 @@ else:
             expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
         output:
             "merged/dada_merged.RDS"
-        threads: 1
+        threads: getThreads(12)
         resources:
             runtime="24:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         params:
             pooling=config['dada']['pool']
         conda: ENVDIR + "dada2_env.yml"

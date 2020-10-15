@@ -18,6 +18,6 @@ fi
 eval $LOADING_MODULES
 eval $CONDA_START
 
-snakemake -j $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition}" --configfile $CONFIGFILE --config sessionName=$JNAME normalMem=$NORMAL_MEM_EACH bigMem=$BIGMEM_MEM_EACH bigCores=$BIGMEM_CORES settingsLocked=$LOCK_SETTINGS sessionKind=cluster --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr
+snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster "{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition}" --configfile $CONFIGFILE --config sessionName=$JNAME normalMem=$NORMAL_MEM_EACH bigMem=$BIGMEM_MEM_EACH bigCores=$BIGMEM_CORES settingsLocked=$LOCK_SETTINGS sessionKind=cluster --use-conda --conda-prefix $DIR/conda >> $JNAME.stdout 2>> $JNAME.stderr
 
 eval $CONDA_END

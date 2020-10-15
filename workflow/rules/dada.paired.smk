@@ -192,7 +192,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
@@ -225,10 +225,10 @@ else:
             "sequenceTables/all.seqTab.RDS",
             "sequenceTables/all.seqs.fasta",
             "sequenceTables/all.seqTab.tsv"
-        threads: 1
+        threads: 1 
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs for {input}."

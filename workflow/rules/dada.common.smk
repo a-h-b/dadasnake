@@ -5,7 +5,7 @@ if config['hand_off']['biom'] and (not config['do_taxonomy'] or (not config['tax
             "reporting/finalNumbers_perSample.tsv"
         output:
             "sequenceTables/all.seqTab.biom"
-        threads: 12
+        threads: 1
         params:
             currentStep = "dada"
         resources:
