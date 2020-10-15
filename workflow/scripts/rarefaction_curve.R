@@ -93,6 +93,8 @@ if(file.info(snakemake@input[[1]])$size == 0){
         print("plotting rarefaction curves")
         dadasnake_rarecurve(t(seqMat),label=F,lty=1,ymax=ymax,xmax=xmax)
       }
+    }else{
+     i <- 0
     }
     if(samno %% 72 > 0){
       print(i+1)
