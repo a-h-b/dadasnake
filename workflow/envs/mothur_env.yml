@@ -1,4 +1,4 @@
-name: mothur_env
+name: mothur_env 
 channels:
   - bioconda
   - conda-forge/label/cf201901
@@ -14,16 +14,18 @@ dependencies:
   - bzip2=1.0.6=h470a237_2
   - ca-certificates=2018.11.29=ha4d7672_0
   - certifi=2018.11.29=py36_1000
+  - hdf5=1.10.3=hc401514_2
   - icu=58.2=hfc679d8_0
   - intel-openmp=2020.2=254
   - libffi=3.2.1=hfc679d8_5
   - libgcc-ng=9.1.0=hdf63c60_0
+  - libgfortran=3.0.0=1
   - libstdcxx-ng=7.2.0=hdf63c60_3
   - mkl=2020.2=256
   - mkl-service=2.3.0=py36he904b0f_0
   - mkl_fft=1.0.10=py36_0
   - mkl_random=1.0.2=py36_0
-  - mothur=1.40.5=hb16dc7f_0
+  - mothur=1.41.0=h392e8a4_0
   - ncurses=6.1=hfc679d8_2
   - numpy=1.19.1=py36hbc911f0_0
   - numpy-base=1.19.1=py36hfa32c7d_0

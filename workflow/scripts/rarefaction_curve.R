@@ -27,7 +27,7 @@ dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = "
   }
   S <- specnumber(x)
   nr <- nrow(x)
-  out <- sapply(seq_len(nr), function(i) {
+  out <- lapply(seq_len(nr), function(i) {
     n <- seq(1, tot[i], by = step)
     if (n[length(n)] != tot[i]) 
       n <- c(n, tot[i])
@@ -71,11 +71,14 @@ if(file.info(snakemake@input[[1]])$size == 0){
 
   sams <- which(colnames(seqTab) %in% c(rownames(sInfo),sInfo$sample))
   samno <- length(sams)
-
-  ymax <- max(apply(seqTab[,sams],2,function(x) length(which(x>0))))
-  xmax <- max(colSums(seqTab[,sams]))
-
   if(samno>0){
+    if(samno > 1){
+      ymax <- max(apply(seqTab[,sams],2,function(x) length(which(x>0))))
+      xmax <- max(colSums(seqTab[,sams]))
+    }else{
+      ymax <- length(which(seqTab[,sams]>0))
+      xmax <- sum(seqTab[,sams])
+    }
     pdf(snakemake@output[[1]],width=15/2.54,height = 12/2.54,pointsize = 7)
     if(floor(samno/72)>0){
       for(i in 1:floor(samno/72)){
