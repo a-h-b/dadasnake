@@ -92,6 +92,9 @@ The dadasnake does not supply databases. I'd suggest to use the [SILVA database]
 9) Fasttree:
 dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
 
+## How to cite dadasnake
+We have a preprint: https://www.biorxiv.org/content/10.1101/2020.05.17.095679v2 . Please also cite [DADA2](https://www.nature.com/articles/nmeth.3869): Callahan, B., McMurdie, P., Rosen, M. et al. DADA2: High-resolution sample inference from Illumina amplicon data. Nat Methods 13, 581–583 (2016), and any other tools you use within dadasnake, e.g. [mothur](https://mothur.org/wiki/frequently_asked_questions/#how-do-i-cite-mothur-how-about-the-individual-functions), [DECIPHER](http://www2.decipher.codes/Citation.html), [ITSx](https://microbiology.se/software/itsx), [Fasttree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490), [FUNGuild](https://www.sciencedirect.com/science/article/abs/pii/S1754504815000847).
+
 ##  
 
 ![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/pipeline.png)
