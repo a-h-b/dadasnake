@@ -1,4 +1,4 @@
-name: /data/project/metaamp/TOOLS/dada_pipe_versions/0.7/conda/0ed27975
+name: dadasnake_env
 channels:
   - bioconda
   - conda-forge/label/cf201901
