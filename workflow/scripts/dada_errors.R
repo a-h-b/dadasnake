@@ -49,7 +49,7 @@ if(length(filts)>0){
     errs <- learnErrors(drps, multithread=snakemake@threads)
     saveRDS(errs,errfile)
 pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
-    plotErrors(errs, nominalQ=TRUE)
+    print(plotErrors(errs, nominalQ=TRUE))
 dev.off()
 }else{
    stop("No reads in any of the input files for learning errors.")
