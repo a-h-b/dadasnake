@@ -148,13 +148,15 @@ if(snakemake@params[["currentStep"]] == "raw"){
   if(file.info(filesOI[1])$size>0){
     tmpOTU <- readRDS(filesOI[1])
     if(length(sampleTab$sample)>1){
-      readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
+      readnums <- colSums(tmpOTU[,colnames(tmpOTU) %in% ifelse(grepl("^[[:digit:]]",sampleTab$sample),paste0("X",sampleTab$sample),sampleTab$sample)])
     }else{
       if(!colnames(tmpOTU)[3] %in% sampleTab$sample) colnames(tmpOTU)[3]<- sampleTab$sample
       readnums <- sum(tmpOTU[,colnames(tmpOTU) %in% sampleTab$sample])
       names(readnums) <- sampleTab$sample
     }
-    sampleTab$reads_tax.length_filtered <- sapply(sampleTab$sample,
+    sampleTab$reads_tax.length_filtered <- sapply(ifelse(grepl("^[[:digit:]]",sampleTab$sample),
+                                                         paste0("X",sampleTab$sample),
+                                                         sampleTab$sample),
                                        function(x) if(x %in% names(readnums)) readnums[names(readnums)==x] else 0)
   }else{
     sampleTab$reads_tax.length_filtered <- 0

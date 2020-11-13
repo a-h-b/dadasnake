@@ -67,9 +67,14 @@ if(file.info(snakemake@input[[1]])$size == 0){
   print("reading input")
   seqTab <- readRDS(snakemake@input[[1]])
   sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
-  if((ncol(seqTab)==3 &!colnames(seqTab)[2] %in% rownames(sInfo)) | !colnames(seqTab)[3] %in% c(rownames(sInfo),sInfo$sample)) colnames(seqTab)[which(colnames(seqTab)=="V1")] <- rownames(sInfo)
+  if((ncol(seqTab)==3 &!colnames(seqTab)[2] %in% rownames(sInfo)) | 
+       !colnames(seqTab)[3] %in% ifelse(grepl("^[[:digit:]]",c(rownames(sInfo),sInfo$sample)),
+                                        paste0("X",c(rownames(sInfo),sInfo$sample)),
+                                        c(rownames(sInfo),sInfo$sample))) colnames(seqTab)[which(colnames(seqTab)=="V1")] <- rownames(sInfo)
 
-  sams <- which(colnames(seqTab) %in% c(rownames(sInfo),sInfo$sample))
+  sams <- which(colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",c(rownames(sInfo),sInfo$sample)),
+                                        paste0("X",c(rownames(sInfo),sInfo$sample)), 
+                                        c(rownames(sInfo),sInfo$sample)))
   samno <- length(sams)
   if(samno>0){
     if(samno > 1){

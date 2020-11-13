@@ -27,11 +27,18 @@ if(file.info(snakemake@input[[1]])$size == 0){
   sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
   rownames(sInfo) <- gsub("-",".",rownames(sInfo))
   if(nrow(sInfo)>1){
-    seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% rownames(sInfo)])
+    seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                                                             paste0("X",rownames(sInfo)),
+                                                              rownames(sInfo))])
     rownames(seqMat) <- seqTab$Row.names
-    taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(rownames(sInfo),"Row.names")])
+    taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                                                             paste0("X",rownames(sInfo)),
+                                                              rownames(sInfo)),"Row.names")])
     row.names(taxMat) <- seqTab$Row.names
     if(is.null(colnames(taxMat))) colnames(taxMat) <- "OTU"
+    if(any(grepl("^[[:digit:]]",rownames(sInfo)))) rownames(sInfo) <- ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                                                             paste0("X",rownames(sInfo)),
+                                                              rownames(sInfo))
     seqPhy <- phyloseq(otu_table(seqMat,taxa_are_rows = T),
                  sample_data(sInfo),
                  tax_table(taxMat))
