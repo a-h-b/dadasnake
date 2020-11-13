@@ -68,7 +68,7 @@ plotQualityProfile <- function(fl, n = 5e+05){
                                      label = basename(f), rclabel = rclabel, file = f))
   }
   anndf$minScore <- min(anndf$minScore)
-  ggplot(data = plotdf, aes(x = Cycle, y = Score)) + geom_tile(aes(fill = Count)) + 
+  print(ggplot(data = plotdf, aes(x = Cycle, y = Score)) + geom_tile(aes(fill = Count)) + 
     scale_fill_gradient(low = "#F5F5F5", high = "black") + 
     geom_line(data = statdf, aes(y = Mean), color = "#66C2A5") + 
     geom_line(data = statdf, aes(y = Q25), color = "#FC8D62", 
@@ -81,7 +81,7 @@ plotQualityProfile <- function(fl, n = 5e+05){
               y = 1, hjust = 0, vjust = 0) + geom_text(data = anndf, 
                                                        aes(x = minScore + 2, label = rclabel), y = 1, hjust = 0, 
                                                        vjust = 2) + facet_wrap(~file) + theme(strip.background = element_blank(), 
-                                                                                              strip.text.x = element_blank())
+                                                                                              strip.text.x = element_blank()))
 }
 
 
