@@ -25,6 +25,7 @@ dadaRfile <- snakemake@input[[2]]
 derepFfile <- snakemake@input[[3]]
 derepRfile <- snakemake@input[[4]]
 mergefile <- snakemake@output[[1]]
+dadatab <- snakemake@output[[2]]
 
 dadaF <- readRDS(dadaFfile)
 dadaR <- readRDS(dadaRfile)
@@ -43,4 +44,6 @@ merger <- mergePairs(dadaF, derepF, dadaR, derepR,
                      trimOverhang=snakemake@config[['pair_merging']][['trim_overhang']])
 names(merger) <- gsub(".fwd$","",names(merger))
 saveRDS(merger,mergefile)
+seqtab <- makeSequenceTable(merger)
+saveRDS(seqtab, dadatab)
 print("done")

@@ -39,8 +39,12 @@ if config['paired']:
                 include:
                     "workflow/rules/bigdada.paired.smk"
         else:
-            include:
-                "workflow/rules/dada.paired.pool.smk"
+            if config['dada']['pool']=="within_run":
+                include:
+                    "workflow/rules/dada.paired.runpool.smk"
+            else:
+                include:
+                    "workflow/rules/dada.paired.pool.smk"
 else:
     if 'primers' in STEPS:
         include:
@@ -57,8 +61,12 @@ else:
                 include:
                     "workflow/rules/bigdada.single.smk"
         else:
-            include:
-                "workflow/rules/dada.single.pool.smk"
+            if config['dada']['pool']=="within_run":
+                include:
+                    "workflow/rules/dada.single.runpool.smk"
+            else:
+                include:
+                    "workflow/rules/dada.single.pool.smk"
 if 'dada' in STEPS:
     if config['big_data']:
         include:

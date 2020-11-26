@@ -5,7 +5,7 @@ rule dada_control:
         "sequenceTables/all.seqTab.RDS",
         "sequenceTables/all.seqs.fasta",
         "reporting/finalNumbers_perSample.tsv",
-        expand("stats/QC_{step}.{run}.{direction}.pdf",step=['1','filtered'],direction=['fwd','rvs'],run=samples.run.unique())  
+        expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique())  
     output:
         "dada.done"
     shell:
@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 rule filter_numbers:
     input:
         "reporting/primerNumbers_perLibrary.tsv",
-        expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
+        expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/filteredNumbers_perSample.tsv",category="Reads")
@@ -32,33 +32,32 @@ rule filter_numbers:
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countFilteredReads.log"
     script:
-        SCRIPTSDIR+"report_readNumbers.R"
+        SCRIPTSDIR+"report_readNumbers.single.R"
 
 rule merged_numbers:
     input:
         "reporting/filteredNumbers_perLibrary.tsv",
-        expand("merged/dada.RDS", samples=samples.itertuples())
+        "merged/dada_merged.RDS"
     output:
         report("reporting/mergedNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "merged"
+        currentStep = "merged",
+        pooling = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/countMergedReads.log"
     script:
-        SCRIPTSDIR+"report_readNumbers.R"
+        SCRIPTSDIR+"report_readNumbers.single.R"
 
 rule dada_qc1:
     input:
-        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq"),
-        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq")
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fastq")
     output:
-        report("stats/QC_1.{run}.fwd.pdf"),
-        report("stats/QC_1.{run}.rvs.pdf")
+        report("stats/QC_1.{run}.pdf")
     threads: 1
     params:
         path="preprocessing/{run}"
@@ -69,15 +68,13 @@ rule dada_qc1:
     log: "logs/DADA2_QC_1.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        SCRIPTSDIR+"dada_QC.R"
+        SCRIPTSDIR+"dada_QC.single.R"
 
 rule dada_qc_filtered:
     input:
-        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
-        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
     output:
-        report("stats/QC_filtered.{run}.fwd.pdf"),
-        report("stats/QC_filtered.{run}.rvs.pdf")
+        report("stats/QC_filtered.{run}.pdf")
     threads: 1
     params:
         path="filtered/{run}"
@@ -88,15 +85,13 @@ rule dada_qc_filtered:
     log: "logs/DADA2_QC_filtered.{run}.log"
     message: "Running QC on {params.path}."
     script:
-        SCRIPTSDIR+"dada_QC.R"
+        SCRIPTSDIR+"dada_QC.single.R"
 
 rule dada_filter:
     input:
-        "preprocessing/{run}/{sample}.fwd.fastq",
-        "preprocessing/{run}/{sample}.rvs.fastq"
+        "preprocessing/{run}/{sample}.fastq"
     output:
-        "filtered/{run}/{sample}.fwd.fastq.gz",
-        "filtered/{run}/{sample}.rvs.fastq.gz"
+        "filtered/{run}/{sample}.fastq.gz"
     threads: 1
     resources:
         runtime="12:00:00",
@@ -105,89 +100,67 @@ rule dada_filter:
     log: "logs/DADA2_filtering.{run}.{sample}.log"
     message: "Running filtering on {input}."
     script:
-        SCRIPTSDIR+"dada_filter.R"
+        SCRIPTSDIR+"dada_filter.single.R"
 
-rule dada_errors_pool:
+rule dada_errors:
     input:
-        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
     output:
-        "errors/models.{direction}.RDS",
-        "stats/error_models.{direction}.pdf",
+        "errors/models.{run}.RDS",
+        "stats/error_models.{run}.pdf",
     threads: 1
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
-    log: "logs/DADA2_errors.{direction}.log"
+    log: "logs/DADA2_errors.{run}.log"
     message: "Running error models on {input}."
     script:
         SCRIPTSDIR+"dada_errors.R"
 
 if config['dada']['use_quals']:
-    rule dada_dadaPairs_pool:
+    rule dada_dadaSingle_pool:
         input:
-            "errors/models.{direction}.RDS",
-            expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+            "errors/models.{run}.RDS",
+            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz") 
         output:
-            "merged/derep.{direction}.RDS",
-            "merged/dada.{direction}.RDS"
-        wildcard_constraints:
-            direction = "fwd|rvs"
+            "merged/{run}/dada_merged.RDS",
+            "merged/{run}/seqTabs.RDS"
         threads: getThreads(12)
+        resources:
+            runtime="24:00:00",
+            mem=config['normalMem']
         params:
             pooling=config['dada']['pool']
-        resources:
-            runtime="12:00:00",
-            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_dada.{direction}.log"
-        message: "converting to DADA reads for {wildcards.direction}."
+        log: "logs/DADA2_read2RDS.{run}.log"
+        message: "converting fastq to dada-RDS for {wildcards.run}."
         script:
-            SCRIPTSDIR+"dada_dadaReads.paired.pool.R"
+            SCRIPTSDIR+"dada_dadaReads.runpool.R"
 else:
-    rule dada_dadaPairs_pool:
+    rule dada_dadaSingle_pool:
         input:
-            expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
         output:
-            "merged/derep.{direction}.RDS"
-            "merged/dada.{direction}.RDS"
-        wildcard_constraints: 
-            direction = "fwd|rvs"
+            "merged/{run}/dada_merged.RDS",
+            "merged/{run}/seqTabs.RDS"
         threads: getThreads(12)
+        resources:
+            runtime="24:00:00",
+            mem=config['normalMem']
         params:
             pooling=config['dada']['pool']
-        resources:
-            runtime="12:00:00",
-            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_dada.{direction}.log"
-        message: "converting to DADA reads for {wildcards.direction}."
+        log: "logs/DADA2_read2RDS.{run}.log"
+        message: "converting fastq to dada-RDS {wildcards.run}."
         script:
-            SCRIPTSDIR+"dada_dadaReads.paired.pool.noError.R"
+            SCRIPTSDIR+"dada_dadaReads.single.runpool.noError.R"
 
-
-rule dada_mergeReadPairs_pool:
-    input:
-        "merged/dada.fwd.RDS",
-        "merged/dada.rvs.RDS",
-        "merged/derep.fwd.RDS",
-        "merged/derep.rvs.RDS"
-    output:
-        "merged/dada.RDS"
-    threads: 1
-    resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
-    conda: ENVDIR + "dada2_env.yml"
-    log: "logs/DADA2_mergeReadPairs.log"
-    message: "merging reads."
-    script:
-        SCRIPTSDIR+"dada_onlyMergePoolReads.R"
 
 if config["chimeras"]["remove"]:
     rule dada_mergeruns:
         input:
-            "merged/dada.RDS"
+            expand("merged/{run}/seqTabs.RDS",run=samples.run.unique())
         output:
             "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
@@ -199,12 +172,12 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_mergeRuns.log"
-        message: "merging runs and removing chimeras for {input}."
+        log: "logs/DADA2_poolTabs.log"
+        message: "removing chimeras for {input}."
         script:
-            SCRIPTSDIR+"dada_poolTabs.R"
+            SCRIPTSDIR+"dada_mergeRuns.R"
 
     rule nochime_numbers:
         input:
@@ -222,11 +195,11 @@ if config["chimeras"]["remove"]:
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
         script:
-            SCRIPTSDIR+"report_readNumbers.R"
+            SCRIPTSDIR+"report_readNumbers.single.R"
 else:
     rule dada_mergeruns:
         input:
-            "merged/dada.RDS"
+            expand("merged/{run}/seqTabs.RDS",run=samples.run.unique())
         output:
             "sequenceTables/all.seqTab.originalFormat.RDS",
             "sequenceTables/all.seqTab.RDS",
@@ -235,12 +208,12 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['bigMem']
+            mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_mergeRuns.log"
-        message: "merging runs for {input}."
+        log: "logs/DADA2_poolTabs.log"
+        message: "writing tables and fasta file for {input}."
         script:
-            SCRIPTSDIR+"dada_poolTabs.R"
+            SCRIPTSDIR+"dada_mergeRuns.R"
 
     rule tabled_numbers:
         input:
@@ -257,5 +230,5 @@ else:
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"
         script:
-            SCRIPTSDIR+"report_readNumbers.R"
+            SCRIPTSDIR+"report_readNumbers.single.R"
 

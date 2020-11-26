@@ -180,7 +180,7 @@ if config["chimeras"]["remove"]:
 
     rule nochime_numbers:
         input:
-            "reporting/filteredNumbers_perLibrary.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
@@ -216,7 +216,7 @@ else:
 
     rule tabled_numbers:
         input:
-            "reporting/filteredNumbers_perLibrary.tsv",
+            "reporting/filteredNumbers_perSample.tsv",
             "sequenceTables/all.seqTab.originalFormat.RDS"
         output:
             report("reporting/finalNumbers_perSample.tsv",category="Reads")
