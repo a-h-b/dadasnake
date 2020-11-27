@@ -129,7 +129,7 @@ if config['dada']['use_quals']:
         threads: getThreads(12)
         resources:
             runtime="24:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         params:
             pooling=config['dada']['pool']
         conda: ENVDIR + "dada2_env.yml"
@@ -172,7 +172,7 @@ if config["chimeras"]["remove"]:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "removing chimeras for {input}."
@@ -208,7 +208,7 @@ else:
         threads: 1
         resources:
             runtime="12:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_poolTabs.log"
         message: "writing tables and fasta file for {input}."
