@@ -12,9 +12,9 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-paired: false
+paired: true
 dada:
-  pool: within_run
+  pool: true
 sequencing_direction: "unknown"
 filtering:
   trunc_length:
