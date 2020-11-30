@@ -58,7 +58,15 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
 
 # Sample inference and merger of paired-end reads
 derep <- derepFastq(filt)
-if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+33
+if("list" %in% class(derep)){
+  derep <- lapply(derep, function(x){
+    if(any(x$quals[!is.na(x$quals)]<0)){ x$quals <- x$quals+33 }
+    return(x)
+  })
+} else {
+  if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+33
+}
+
 if(snakemake@params[['pooling']]=="pseudo"){
   print(paste0("make pseudo-pooled dada object"))
   dada <- dada(derep, err=err, multithread=snakemake@threads,
