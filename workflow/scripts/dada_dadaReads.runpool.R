@@ -24,7 +24,7 @@ library(Biostrings)
 errfile <- snakemake@input[[1]]
 
 filt <- unlist(snakemake@input[-1])
-sizes <- sapply(filt,function(x) file.info(x)$size)
+sizes <- sapply(filt, function(x){ as.numeric(system2("zcat",args=c(x," 2>/dev/null | head | wc -l"), stdout=T)) })
 filt <- filt[sizes>0]
 
 filtNames <- sapply(filt,
