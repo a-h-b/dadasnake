@@ -56,7 +56,7 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
   err <- readRDS(errfile)
 }
 
-# Sample inference and merger of paired-end reads
+# Sample inference
 derep <- derepFastq(filt)
 if("list" %in% class(derep)){
   derep <- lapply(derep, function(x){
