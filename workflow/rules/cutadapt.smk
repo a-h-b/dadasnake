@@ -100,13 +100,14 @@ if config['sequencing_direction'] == "fwd_1":
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
             cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
-            --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+            {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
+            -O {config[primer_cutting][overlap]} \
             -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
             -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
 
             cutadapt -a $RVS_RC -A $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
              -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log} 2>&1
@@ -134,13 +135,14 @@ elif config['sequencing_direction'] == "rvs_1":
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
             cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
+              -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs.fastq -p $TMPD/{wildcards.library}.fwd.fastq {input} &> {log}
 
             cutadapt -a $RVS_RC -A $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log}  2>&1
@@ -167,27 +169,29 @@ else:
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
 
             cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
+              -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              --untrimmed-output=$TMPD/{wildcards.library}.fwd_unt.fastq --untrimmed-paired-output=$TMPD/{wildcards.library}.rvs_unt.fastq \
              -o $TMPD/{wildcards.library}.fwd.fastq -p $TMPD/{wildcards.library}.rvs.fastq {input} &> {log}
             
             cutadapt -a $RVS_RC -A $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o {output[0]} -p {output[1]} $TMPD/{wildcards.library}.fwd.fastq $TMPD/{wildcards.library}.rvs.fastq >> {log} 2>&1
 
             cutadapt -g {config[primers][rvs][sequence]} -G {config[primers][fwd][sequence]} \
-             --no-indels -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
+              -O {config[primer_cutting][overlap]} \
               -m 1:1 --pair-filter={config[primer_cutting][filter_if_not_match]} \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.rvs_tr2.fastq -p $TMPD/{wildcards.library}.fwd_tr2.fastq \
              $TMPD/{wildcards.library}.fwd_unt.fastq $TMPD/{wildcards.library}.rvs_unt.fastq >> {log} 2>&1
 
             cutadapt -a $RVS_RC -A $FWD_RC \
-             --no-indels -n {config[primer_cutting][count]} \
+             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              -o $TMPD/{wildcards.library}.fwd.final.fastq -p $TMPD/{wildcards.library}.rvs.final.fastq \
