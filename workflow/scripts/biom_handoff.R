@@ -37,6 +37,9 @@ if(length(which(colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo)),"Row.names")]
   }
+  sInfo <- sInfo[ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                         paste0("X",rownames(sInfo)),
+                         rownames(sInfo)) %in% colnames(seqMat),]
   seqBiom <- make_biom(seqMat,observation_metadata = seqMeta,sample_metadata=sInfo)
   write_biom(seqBiom,snakemake@output[[1]])
 }else{

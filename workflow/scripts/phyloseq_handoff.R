@@ -39,6 +39,9 @@ if(file.info(snakemake@input[[1]])$size == 0){
     if(any(grepl("^[[:digit:]]",rownames(sInfo)))) rownames(sInfo) <- ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo))
+    sInfo <- sInfo[ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                         paste0("X",rownames(sInfo)),
+                         rownames(sInfo)) %in% colnames(seqMat),]
     seqPhy <- phyloseq(otu_table(seqMat,taxa_are_rows = T),
                  sample_data(sInfo),
                  tax_table(taxMat))
