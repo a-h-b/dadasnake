@@ -24,7 +24,7 @@ library(Biostrings)
 errfile <- snakemake@input[[1]]
 
 filt <- unlist(snakemake@input[-1])
-sizes <- sapply(filt,function(x) file.info(x)$size)
+sizes <- sapply(filt,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head |  wc -l"),stdout=T),split=" "))[1]))
 filt <- filt[sizes>0]
 
 filtNames <- sapply(filt,
@@ -58,7 +58,15 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
 
 # Sample inference and merger of paired-end reads
 derep <- derepFastq(filt)
-if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+33
+if("list" %in% class(derep)){
+  derep <- lapply(derep, function(x){
+    if(any(x$quals[!is.na(x$quals)]<0)){ x$quals <- x$quals+31 }
+    return(x)
+  })
+} else {
+  if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+31
+}
+
 saveRDS(derep,derepfile)
 if(snakemake@params[['pooling']]=="pseudo"){
   print(paste0("make pseudo-pooled dada object"))

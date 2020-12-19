@@ -90,7 +90,7 @@ path <- snakemake@params[['path']]
 fastqs <- sort(list.files(path, pattern="fastq"))
 sizes <- sapply(paste0(path,"/",fastqs),function(x){
             if(grepl(".gz$",x)){
-             as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1])
+             as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head | wc -l"),stdout=T),split=" "))[1])
             }else{
              file.info(x)$size
             }

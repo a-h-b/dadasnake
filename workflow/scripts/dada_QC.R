@@ -92,7 +92,7 @@ fastqFs <- sort(list.files(path, pattern="fwd.fastq"))
 fastqRs <- sort(list.files(path, pattern="rvs.fastq"))
 sizeFs <- sapply(paste0(path,"/",fastqFs),function(x){
             if(grepl(".gz$",x)){
-             as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1])
+             as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head | wc -l"),stdout=T),split=" "))[1])
             }else{
              file.info(x)$size
             }
@@ -100,7 +100,7 @@ sizeFs <- sapply(paste0(path,"/",fastqFs),function(x){
 fastqFs <- fastqFs[sizeFs>0]
 sizeRs <- sapply(paste0(path,"/",fastqRs),function(x) {
             if(grepl(".gz$",x)){
-             as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1])
+             as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head | wc -l"),stdout=T),split=" "))[1])
             }else{
              file.info(x)$size
             }

@@ -21,7 +21,7 @@ if(!require(dada2)){
 
 filts <- unlist(snakemake@input)
 
-sizes <- sapply(filts,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x,"| wc -l"),stdout=T),split=" "))[1]))
+sizes <- sapply(filts,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head |  wc -l"),stdout=T),split=" "))[1]))
 filts <- filts[sizes>0]
 
 errfile <- snakemake@output[[1]]
@@ -38,7 +38,7 @@ if(length(filts)>0){
     filts <- sample(filts)
     for (i in seq_along(filts)) {
       drps[[i]] <- derepFastq(filts[[i]])
-      if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+33
+      if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+31
       NREADS <- NREADS + sum(drps[[i]]$uniques)
       NBASES <- NBASES + sum(drps[[i]]$uniques * nchar(names(drps[[i]]$uniques)))
       if (NBASES > 1e8) {

@@ -45,10 +45,17 @@ if(as.logical(snakemake@config[['dada']][['no_error_assumptions']])){
 
 
 # Sample inference and merger of paired-end reads
-if(as.numeric(unlist(strsplit(system2("zcat",args=c(filt,"| wc -l"),stdout=T),split=" "))[1])>4){
+if(as.numeric(unlist(strsplit(system2("zcat",args=c(filt," 2>/dev/null | head | wc -l"),stdout=T),split=" "))[1])>4){
 print(paste0("make dada object, ",sampleName))
 derep <- derepFastq(filt)
-if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+33
+if("list" %in% class(derep)){
+  derep <- lapply(derep, function(x){
+    if(any(x$quals[!is.na(x$quals)]<0)){ x$quals <- x$quals+31 }
+    return(x)
+  })
+} else {
+  if(any(derep$quals[!is.na(derep$quals)]<0)) derep$quals <- derep$quals+31
+}
 dada <- dada(derep, err=err, multithread=snakemake@threads,
              BAND_SIZE=as.numeric(snakemake@config[['dada']][['band_size']]),
              HOMOPOLYMER_GAP_PENALTY=snakemake@config[['dada']][['homopolymer_gap_penalty']],
