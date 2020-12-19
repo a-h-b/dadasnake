@@ -8,69 +8,27 @@ import subprocess
 import pandas as pd
 from snakemake.utils import validate
 
-def dict_merge(a, b):
-    """
-    Deep merge 2 dicts together
-    """
-    if not isinstance(b, dict):
-        return b
-    result = deepcopy(a)
-    for k, v in b.items():
-        if k in result and isinstance(result[k], dict):
-            result[k] = dict_merge(result[k], v)
-        else:
-            result[k] = deepcopy(v)
-    return result
-
-
 # default executable for snakemake
 shell.executable("bash")
 
-# custom configuration file
-CUSTOM_CONFIG_PATH = os.environ.get("CONFIGFILE","../nothing/here")
 
-ori_lock = config['settingsLocked']
-ori_normalMem = config['normalMem']
-ori_bigMem = config['bigMem']
-ori_bigCores = config['bigCores']
-ori_sessionKind = config['sessionKind']
-
-# merge 2 configurations files together
-if os.path.exists(CUSTOM_CONFIG_PATH):
-    print("read configuration from "+CUSTOM_CONFIG_PATH)
-    with open(CUSTOM_CONFIG_PATH, 'r') as rhandle:
-        data = yaml.load(rhandle)
-        config = dict_merge(config, data)
 #validate(config,schema="schemas/config.schema.yaml")
 
-
-config['sessionKind'] = ori_sessionKind
-if ori_sessionKind == "cluster":
-    if str(ori_lock).lower() in ['true','t']:
+print(config['sessionKind'])
+if config['sessionKind'] == "cluster":
+    if str(config['settingsLocked']).lower() in ['true','t']:
         config['settingsLocked'] = True
-        if config['normalMem'] != ori_normalMem or config['bigMem'] != ori_bigMem or config['bigCores'] != ori_bigCores:
-            print("You've attempted to change the numbers or size of the available cores in your config file, but the person who set up dadasnake disabled changing these settings. The original settings will be used.")
-        else:
-            print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
-        config['normalMem'] = ori_normalMem
-        config['bigMem'] = ori_bigMem
-        config['bigCores'] = ori_bigCores
+        print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
         print("normalMem: " + config['normalMem'])
         print("bigMem: " + config['bigMem'])
         print("bigCores: " + str(config['bigCores']))
     else:
         config['settingsLocked'] = False
-    if config['normalMem'] == "" and ori_normalMem != "" and not config['settingsLocked']:
-        config['normalMem'] = ori_normalMem
     if config['normalMem'] == "":
         if config['settingsLocked']:
             raise Exception("You're attempting to submit dadasnake to a cluster and haven't specified the memory requirements. Ask the person who set up dadasnake to specify NORMAL_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG")
         else:
             raise Exception("You're attempting to submit dadasnake to a cluster and haven't specified the memory requirements. Set normalMem in your config file.")
-    if config['bigMem'] == "" and ori_bigMem != "" and not config['settingsLocked']:
-        config['bigMem'] = ori_bigMem
-    if config['bigCores'] == "" and ori_bigCores != "" and not config['settingsLocked']:
-        config['bigCores'] = ori_bigCores
     if config['bigCores'] == "" or int(config['bigCores']) == 0:
         if config['big_data']:
             if config['settingsLocked']:
@@ -92,32 +50,20 @@ if ori_sessionKind == "cluster":
             config['bigCores'] = workflow.cores
             print("You haven't specified the size of your bigmem cores, all rules will be performed on normal cores with " + config['normalMem'] + ".")
 # get dryruns to have realistic output:
-elif ori_sessionKind == "dryrun":
-    if str(ori_lock).lower() in ['true','t']:
+elif config['sessionKind'] == "dryrun":
+    if str(config['settingsLocked']).lower() in ['true','t']:
         config['settingsLocked'] = True
-        if config['normalMem'] != ori_normalMem or config['bigMem'] != ori_bigMem or config['bigCores'] != ori_bigCores:
-            print("You've attempted to change the numbers or size of the available cores in your config file, but the person who set up dadasnake disabled changing these settings. The original settings will be used.")
-        else:
-            print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
-        config['normalMem'] = ori_normalMem
-        config['bigMem'] = ori_bigMem
-        config['bigCores'] = ori_bigCores
+        print("The person who set up dadasnake disabled changing resource settings. The original settings will be used:")
         print("normalMem: " + config['normalMem'])
         print("bigMem: " + config['bigMem'])
         print("bigCores: " + str(config['bigCores']))
     else:
         config['settingsLocked'] = False
-    if config['normalMem'] == "" and ori_normalMem != "" and not config['settingsLocked']:
-        config['normalMem'] = ori_normalMem
     if config['normalMem'] == "":
         if config['settingsLocked']:
             print("You will not be able to submit dadasnake to a cluster unless you ask the person who set up dadasnake to specify NORMAL_MEM_EACH in " + ROOTDIR + "VARIABLE_CONFIG")
         else:
             print("You will not be able to submit dadasnake to a cluster unless you set normalMem in your config file.")
-    if config['bigMem'] == "" and ori_bigMem != "" and not config['settingsLocked']:
-        config['bigMem'] = ori_bigMem
-    if config['bigCores'] == "" and ori_bigCores != "" and not config['settingsLocked']:
-        config['bigCores'] = ori_bigCores
     if config['bigCores'] == "" or int(config['bigCores']) == 0:
         if config['big_data']:
             if config['settingsLocked']:
@@ -144,9 +90,9 @@ else:
     config['bigCores'] = workflow.cores
 print("Final resource settings:")
 print("maxCores: " + str(workflow.cores))
-print("normalMem: " + config['normalMem'])
-print("bigMem: " + config['bigMem'])
-print("bigCores: " + str(config['bigCores']))
+#print("normalMem: " + config['normalMem'])
+#print("bigMem: " + config['bigMem'])
+#print("bigCores: " + str(config['bigCores']))
 
 
 
@@ -231,7 +177,7 @@ if config['do_dada']:
     if config['do_postprocessing']:
         PRELIM_STEPS += "postprocessing "
 
-STEPS = os.environ.get("STEPS", PRELIM_STEPS).split()
+STEPS = PRELIM_STEPS.split()
 
 # temporary directory will be stored inside the OUTPUTDIR directory
 # unless an absolute path is set

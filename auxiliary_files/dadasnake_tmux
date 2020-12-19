@@ -90,6 +90,16 @@ else
    CONDA_END_t=""
 fi
 
+START_TIME=`date +%s`
+NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
+if [ -z "$JNAME" ]; then
+        JNAME="dadasnake_${NAMEHASH}"
+else
+        JNAME=${JNAME//./_}
+        JNAME="${JNAME}_${NAMEHASH}"
+fi
+
+
 if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     eval $LOADING_MODULES
@@ -112,13 +122,6 @@ elif [ "$INITIAL" = true ]; then
     eval $CONDA_START
     snakemake --cores 1 -s $DIR/Snakefile --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --local-cores 1 --configfile $CONFIGFILE
 elif [ "$CLUSTER" = true ]; then
-  START_TIME=`date +%s`
-  NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
-    if [ -z "$JNAME" ]; then
-        JNAME="dadasnake_${NAMEHASH}"
-    else
-        JNAME="${JNAME}_${NAMEHASH}"
-    fi
     if [ -z "$THREADS" ]; then
         THREADS=$MAX_THREADS
     fi
@@ -141,14 +144,6 @@ elif [ "$CLUSTER" = true ]; then
     fi
 elif [ "$FRONTEND" = true ]; then
     echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
-    START_TIME=`date +%s`
-    NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
-   if [ -z "$JNAME" ]; then
-        JNAME="dadasnake_${NAMEHASH}"
-    else
-        JNAME=${JNAME//./_}
-        JNAME="${JNAME}_${NAMEHASH}"
-    fi
     if [ -z "$THREADS" ]; then
         THREADS=1
     fi
@@ -162,14 +157,6 @@ elif [ "$FRONTEND" = true ]; then
     fi
 elif [ "$LAPTOP" = true ]; then
     echo "Running workflow in current session - don't use this setting except with small datasets."
-    START_TIME=`date +%s`
-    NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`  
-   if [ -z "$JNAME" ]; then
-        JNAME="dadasnake_${NAMEHASH}"
-    else
-        JNAME=${JNAME//./_}
-        JNAME="${JNAME}_${NAMEHASH}"
-    fi
     if [ -z "$THREADS" ]; then
         THREADS=1
     fi
