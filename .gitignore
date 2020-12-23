@@ -16,3 +16,5 @@ auxiliary_files/config.tmp.yaml
 config/config.default.yaml
 .snakemake/
 dadasnake_initialized/
+*.stderr
+*.stdout

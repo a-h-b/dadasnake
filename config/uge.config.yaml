@@ -11,6 +11,9 @@ dada_mergeruns:
 mothur_taxonomy:
   partition: "-l highmem"
 
+decipher_taxonomy:
+  partition: "-l highmem"
+
 mothur_taxonomy_postITSx:
   partition: "-l highmem"
 

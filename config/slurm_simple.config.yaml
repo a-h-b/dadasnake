@@ -1,0 +1,7 @@
+__default__: 
+  call: "sbatch"
+  mem_per_cpu: "--mem-per-cpu "
+  partition: ""
+  runtime: "-t"
+  threads: "-n"
+
