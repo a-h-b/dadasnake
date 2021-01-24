@@ -14,7 +14,7 @@ primers:
     name: 806R
 paired: true
 dada:
-  pool: true
+  pool: false
 sequencing_direction: "unknown"
 filtering:
   trunc_length:
@@ -33,6 +33,8 @@ filtering:
   minQ:
     fwd: 0
     rvs: 0
+downsampling:
+  do: true
 tmp_dir: "tmp"
 outputdir: "testoutput"
 final_table_filtering:

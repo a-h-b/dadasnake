@@ -137,7 +137,7 @@ if config['dada']['use_quals']:
         params:
             pooling=config['dada']['pool']
         resources:
-            runtime="12:00:00",
+            runtime="24:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
@@ -157,7 +157,7 @@ else:
         params:
             pooling=config['dada']['pool']
         resources:
-            runtime="12:00:00",
+            runtime="24:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
@@ -176,8 +176,8 @@ rule dada_mergeReadPairs_pool:
         "merged/dada.RDS"
     threads: 1
     resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
+        runtime="18:00:00",
+        mem=config['bigMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/DADA2_mergeReadPairs.log"
     message: "merging reads."
@@ -198,7 +198,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
         resources:
-            runtime="12:00:00",
+            runtime="24:00:00",
             mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"

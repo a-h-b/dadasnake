@@ -316,7 +316,9 @@ fastqPairedFilter0(c(fastqF,fastqR),
                                snakemake@config[['filtering']][['minQ']][['rvs']]),
                     truncQ=snakemake@config[['filtering']][['trunc_qual']],
                     maxN=snakemake@config[['filtering']][['maxN']],
-                    rm.phix=as.logical(snakemake@config[['filtering']][['rm_phix']]), 
+                    rm.phix=as.logical(snakemake@config[['filtering']][['rm_phix']]),
+                    trimLeft=c(snakemake@config[['filtering']][['trim_left']][['fwd']],
+                               snakemake@config[['filtering']][['trim_left']][['rvs']]), 
                     compress=TRUE, verbose=TRUE)
 
 #output table with number of reads post-filtering

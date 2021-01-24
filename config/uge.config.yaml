@@ -4,6 +4,7 @@ __default__:
   partition: ""
   runtime: "-l h_rt="
   threads: "-pe smp "
+  stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
 
 dada_mergeruns:
   partition: "-l highmem"

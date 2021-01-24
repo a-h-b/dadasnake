@@ -6,7 +6,13 @@ if config['postprocessing']['treeing']['do']:
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
 if config['postprocessing']['funguild']['do']:
-    postConts.append("post/filtered.seqTab.guilds.tsv")
+    CLASSIFY=config['postprocessing']['funguild']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/all.seqTab.guilds.tsv")
+if config['postprocessing']['funguild']['do']:
+    CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/all.seqTab.traits.RDS")
 
 localrules: post_control_Filter
 
@@ -67,7 +73,7 @@ rule rarefaction_curve_Filter:
         "stats/rarefaction_curves.pdf"
     threads: 1
     resources:
-        runtime="12:00:00",
+        runtime="24:00:00",
         mem=config['normalMem']
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/rarefaction_curve.log"
@@ -94,6 +100,22 @@ rule guilds_Filter:
         {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]} &> {log} || touch {output}
         """
 
+rule funTraits_Filter:
+    input:
+        "post/filtered.seqTab.RDS"
+    output:
+        "post/filtered.seqTab.traits.tsv",
+        "post/filtered.seqTab.traits.RDS"
+    threads: 1
+    resources:
+        runtime="6:00:00",
+        mem=config['normalMem']
+    log: "logs/fungalTraits.log"
+    conda: ENVDIR + "dada2_env.yml"
+    message: "Adding fungalTraits to {input}."
+    script:
+        SCRIPTSDIR + "add_fungalTraits.R"
+
 if config['hand_off']['phyloseq']:
     physInputs = ["post/filtered.seqTab.RDS","reporting/post_finalNumbers_perSample.tsv"]
     physOutputs = "post/filtered.seqTab.phyloseq.RDS"
@@ -108,7 +130,7 @@ if config['hand_off']['phyloseq']:
         params:
             currentStep = "post"
         resources:
-            runtime="12:00:00",
+            runtime="4:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "add_R_env.yml"
         log: "logs/phyloseq_hand-off.log"
@@ -122,7 +144,7 @@ rule multiAlign_Filter:
         "post/filtered.seqs.multi.fasta"
     threads: getThreads(10)
     resources:
-        runtime="12:00:00",
+        runtime="24:00:00",
         mem=config['normalMem']
     conda: ENVDIR + "dadasnake_env.yml"
     log: "logs/treeing_multiAlign.log"
@@ -139,7 +161,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
             "post/tree.newick"
         threads: getThreads(10)
         resources:
-            runtime="12:00:00",
+            runtime="48:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"
@@ -156,7 +178,7 @@ else:
             "post/tree.newick"
         threads: 1
         resources:
-            runtime="12:00:00",
+            runtime="48:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/treeing.log"

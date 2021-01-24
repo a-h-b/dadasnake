@@ -107,30 +107,64 @@ rule dada_filter:
     script:
         SCRIPTSDIR+"dada_filter.R"
 
+if config['downsampling']['do']:
+    rule downsampling:
+        input:
+            "reporting/filteredNumbers_perLibrary.tsv",
+            "filtered/{run}/{sample}.fwd.fastq.gz",
+            "filtered/{run}/{sample}.rvs.fastq.gz"
+        output:
+            "downsampled/{run}/{sample}.fwd.fastq.gz",
+            "downsampled/{run}/{sample}.rvs.fastq.gz"
+        threads: 1
+        resources:
+            runtime="2:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_downsampling.{run}.{sample}.log"
+        message: "Downsampling {input}."
+        script:
+            SCRIPTSDIR+"dada_downsample.R"
 
-rule dada_errors:
-    input:
-        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz")
-    output:
-        "errors/models.{run}.{direction}.RDS",
-        "stats/error_models.{run}.{direction}.pdf",
-    threads: 1
-    resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
-    conda: ENVDIR + "dada2_env.yml"
-    log: "logs/DADA2_errors.{run}.{direction}.log"
-    message: "Running error models on {input}."
-    script:
-        SCRIPTSDIR+"dada_errors.R"
+    rule dada_errors:
+        input:
+            lambda wildcards: get_sample_perRun(wildcards,"downsampled/{run}/",".{direction}.fastq.gz")
+        output:
+            "errors/models.{run}.{direction}.RDS",
+            "stats/error_models.{run}.{direction}.pdf"
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{run}.{direction}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
+else:
+    rule dada_errors:
+        input:
+            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".{direction}.fastq.gz")
+        output:
+            "errors/models.{run}.{direction}.RDS",
+            "stats/error_models.{run}.{direction}.pdf",
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{run}.{direction}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
 
 if config['dada']['use_quals']:
     rule dada_mergeReadPairs:
         input:
             "errors/models.{run}.fwd.RDS",
             "errors/models.{run}.rvs.RDS",
-            "filtered/{run}/{sample}.fwd.fastq.gz",
-            "filtered/{run}/{sample}.rvs.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz",
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1
@@ -145,8 +179,8 @@ if config['dada']['use_quals']:
 else:
     rule dada_mergeReadPairs:
         input:
-            "filtered/{run}/{sample}.fwd.fastq.gz", 
-            "filtered/{run}/{sample}.rvs.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz",
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1

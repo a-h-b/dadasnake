@@ -90,7 +90,7 @@ if config['taxonomy']['decipher']['post_ITSx']:
         threads: 1
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -106,7 +106,7 @@ else:
         threads: 1
         resources:
             runtime="48:00:00",
-            mem=config['normalMem']
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/decipher_taxonomy.log"
         message: "Running decipher on {input}."
@@ -207,7 +207,7 @@ if config['blast']['do']:
                 "sequenceTables/blast_results.tsv"
             threads: 1
             resources:
-                runtime="48:00:00",
+                runtime="24:00:00",
                 mem=config['bigMem']
             log: "logs/blastn.log"
             conda: ENVDIR + "blast_env.yml"
@@ -221,7 +221,7 @@ if config['blast']['do']:
                      -out {config[blast][db_path]}/{config[blast][tax_db]} &> {log}
                   fi
                   blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
-                   -query {input} -outfmt 7 -out {output} -max_target_seqs 10 &> {log}
+                   -query {input} -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle" -out {output} -max_target_seqs {config[blast][max_targets]} &> {log}
                 else
                   touch {output}
                 fi
@@ -234,7 +234,7 @@ if config['blast']['do']:
                 "sequenceTables/blast_results.tsv"
             threads: 1
             resources:
-                runtime="48:00:00",
+                runtime="24:00:00",
                 mem=config['bigMem']
             log: "logs/blastn.log"
             conda: ENVDIR + "blast_env.yml"
@@ -245,7 +245,7 @@ if config['blast']['do']:
                   export BLASTDB={config[blast][db_path]}
                   blastn -query {input} -db {config[blast][db_path]}/{config[blast][tax_db]} \
                    -out sequenceTables/blast_output.{config[blast][tax_db]}.tsv \
-                   -evalue {config[blast][e_val]} -max_target_seqs 10 \
+                   -evalue {config[blast][e_val]} -max_target_seqs {config[blast][max_targets]} \
                    -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend evalue bitscore sgi sacc staxids ssciname scomnames stitle' &> {log}
                  awk -F $"\\t" '{{if (NR==FNR) {{val[$13] = $0; next}} if($1 in val){{print val[$1]"\\t"$0}}}}' \
                   sequenceTables/blast_output.{config[blast][tax_db]}.tsv {config[blast][tax2id]} >> {output}

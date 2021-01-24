@@ -101,22 +101,38 @@ rule dada_filter:
     script:
         SCRIPTSDIR+"dada_filter.single.R"
 
-
-rule dada_errors:
-    input:
-        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
-    output:
-        "errors/models.{run}.RDS",
-        "stats/error_models.{run}.pdf",
-    threads: 1
-    resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
-    conda: ENVDIR + "dada2_env.yml"
-    log: "logs/DADA2_errors.{run}.log"
-    message: "Running error models on {input}."
-    script:
-        SCRIPTSDIR+"dada_errors.R"
+if config['downsampling']['do']:
+    rule dada_errors_downsampling:
+        input:
+            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
+        output:
+            "errors/models.{run}.RDS",
+            "stats/error_models.{run}.pdf",
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{run}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
+else:
+    rule dada_errors:
+        input:
+            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
+        output:
+            "errors/models.{run}.RDS",
+            "stats/error_models.{run}.pdf",
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{run}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
 
 if config['dada']['use_quals']:
     rule dada_dadaSingle:

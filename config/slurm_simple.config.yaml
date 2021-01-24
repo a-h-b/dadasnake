@@ -4,4 +4,4 @@ __default__:
   partition: ""
   runtime: "-t"
   threads: "-n"
-
+  stdout: "-o dadasnake.{rule}.{wildcards}.stdout"

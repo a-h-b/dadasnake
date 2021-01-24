@@ -4,6 +4,7 @@ __default__:
   partition: "-p batch"
   runtime: "-t"
   threads: "-n"
+  stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
 
 dada_mergeruns:
   partition: "-p bigmem -q qos-bigmem"

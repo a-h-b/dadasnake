@@ -48,6 +48,14 @@ filtering:
     rvs: 0
   maxN: 0
   rm_phix: true
+  trim_left:
+    fwd: 0
+    rvs: 0
+downsampling:
+  do: false
+  number: 50000
+  min: true
+  seed: 123
 error_seed: 100
 dada:
   band_size: 16
@@ -133,6 +141,10 @@ postprocessing:
   funguild:
     do: false
     funguild_db: "../DBs/functions/funguild_db.json"
+    classifier: mothur
+  fungalTraits:
+    do: false
+    db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
     classifier: mothur
   treeing:
     do: true
