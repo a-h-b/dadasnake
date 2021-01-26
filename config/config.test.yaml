@@ -20,7 +20,9 @@ filtering:
   trunc_length:
     fwd: 170
     rvs: 130
-  trunc_qual: 13
+  trunc_qual: 
+    fwd: 13
+    rvs: 13
   max_EE:
     fwd: 0.2
     rvs: 0.2

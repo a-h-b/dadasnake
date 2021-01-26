@@ -26,7 +26,9 @@ filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 7
+  trunc_qual:
+    fwd: 7
+    rvs: 7
   max_EE:
     fwd: 2
     rvs: 2

@@ -31,7 +31,8 @@ primer_cutting:
 filtering:
   trunc_length:
     fwd: 0
-  trunc_qual: 0
+  trunc_qual: 
+    fwd: 0
   max_EE:
     fwd: 2
   minLen:

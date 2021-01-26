@@ -22,20 +22,16 @@ sequencing_direction: fwd_1
 filtering:
   trunc_length:
     fwd: 0
-    rvs: 0
-  trunc_qual: 0
+  trunc_qual: 
+    fwd: 0
   max_EE:
     fwd: Inf
-    rvs: Inf
   minLen:
     fwd: 1000
-    rvs: 1000
   maxLen:
     fwd: Inf
-    rvs: Inf
   minQ:
     fwd: 0
-    rvs: 0
 dada:
   pool: true
   band_size: 32

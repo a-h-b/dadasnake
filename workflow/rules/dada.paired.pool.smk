@@ -107,21 +107,56 @@ rule dada_filter:
     script:
         SCRIPTSDIR+"dada_filter.R"
 
-rule dada_errors_pool:
-    input:
-        expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
-    output:
-        "errors/models.{direction}.RDS",
-        "stats/error_models.{direction}.pdf",
-    threads: 1
-    resources:
-        runtime="12:00:00",
-        mem=config['normalMem']
-    conda: ENVDIR + "dada2_env.yml"
-    log: "logs/DADA2_errors.{direction}.log"
-    message: "Running error models on {input}."
-    script:
-        SCRIPTSDIR+"dada_errors.R"
+if config['downsampling']['do']:
+    rule downsampling:
+        input:
+            "reporting/filteredNumbers_perLibrary.tsv",
+            "filtered/{run}/{sample}.fwd.fastq.gz",
+            "filtered/{run}/{sample}.rvs.fastq.gz"
+        output:
+            "downsampled/{run}/{sample}.fwd.fastq.gz",
+            "downsampled/{run}/{sample}.rvs.fastq.gz"
+        threads: 1
+        resources:
+            runtime="2:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_downsampling.{run}.{sample}.log"
+        message: "Downsampling {input}."
+        script:
+            SCRIPTSDIR+"dada_downsample.R"
+
+    rule dada_errors_pool:
+        input:
+            expand("downsampled/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+        output:
+            "errors/models.{direction}.RDS",
+            "stats/error_models.{direction}.pdf",
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{direction}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
+else:
+    rule dada_errors_pool:
+        input:
+            expand("filtered/{samples.run}/{samples.sample}.{{direction}}.fastq.gz", samples=samples.itertuples())
+        output:
+            "errors/models.{direction}.RDS",
+            "stats/error_models.{direction}.pdf",
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_errors.{direction}.log"
+        message: "Running error models on {input}."
+        script:
+            SCRIPTSDIR+"dada_errors.R"
 
 if config['dada']['use_quals']:
     rule dada_dadaPairs_pool:
@@ -174,7 +209,7 @@ rule dada_mergeReadPairs_pool:
         "merged/derep.rvs.RDS"
     output:
         "merged/dada.RDS"
-    threads: 1
+    threads: 2
     resources:
         runtime="18:00:00",
         mem=config['bigMem']

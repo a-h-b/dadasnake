@@ -102,9 +102,25 @@ rule dada_filter:
         SCRIPTSDIR+"dada_filter.single.R"
 
 if config['downsampling']['do']:
-    rule dada_errors_downsampling:
+    rule downsampling:
         input:
-            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
+            "reporting/filteredNumbers_perLibrary.tsv",
+            "filtered/{run}/{sample}.fastq.gz"
+        output:
+            "downsampled/{run}/{sample}.fastq.gz"
+        threads: 1
+        resources:
+            runtime="2:00:00",
+            mem=config['normalMem']
+        conda: ENVDIR + "dada2_env.yml"
+        log: "logs/DADA2_downsampling.{run}.{sample}.log"
+        message: "Downsampling {input}."
+        script:
+            SCRIPTSDIR+"dada_downsample.single.R"
+
+    rule dada_errors:
+        input:
+            lambda wildcards: get_sample_perRun(wildcards,"downsampled/{run}/",".fastq.gz")
         output:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",

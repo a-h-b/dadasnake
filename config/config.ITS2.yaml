@@ -33,7 +33,9 @@ filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual: 15
+  trunc_qual: 
+    fwd: 15
+    rvs: 15
   max_EE:
     fwd: 3
     rvs: 3
