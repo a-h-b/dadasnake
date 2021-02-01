@@ -226,7 +226,7 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;|  trim_left||||dada||
 &nbsp;||    fwd|0|0 or a positive number|dada|this many bases will be cut from the 5' end of fwd reads|filtered reads will have length truncLen-trimLeft
 &nbsp;||    rvs|0|0 or a positive number|dada|this many bases will be cut from the 5' end of rvs reads|filtered reads will have length truncLen-trimLeft
-&nbsp;|  rm_phix||||dada|remove phiX|useful with Illumina sequencing
+&nbsp;|  rm_phix||true|true or false|dada|remove phiX|useful with Illumina sequencing
 error_seed|||100|any positive integer|dada|seed for error models|keep constant in re-runs
 downsampling|  | | | | dada | | 
 &nbsp;|do||false|true or false|dada|set to true if you want to downsample before DADA2 ASV construction|
