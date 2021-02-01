@@ -209,8 +209,10 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;||    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;||    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;|  trunc_qual||2|0-40|dada|reads are cut before the first position with this quality|
+&nbsp;| |    fwd|2|0-40|dada| fwd reads are cut before the first position with this quality| 
+&nbsp;| |    rvs|2|0-40|dada| rvs reads are cut before the first position with this quality|ignored in single-ende mode
 &nbsp;|  max_EE||||dada||filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
-&nbsp;| |    fwd | 2 | a positive number | dada | After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded | use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
+&nbsp;| |    fwd|2| a positive number |dada| After truncation, read pairs with higher than maxEE "expected errors" in fwd read will be discarded | use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;||    rvs|2|a positive number|dada| After truncation, read pairs with higher than maxEE "expected errors" in rvs read will be discarded|ignored in single-ende mode; use with trunc_length and/or truncQ; note that low truncQ or high trunc_length make it difficult to reach low maxEE values
 &nbsp;|  minLen||||dada||filtering by mimum length
 &nbsp;||    fwd|20|a positive integer|dada|Remove reads with length less than minLen on fwd read. minLen is enforced after trimming and truncation.|use with truncQ
@@ -222,6 +224,11 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;||    fwd|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the fwd read after truncation will be discarded|use with trunc_length
 &nbsp;||    rvs|0|0 or a positive number|dada|read pairs that contain a quality score lower than this in the rvs read after truncation will be discarded| ignored in single-ende mode; use with trunc_length
 error_seed|||100|any positive integer|dada|seed for error models|keep constant in re-runs
+downsampling|  | | | | dada | | 
+&nbsp;|do||false|true or false|dada|set to true if you want to downsample before DADA2 ASV construction|
+&nbsp;|number||50000|positive integer|dada|number of reads to keep per sample|
+&nbsp;|min||true|true or false|dada|true to keep only samples with that many reads|samples with less reads are discarded
+&nbsp;|seed||123|any positive integer|dada|seed for downsampling|keep constant in re-runs
 dada|||||dada||special DADA2 settings - default is good for Illumina
 &nbsp;|  band_size||16|a positive integer|dada|Banding restricts the net cumulative number of insertion of one sequence relative to the other. | default is good for Illumina; set to 32 for 454 or PacBio
 &nbsp;|  homopolymer_gap_penalty|| NULL|NULL or a negative integer|dada|The cost of gaps in homopolymer regions (>=3 repeated bases). Default is NULL, which causes homopolymer gaps to be treated as normal gaps.| default is good for Illumina; set to -1 for 454
@@ -300,7 +307,11 @@ final_table_filtering|||||postprocessing||settings for filtering the final OTU t
 &nbsp;|  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings| done based on mothur and DECIPHER result; "." means all are kept; both taxstrings are searched, if both classifiers were used
 &nbsp;|target_min_length||0||postprocessing|minimal length sequence|doesn't care for ITSx results
 &nbsp;|target_max_length||Inf||postprocessing|maximum length of sequence|doesn't care for ITSx results
-postprocessing|||||postprocessing||settings for postprocessinf
+postprocessing|||||postprocessing||settings for postprocessing
+&nbsp;|  fungalTraits||||postprocessing||settings for fungalTraits
+&nbsp;||    do|false|true or false|postprocessing|whether fungalTraits should be assigned|
+&nbsp;||    db|"../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"||postprocessing|path to fungalTriats DB|change when setting up dadasnake on a new system
+&nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
 &nbsp;||    funguild_db|"../DBs/functions/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
