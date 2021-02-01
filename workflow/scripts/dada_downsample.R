@@ -25,20 +25,20 @@ filts <- unique(unlist(snakemake@input)[-1])
 print(paste0("reading sample table from ",sampleFile))
 sampleTab <- read.delim(sampleFile,stringsAsFactors=F)
 
-downsize <- snakemake@config[['downsampling']][['min']]
-if(is.na(as.numeric(downsize))) downsize <- 0 else downsize <- as.numeric(downsize)
+downsize <- as.numeric(snakemake@config[['downsampling']][['number']])
+if(is.na(downsize)) downsize <- 0 else downsize <- as.numeric(downsize)
 
 crun <- unlist(strsplit(filts[1],split="/"))[2]
 csam <- gsub(".fwd.fastq.gz","", unlist(strsplit(filts[1],split="/"))[3])
 
-creads <- sampleTab$reads_filtered_fwd[sampleTab$sample==csam&crun==sampleTab$run][1]
+creads <- sampleTab$reads_filtered_fwd[sampleTab$sample==csam&sampleTab$run==crun][1]
 
 if(creads > 0){
   sreads <- sapply(unique(sampleTab$sample),
                  function(y) sum(sapply(unique(sampleTab$run[sampleTab$sample==y]),
-                 function(x) sampleTab$reads_filtered_fwd[sampleTab$sample==y&crun==x][1])))
+                 function(x) sampleTab$reads_filtered_fwd[sampleTab$sample==y&sampleTab$run==x][1])))
   treads <- sreads[csam]
-  downsize <- max(downsize,min(sreads[sreads>0]))
+  if(snakemake@config[['downsampling']][['min']]) downsize <- max(downsize,min(sreads[sreads>0]))
   if(treads >= downsize){
     if(length(unique(sampleTab$run[sampleTab$sample==csam]))>1){
       cpart <- creads/treads

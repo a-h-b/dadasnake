@@ -168,12 +168,12 @@ if config['dada']['use_quals']:
             "merged/dada.{direction}.RDS"
         wildcard_constraints:
             direction = "fwd|rvs"
-        threads: getThreads(12)
+        threads: getThreads(int(config['bigCores']))
         params:
             pooling=config['dada']['pool']
         resources:
-            runtime="24:00:00",
-            mem=config['normalMem']
+            runtime="48:00:00",
+            mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_dada.{direction}.log"
         message: "converting to DADA reads for {wildcards.direction}."

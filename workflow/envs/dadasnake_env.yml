@@ -59,4 +59,3 @@ dependencies:
   - xopen=0.7.3=py_0
   - xz=5.2.4=h470a237_1
   - zlib=1.2.11=h470a237_4
-prefix: /data/project/metaamp/TOOLS/dada_pipe_versions/0.7/conda/0ed27975
