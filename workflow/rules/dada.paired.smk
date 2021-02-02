@@ -164,7 +164,7 @@ if config['dada']['use_quals']:
             "errors/models.{run}.fwd.RDS",
             "errors/models.{run}.rvs.RDS",
             lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz",
-            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1
@@ -180,7 +180,7 @@ else:
     rule dada_mergeReadPairs:
         input:
             lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz",
-            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fwd.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1
