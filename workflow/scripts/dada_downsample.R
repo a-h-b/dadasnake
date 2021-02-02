@@ -13,10 +13,10 @@ if (snakemake@threads > 1) {
     parallel <- FALSE
     register(SerialParam())
 }
-if(!require(ShortRead)){
-  BiocManager::install("GenomeInfoDbData",update=F,ask=F)
-  library(ShortRead)
-}
+#if(!require(ShortRead)){
+#  BiocManager::install("GenomeInfoDbData",update=F,ask=F)
+#  library(ShortRead)
+#}
 
 
 sampleFile <- snakemake@input[[1]]
@@ -48,13 +48,15 @@ if(creads > 0){
     downsize <- 0
   } 
   if(downsize>0){
-    set.seed(snakemake@config[['downsampling']][['seed']])
+ #   set.seed(as.numeric(snakemake@config[['downsampling']][['seed']]))
   
-    samplerF <- FastqSampler(filts[1],downsize)
-    samplerR <- FastqSampler(filts[2],downsize)
-  
-    writeFastq(yield(samplerF),snakemake@output[[1]],compress=T)
-    writeFastq(yield(samplerR),snakemake@output[[2]],compress=T)
+ #   samplerF <- FastqSampler(filts[1],downsize)
+ #   samplerR <- FastqSampler(filts[2],downsize)
+    system(paste("seqtk sample -s",snakemake@config[['downsampling']][['seed']],filts[1],downsize," | gzip >",snakemake@output[[1]]))
+    system(paste("seqtk sample -s",snakemake@config[['downsampling']][['seed']],filts[2],downsize," | gzip >",snakemake@output[[2]]))
+ #   writeFastq(yield(samplerF),snakemake@output[[1]],compress=T)
+ #   writeFastq(yield(samplerR),snakemake@output[[2]],compress=T)
+     
   }else{
     print(paste0("not enough reads in ",csam))
     system(paste("touch", snakemake@output[[1]]))
