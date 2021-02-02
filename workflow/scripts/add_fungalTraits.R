@@ -15,7 +15,7 @@ colnames(fun) <- paste0(colnames(fun),".FungalTraits")
 seqTab <- merge(seqTab,fun,
                 by.x=paste0("Genus.",
                             snakemake@config[['postprocessing']][['fungalTraits']][['classifier']]),
-                by.y="GENUS",all.x=T,sort=F)
+                by.y="GENUS.FungalTraits",all.x=T,sort=F)
 seqTab <- seqTab[,c(colnames(seqTab),setdiff(colnames(fun),colnames(seqTab)))]
 
 print("Saving OTU table with FungalTraits")
