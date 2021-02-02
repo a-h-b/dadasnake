@@ -8,11 +8,11 @@ if config['postprocessing']['rarefaction_curve']:
 if config['postprocessing']['funguild']['do']:
     CLASSIFY=config['postprocessing']['funguild']['classifier']
     if config['taxonomy'][CLASSIFY]['do']:
-        postConts.append("post/all.seqTab.guilds.tsv")
+        postConts.append("post/filtered.seqTab.guilds.tsv")
 if config['postprocessing']['funguild']['do']:
     CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
     if config['taxonomy'][CLASSIFY]['do']:
-        postConts.append("post/all.seqTab.traits.RDS")
+        postConts.append("post/filtered.seqTab.traits.RDS")
 
 localrules: post_control_Filter
 
