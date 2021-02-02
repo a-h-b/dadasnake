@@ -27,8 +27,8 @@ errRfile <- snakemake@input[[2]]
 filtF <- snakemake@input[[3]]
 filtR <- snakemake@input[[4]]
 
-sampleNameF <- gsub("/","",gsub("filtered/","run.",gsub(".fwd.fastq.gz","",filtF)))
-sampleNameR <- gsub("/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtR)))
+sampleNameF <- gsub("/","",gsub("downsampled/","",gsub("filtered/","run.",gsub(".fwd.fastq.gz","",filtF))))
+sampleNameR <- gsub("/","",gsub("downsampled/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtR))))
 
 if(sampleNameF!=sampleNameR) stop("Forward and reverse files do not match.")
 

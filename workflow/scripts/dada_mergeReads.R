@@ -28,8 +28,8 @@ filtRs <- sort(grep("rvs.fastq",unlist(snakemake@input),value=T))
 
 if(length(filtFs) != length(filtRs)) stop("Forward and reverse files do not match.")
 
-sampleNamesF <- gsub("/","",gsub("filtered/","run.",gsub(".fwd.fastq.gz","",filtFs)))
-sampleNamesR <- gsub("/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtRs)))
+sampleNamesF <- gsub("/","",gsub("downsampled/","",gsub("filtered/","run.",gsub(".fwd.fastq.gz","",filtFs))))
+sampleNamesR <- gsub("/","",gsub("downsampled/","",gsub("filtered/","run.",gsub(".rvs.fastq.gz","",filtRs))))
 
 if(!all(sampleNamesF==sampleNamesR)) stop("Forward and reverse files do not match.")
 
