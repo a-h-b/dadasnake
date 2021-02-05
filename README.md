@@ -88,7 +88,8 @@ The dadasnake does not supply databases. I'd suggest to use the [SILVA database]
 * dadasnake can use [mothur](https://www.mothur.org/) to do the classification, as it's faster and likely more accurate than the legacy DADA2 option. You need to format the database like for mothur ([see here](https://www.mothur.org/wiki/Taxonomy_outline)). 
 * dadasnake can alternatively use the DADA2 implementation of the same classifier. You can find some databases maintained by Michael R. McLaren [here](https://zenodo.org/record/3986799). More information on the format is in the [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html).
 * In addition to the bayesian classifier, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
-* You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+* dadasnake can use [fungal traits](https://link.springer.com/article/10.1007/s13225-020-00466-2#data-availability) to assign traits to fungal genere. Download the latest table from [here](https://docs.google.com/spreadsheets/d/1cxImJWMYVTr6uIQXcTLwK1YNNzQvKJJifzzNpKCM6O0/edit#gid=492619054) - dadasnake has been tested with v1.2.
+* You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
 **You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
 
 9) Fasttree:
