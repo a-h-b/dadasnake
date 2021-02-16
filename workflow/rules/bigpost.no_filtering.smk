@@ -9,7 +9,10 @@ if config['postprocessing']['funguild']['do']:
     CLASSIFY=config['postprocessing']['funguild']['classifier']
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/all.seqTab.guilds.tsv")
-
+if config['postprocessing']['fungalTraits']['do']:
+    CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/all.seqTab.traits.RDS")
 
 localrules: post_control_noFilter
 

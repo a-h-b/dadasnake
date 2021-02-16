@@ -6,7 +6,14 @@ if config['postprocessing']['treeing']['do']:
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
 if config['postprocessing']['funguild']['do']:
-    postConts.append("post/filtered.seqTab.guilds.tsv")
+    CLASSIFY=config['postprocessing']['funguild']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/filtered.seqTab.guilds.tsv")
+if config['postprocessing']['fungalTraits']['do']:
+    CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
+    if config['taxonomy'][CLASSIFY]['do']:
+        postConts.append("post/filtered.seqTab.traits.RDS")
+
 
 localrules: post_control_Filter
 
