@@ -80,7 +80,10 @@ rule funTraits_Filter:
 
 
 if config['hand_off']['phyloseq']:
-    physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
+    if config['do_taxonomy']:
+        physInputs = ["sequenceTables/all.seqTab.tax.RDS","reporting/finalNumbers_perSample.tsv"]
+    else:
+        physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
     if config['postprocessing']['treeing']['do']:
         physInputs.append("post/tree.newick")
     rule phyloseq_handoff_post:
