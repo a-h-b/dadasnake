@@ -125,6 +125,7 @@ blast:
   e_val: 0.01
   tax2id: ""
   all: false
+  max_targets: 10
 ITSx:
   do: false
   min_regions: 1

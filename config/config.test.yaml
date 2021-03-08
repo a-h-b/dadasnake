@@ -36,7 +36,7 @@ filtering:
     fwd: 0
     rvs: 0
 downsampling:
-  do: true
+  do: false
 tmp_dir: "tmp"
 outputdir: "testoutput"
 final_table_filtering:
