@@ -33,7 +33,7 @@ if(file.info(snakemake@input[[1]])$size == 0){
     rownames(seqMat) <- seqTab$Row.names
     if(any(!colnames(seqTab) %in% c(ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
-                                                              rownames(sInfo)),"Row.names")){
+                                                              rownames(sInfo)),"Row.names"))){
       taxMat <- as.matrix(seqTab[,!colnames(seqTab) %in% c(ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo)),"Row.names")])
