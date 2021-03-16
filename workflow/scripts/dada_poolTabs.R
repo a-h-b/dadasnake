@@ -33,7 +33,7 @@ if(nrow(seqtab1)>1){
   rownames(seqtab) <- gsub(".+/","",rownames(seqtab1))
   rm(seqtab1)
 }
-
+num_digits <- as.character(ceiling(log10(ncol(seqtab))))
 if(snakemake@config[['chimeras']][['remove']]){
   print("Removing chimeras")
   saveRDS(seqtab,snakemake@output[[5]])
@@ -47,16 +47,16 @@ if(snakemake@config[['chimeras']][['remove']]){
                                minOneOffParentDistance=snakemake@config[['chimeras']][['minOneOffParentDistance']], 
                                maxShift=snakemake@config[['chimeras']][['maxShift']])
   seqs <- DNAStringSet(colnames(seqtab))
-  names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
+  names(seqs) <- sprintf(paste0("OTU_%0",num_digits,"d"),1:length(seqs))
   seqs1set <- append(seqs,setdiff(seqs1,seqs))
-  names(seqs1set)[names(seqs1set)==""] <- sprintf("chimeric_OTU_%06d",(length(seqs)+1):length(seqs1set))
+  names(seqs1set)[names(seqs1set)==""] <- sprintf(paste0("OTU_%0",num_digits,"d"),(length(seqs)+1):length(seqs1set))
   writeXStringSet(seqs1set,snakemake@output[[6]])
   outtab1 <- merge(t(seqtab1),data.frame("OTU"=names(seqs1set),"seq"=seqs1set,stringsAsFactors=F),
                    by.x=0,by.y="seq")
   write.table(outtab1,snakemake@output[[7]],row.names=F,sep="\t",quote=F)
 }else{
   seqs <- DNAStringSet(colnames(seqtab))
-  names(seqs) <- sprintf("OTU_%06d",1:length(seqs))
+  names(seqs) <- sprintf(paste0("OTU_%0",num_digits,"d"),1:length(seqs))
 }
 print("Saving merged OTU table")
 saveRDS(seqtab,snakemake@output[[1]])
