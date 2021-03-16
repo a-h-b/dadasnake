@@ -25,7 +25,7 @@ if(file.info(snakemake@input[[1]])$size == 0){
 }else{
   seqTab <- readRDS(snakemake@input[[1]])
   sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
-  rownames(sInfo) <- gsub("-",".",rownames(sInfo))
+  if(!any(grepl("-",colnames(seqTab)))) rownames(sInfo) <- gsub("-",".",rownames(sInfo))
   if(nrow(sInfo)>1){
     seqMat <- as.matrix(seqTab[,colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),

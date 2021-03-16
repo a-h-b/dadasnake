@@ -20,7 +20,7 @@ library(biomformat)
 # File parsing
 seqTab <- readRDS(snakemake@input[[1]])
 sInfo <- read.delim(snakemake@input[[2]],stringsAsFactors=F,row.names=1)
-rownames(sInfo) <- gsub("-",".",rownames(sInfo))
+if(!any(grepl("-",colnames(seqTab)))) rownames(sInfo) <- gsub("-",".",rownames(sInfo))
 if(length(which(colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo)))) > 0){
