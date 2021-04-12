@@ -96,23 +96,23 @@ if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     eval $LOADING_MODULES
     eval $CONDA_START
-    snakemake --cores 1 -s $DIR/Snakefile --unlock --configfile $CONFIGFILE
+    snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores 1 -s $DIR/Snakefile --unlock --configfile $CONFIGFILE
     eval $CONDA_END
 elif [ "$DRYRUN" = true ]; then
     echo "Dryrun."
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$LOCK_SETTINGS" = true ]; then
-        snakemake --cores 1 -s $DIR/Snakefile --dryrun --config sessionName=$JNAME normalMem=$NORMAL_MEM_EACH bigMem=$BIGMEM_MEM_EACH bigCores=$BIGMEM_CORES settingsLocked=$LOCK_SETTINGS sessionKind=dryrun --configfile $CONFIGFILE
+        snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores 1 -s $DIR/Snakefile --dryrun --config sessionName=$JNAME normalMem=$NORMAL_MEM_EACH bigMem=$BIGMEM_MEM_EACH bigCores=$BIGMEM_CORES settingsLocked=$LOCK_SETTINGS sessionKind=dryrun --configfile $CONFIGFILE
     else
-        snakemake --cores 1 -s $DIR/Snakefile --dryrun --config sessionName=$JNAME sessionKind=dryrun --configfile $CONFIGFILE
+        snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores 1 -s $DIR/Snakefile --dryrun --config sessionName=$JNAME sessionKind=dryrun --configfile $CONFIGFILE
     fi
     eval $CONDA_END
 elif [ "$INITIAL" = true ]; then
     echo "Initializing conda environments."
     eval $LOADING_MODULES
     eval $CONDA_START
-    snakemake --cores 1 -s $DIR/Snakefile --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --local-cores 1 --configfile $CONFIGFILE
+    snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores 1 -s $DIR/Snakefile --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --local-cores 1 --configfile $CONFIGFILE
 elif [ "$CLUSTER" = true ]; then
     if [ -z "$THREADS" ]; then
         THREADS=$MAX_THREADS
@@ -131,17 +131,17 @@ elif [ "$LAPTOP" = true ]; then
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$REPORT" = true ]; then
-        snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda 
-        snakemake --cores $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html 
+        snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda 
+        snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/dada_env_common --report report.html 
     else
-        snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda 
+        snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda 
     fi
     eval $CONDA_END
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
     eval $LOADING_MODULES
     eval $CONDA_START
-    snakemake --cores 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda
+    snakemake $SNAKEMAKE_EXTRA_ARGUMENTS --cores 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda
     eval $CONDA_END
 else
     echo "Nothing was done, please give -u, -d, -r, -c, or -l to start anything."
