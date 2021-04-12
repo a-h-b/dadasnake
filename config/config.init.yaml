@@ -4,7 +4,7 @@ taxonomy:
     do: true
 blast:
   do: true
-post:
+postprocessing:
   tax4fun2:
     do: true
 hand_off:
