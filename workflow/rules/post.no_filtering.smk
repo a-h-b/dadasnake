@@ -83,7 +83,7 @@ rule funTraits_noFilter:
 rule tax4fun2_noFilter:
     input:
         "sequenceTables/all.seqs.fasta",
-        "sequenceTables/all.seqTab.tax.RDS"
+        "sequenceTables/all.seqTab.RDS"
     output:
         "post/tax4fun2/KOs_per_OTU.txt",
         "post/tax4fun2/pathway_per_OTU.txt",

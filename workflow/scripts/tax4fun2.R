@@ -12,6 +12,11 @@ if(!require(Tax4Fun2)){
 }
 
 source(snakemake@params[["customFunc"]])
+if(!file.exists(paste0(snakemake@config[["postprocessing"]][["tax4fun2"]][["db"]],"/blast_bin/bin/makeblastdb"))){
+  system(paste0("mkdir -p ",snakemake@config[["postprocessing"]][["tax4fun2"]][["db"]],"/blast_bin/bin/"))
+  system(paste0("ln -s ",condap,"/bin/blastn ",snakemake@config[["postprocessing"]][["tax4fun2"]][["db"]],"/blast_bin/bin/blastn"))
+  system(paste0("ln -s ",condap,"/bin/makeblastdb ",snakemake@config[["postprocessing"]][["tax4fun2"]][["db"]],"/blast_bin/bin/makeblastdb"))
+}
 
 threads <- snakemake@threads
 
