@@ -38,6 +38,8 @@ rule taxonomy_to_OTUtab:
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
+    params:
+        rank_num = config["taxonomy"]["mothur"]["rank_number"]
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."

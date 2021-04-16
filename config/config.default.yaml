@@ -118,6 +118,7 @@ taxonomy:
     db_path: "../DBs/mothur"
     tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
     cutoff: 60
+    rank_number: 6
 blast:
   do: false
   db_path: "../DBs/blast"
