@@ -38,28 +38,36 @@ if(snakemake@config[['taxonomy']][['mothur']][['do']]){
   mothTax$taxonomy.mothur[mothTax$taxonomy.mothur==""] <- ";"
   print("formatted")
   tmpTax <- data.frame(do.call(rbind, strsplit(mothTax$taxonomy.mothur, ";", fixed=TRUE)),stringsAsFactors = F)
-  if(ncol(tmpTax)>=7){
-   dimCut <- 7 
+  rankNum <- as.numeric(snakemake@params[["rank_num"]])
+  if(ncol(tmpTax)>= rankNum+1){
+   dimCut <- rankNum+1 
    mothTax <- cbind(mothTax,tmpTax[,1:dimCut])
   }else{
    dimCut <- ncol(tmpTax) 
    mothTax <- cbind(mothTax,tmpTax[,1:dimCut],
-                    matrix("",nrow=nrow(mothTax),ncol=7-dimCut,
-                           dimnames=list(mothTax$OTU,paste0("X",c((dimCut+1):7)))))
-  } 
-  prefixVec <- paste0("^",c("k","p","c","o","f","g","s"),"__")
+                    matrix("",nrow=nrow(mothTax),
+                           ncol=rankNum+1-dimCut,
+                           dimnames=list(mothTax$OTU,
+                                     paste0("X",c((dimCut+1):(rankNum+1))))))
+  }
   for(i in grep("^X",colnames(mothTax))){
     mothTax[,i][grep("_unclassified$",mothTax[,i])] <- ""
     mothTax[,i][grep("uncultured",mothTax[,i])] <- ""
   }
+  prefixVec <- paste0("^",c("k","p","c","o","f","g","s"),"__")
   if(any(grepl(prefixVec[1],mothTax[,3]))){
     for(i in 1:length(prefixVec)){
       mothTax[,2+i][!grepl(prefixVec[i],mothTax[,2+i])] <- ""
       mothTax[,2+i] <- gsub(prefixVec[i],"",mothTax[,2+i])
     }
   }
-  colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
+  if(rankNum==6){
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
                                                             ".mothur")
+  }else{
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0("Level_",1:rankNum,
+                                                            ".mothur")
+   } 
 #  seqTab <- merge(seqTab,mothTax,by="OTU",all=T)
 }else{
  if(snakemake@config[['taxonomy']][['dada']][['do']]){

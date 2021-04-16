@@ -4,6 +4,9 @@ taxonomy:
     do: true
 blast:
   do: true
+postprocessing:
+  tax4fun2:
+    do: true
 hand_off:
   biom: true
   phyloseq: true

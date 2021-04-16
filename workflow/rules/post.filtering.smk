@@ -13,6 +13,8 @@ if config['postprocessing']['fungalTraits']['do']:
     CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/filtered.seqTab.traits.RDS")
+if config['postprocessing']['tax4fun2']['do']:
+    postConts.append("post/tax4fun2/KOs_per_OTU.txt")
 
 localrules: post_control_Filter
 
@@ -115,6 +117,29 @@ rule funTraits_Filter:
     message: "Adding fungalTraits to {input}."
     script:
         SCRIPTSDIR + "add_fungalTraits.R"
+
+rule tax4fun2_Filter:
+    input:
+        "post/filtered.seqs.fasta",
+        "post/filtered.seqTab.RDS"
+    output:
+        "post/tax4fun2/KOs_per_OTU.txt",
+        "post/tax4fun2/pathway_per_OTU.txt",
+        "post/tax4fun2/functional_prediction.txt",
+        "post/tax4fun2/pathway_prediction.txt"
+    threads: getThreads(4)
+    resources:
+        runtime="6:00:00",
+        mem=config['normalMem']
+    params:
+        tmp=TMPDIR,
+        outputDir="post/tax4fun2",
+        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R"
+    log: "logs/tax4fun2.log"
+    conda: ENVDIR + "tax4fun2_env.yml"
+    message: "Running tax4fun2 on {input}."
+    script:
+        SCRIPTSDIR + "tax4fun2.R"
 
 if config['hand_off']['phyloseq']:
     physInputs = ["post/filtered.seqTab.RDS","reporting/post_finalNumbers_perSample.tsv"]

@@ -118,6 +118,7 @@ taxonomy:
     db_path: "../DBs/mothur"
     tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
     cutoff: 60
+    rank_number: 6
 blast:
   do: false
   db_path: "../DBs/blast"
@@ -149,6 +150,12 @@ postprocessing:
     do: false
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
     classifier: mothur
+  tax4fun2:
+    do: false
+    db: "../DBs/functions/Tax4Fun2_ReferenceData_v2"
+    database_mode: "Ref99NR"
+    normalize_by_copy_number: true 
+    min_identity_to_reference: 0.97
   treeing:
     do: true
     fasttreeMP: ""
