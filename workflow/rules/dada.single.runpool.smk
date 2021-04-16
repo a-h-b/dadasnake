@@ -134,6 +134,43 @@ if config['downsampling']['do']:
         message: "Running error models on {input}."
         script:
             SCRIPTSDIR+"dada_errors.R"
+    if config['dada']['use_quals']:
+        rule dada_dadaSingle_pool:
+            input:
+                "errors/models.{run}.RDS",
+                lambda wildcards: get_sample_perRun(wildcards,"downsampled/{run}/",".fastq.gz")
+            output:
+                "merged/{run}/dada_merged.RDS",
+                "merged/{run}/seqTabs.RDS"
+            threads: getThreads(12)
+            resources:
+                runtime="24:00:00",
+                mem=config['bigMem']
+            params:
+                pooling=config['dada']['pool']
+            conda: ENVDIR + "dada2_env.yml"
+            log: "logs/DADA2_read2RDS.{run}.log"
+            message: "converting fastq to dada-RDS for {wildcards.run}."
+            script:
+                SCRIPTSDIR+"dada_dadaReads.runpool.R"
+    else:
+        rule dada_dadaSingle_pool:
+            input:
+                lambda wildcards: get_sample_perRun(wildcards,"downsampled/{run}/",".fastq.gz")
+            output:
+                "merged/{run}/dada_merged.RDS",
+                "merged/{run}/seqTabs.RDS"
+            threads: getThreads(12)
+            resources:
+            runtime="24:00:00",
+                mem=config['normalMem']
+            params:
+                pooling=config['dada']['pool']
+            conda: ENVDIR + "dada2_env.yml"
+            log: "logs/DADA2_read2RDS.{run}.log"
+            message: "converting fastq to dada-RDS {wildcards.run}."
+            script:
+                SCRIPTSDIR+"dada_dadaReads.single.runpool.noError.R"
 else:
     rule dada_errors:
         input:
@@ -150,45 +187,43 @@ else:
         message: "Running error models on {input}."
         script:
             SCRIPTSDIR+"dada_errors.R"
-
-
-if config['dada']['use_quals']:
-    rule dada_dadaSingle_pool:
-        input:
-            "errors/models.{run}.RDS",
-            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz") 
-        output:
-            "merged/{run}/dada_merged.RDS",
-            "merged/{run}/seqTabs.RDS"
-        threads: getThreads(12)
-        resources:
+    if config['dada']['use_quals']:
+        rule dada_dadaSingle_pool:
+            input:
+                "errors/models.{run}.RDS",
+                lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz") 
+            output:
+                "merged/{run}/dada_merged.RDS",
+                "merged/{run}/seqTabs.RDS"
+            threads: getThreads(12)
+            resources:
+                runtime="24:00:00",
+                mem=config['bigMem']
+            params:
+                pooling=config['dada']['pool']
+            conda: ENVDIR + "dada2_env.yml"
+            log: "logs/DADA2_read2RDS.{run}.log"
+            message: "converting fastq to dada-RDS for {wildcards.run}."
+            script:
+                SCRIPTSDIR+"dada_dadaReads.runpool.R"
+    else:
+        rule dada_dadaSingle_pool:
+            input:
+                lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
+            output:
+                "merged/{run}/dada_merged.RDS",
+                "merged/{run}/seqTabs.RDS"
+            threads: getThreads(12)
+            resources:
             runtime="24:00:00",
-            mem=config['bigMem']
-        params:
-            pooling=config['dada']['pool']
-        conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_read2RDS.{run}.log"
-        message: "converting fastq to dada-RDS for {wildcards.run}."
-        script:
-            SCRIPTSDIR+"dada_dadaReads.runpool.R"
-else:
-    rule dada_dadaSingle_pool:
-        input:
-            lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
-        output:
-            "merged/{run}/dada_merged.RDS",
-            "merged/{run}/seqTabs.RDS"
-        threads: getThreads(12)
-        resources:
-            runtime="24:00:00",
-            mem=config['normalMem']
-        params:
-            pooling=config['dada']['pool']
-        conda: ENVDIR + "dada2_env.yml"
-        log: "logs/DADA2_read2RDS.{run}.log"
-        message: "converting fastq to dada-RDS {wildcards.run}."
-        script:
-            SCRIPTSDIR+"dada_dadaReads.single.runpool.noError.R"
+                mem=config['normalMem']
+            params:
+                pooling=config['dada']['pool']
+            conda: ENVDIR + "dada2_env.yml"
+            log: "logs/DADA2_read2RDS.{run}.log"
+            message: "converting fastq to dada-RDS {wildcards.run}."
+            script:
+                SCRIPTSDIR+"dada_dadaReads.single.runpool.noError.R"
 
 
 if config["chimeras"]["remove"]:

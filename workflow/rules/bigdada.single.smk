@@ -154,7 +154,7 @@ if config['dada']['use_quals']:
     rule dada_dadaSingle:
         input:
             "errors/models.{run}.RDS",
-            "filtered/{run}/{sample}.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1
@@ -169,7 +169,7 @@ if config['dada']['use_quals']:
 else:
     rule dada_dadaSingle:
         input:
-            "filtered/{run}/{sample}.fastq.gz"
+            lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
         threads: 1
