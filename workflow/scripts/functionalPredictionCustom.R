@@ -70,7 +70,7 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   otu_table <- otu_table[,c(1,3:(min(c(which(grepl("^taxonomy",colnames(otu_table))),ncol(otu_table)))-1))]
   otu_table_reduced <- merge(x = ref_blast_result_reduced, 
                             y = otu_table, by.x = "V1", 
-                            by.y = names(otu_table)[1])[,-1]
+                            by.y = "OTU")[,-1]
   otu_table_reduced_aggregated <- aggregate(x = otu_table_reduced[,-1],
                                             by = list(otu_table_reduced[, 1]), 
                                             sum)
