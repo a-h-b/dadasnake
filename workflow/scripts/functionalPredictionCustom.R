@@ -67,10 +67,10 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   }
   #ref_blast_result_reduced
   otu_table <- readRDS(path_to_otu_table)
-  otu_table <- otu_table[,which(sapply(otu_table,class)=="numeric"|colnames(otu_table)=="OTU")]
+  otu_table <- otu_table[,which(sapply(otu_table,class) %in% c("numeric","integer")|colnames(otu_table)=="OTU")]
   otu_table_reduced <- merge(x = ref_blast_result_reduced, 
                             y = otu_table, by.x = "V1", 
-                            by.y = "OTU")
+                            by.y = "OTU")[,-1]
   otu_table_reduced_aggregated <- aggregate(x = otu_table_reduced[,-1],
                                             by = list(otu_table_reduced[, 1]), 
                                             sum)
