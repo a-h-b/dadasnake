@@ -67,7 +67,7 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   }
   #ref_blast_result_reduced
   otu_table <- readRDS(path_to_otu_table)
-  otu_table <- otu_table[,c(1,3:(min(c(which(grepl("^taxonomy",colnames(otu_table))),ncol(otu_table)))-1))]
+  otu_table <- otu_table[,which(sapply(otu_table,class)=="numeric")]
   otu_table_reduced <- merge(x = ref_blast_result_reduced, 
                             y = otu_table, by.x = "V1", 
                             by.y = "OTU")[,-1]
