@@ -33,7 +33,7 @@ print("running functional predictions")
 makeFunctionalPredictionCustom(path_to_otu_table = snakemake@input[[2]],
                                path_to_reference_data = snakemake@config[["postprocessing"]][["tax4fun2"]][["db"]],
                          path_to_temp_folder = snakemake@params[["outputDir"]],
-                         database_mode = snakemake@config[["tax4fun2"]][["database_mode"]], 
+                         database_mode = snakemake@config[["postprocessing"]][["tax4fun2"]][["database_mode"]], 
                          normalize_by_copy_number = snakemake@config[["postprocessing"]][["tax4fun2"]][["normalize_by_copy_number"]], 
                          min_identity_to_reference = as.numeric(snakemake@config[["postprocessing"]][["tax4fun2"]][["min_identity_to_reference"]]), 
                          normalize_pathways = FALSE)
