@@ -1,6 +1,6 @@
 ![badge](https://zenodo.org/badge/208493040.svg)
 
-![logo](https://github.com/a-h-b/dadasnake/blob/master/documentation/snake_all-trans.png)
+![logo](https://github.com/a-h-b/dadasnake/blob/master/documentation/snake_all-trans_b.png)
 
 dadasnake is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow to process amplicon sequencing data, from raw fastq-files to taxonomically assigned "OTU" tables, based on the [DADA2](http://benjjneb.github.io/dada2/) method. Running dadasnake could not be easier: it is called by a single command from the command line. With a human-readable configuration file and a simple sample table, its steps are adjustable to a wide array of input data and requirements. It is designed to run on a computing cluster using a single conda environment in multiple jobs triggered by Snakemake. dadasnake reports on intermediary steps and statistics in intuitive figures and tables. Final data output formats include biom format, phyloseq objects, and flexible text files or R data sets for easy integration in microbial ecology analysis scripts.
 
@@ -19,6 +19,7 @@ At this point, you have all the scripts you need to run the workflow using snake
 
 2) Adjust the file VARIABLE_CONFIG to your requirements (have a tab between the variable name and your setting):
 * SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
+* SNAKEMAKE_EXTRA_ARGUMENTS - if you want to pass additional arguments to snakemake, put them here (e.g. --latency-wait=320 for slower file systems). Leave empty usually. 
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
 * SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You alternatively have the option to run it on the frontend via tmux. Leave empty, if you want to use this frontend version and have [tmux](https://github.com/tmux/tmux/wiki) installed.
 * SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml . Also check that the settings in this file is correct. If you have a different system, contact us ( https://github.com/a-h-b/dadasnake/issues ).
@@ -315,12 +316,18 @@ final_table_filtering|||||postprocessing||settings for filtering the final OTU t
 postprocessing|||||postprocessing||settings for postprocessing
 &nbsp;|  fungalTraits||||postprocessing||settings for fungalTraits
 &nbsp;||    do|false|true or false|postprocessing|whether fungalTraits should be assigned|
-&nbsp;||    db|"../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"||postprocessing|path to fungalTriats DB|change when setting up dadasnake on a new system
+&nbsp;||    db|"../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"||postprocessing|path to fungalTraits DB|change when setting up dadasnake on a new system
 &nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
 &nbsp;||    funguild_db|"../DBs/functions/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
 &nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
+&nbsp;|  tax4fun2||||postprocessing||settings for tax4fun2
+&nbsp;||    do|false|true or false|postprocessing|whether tax4fun2 should be used|
+&nbsp;||    db|"../DBs/functions/Tax4Fun2_ReferenceData_v2"||postprocessing|path to tax4fun2 DB|change when setting up dadasnake on a new system
+&nbsp;||    database_mod|Ref99NR|Ref99NR or Ref100NR|postprocessing|which database to use|
+&nbsp;||    normalize_by_copy_number|true|true or false|postprocessing|whether to normalize tax4fun2 results by copy number|normalization of pathway results is not possible
+&nbsp;||    min_identity_to_reference|0.97|90 to 100 or 0.9 to 1.0|postprocessing|minimum similarity between ASV sequence and tax4fun DB|
 &nbsp;|  treeing|||true or false|postprocessing||
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
 &nbsp;||    fasttreeMP|""||postprocessing|path to fasttreeMP executable|change when setting up dadasnake on a new system
