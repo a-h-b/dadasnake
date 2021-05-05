@@ -3,5 +3,5 @@ __default__:
   mem_per_cpu: "--mem-per-cpu "
   partition: ""
   runtime: "-t"
-  threads: "-n"
+  threads: "-c"
   stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
