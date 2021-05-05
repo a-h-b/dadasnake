@@ -31,12 +31,12 @@ if(is.na(as.numeric(downsize))) downsize <- 0 else downsize <- as.numeric(downsi
 crun <- unlist(strsplit(filts[1],split="/"))[2]
 csam <- gsub(".fastq.gz","", unlist(strsplit(filts[1],split="/"))[3])
 
-creads <- sampleTab$reads_filtered_fwd[sampleTab$sample==csam&sampleTab$run==crun][1]
+creads <- sampleTab$reads_filtered[sampleTab$sample==csam&sampleTab$run==crun][1]
 
 if(creads > 0){
   sreads <- sapply(unique(sampleTab$sample),
                  function(y) sum(sapply(unique(sampleTab$run[sampleTab$sample==y]),
-                 function(x) sampleTab$reads_filtered_fwd[sampleTab$sample==y&sampleTab$run==x][1])))
+                 function(x) sampleTab$reads_filtered[sampleTab$sample==y&sampleTab$run==x][1])))
   treads <- sreads[csam]
   if(snakemake@config[['downsampling']][['min']]) downsize <- max(downsize,min(sreads[sreads>0]))
   if(treads >= downsize){
