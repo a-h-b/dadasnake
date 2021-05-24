@@ -9,10 +9,13 @@ usage() {
     echo "       -p <forward primer>, filters database by primer presence, only works with -q" 1>&2
     echo "       -q <reverse primer>, filters database by primer presence, only works with -p" 1>&2
     echo "       -m <mismatch proportion>, only works with -q and -p" 1>&2
+    echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -f if set, the main snakemake thread and indivdual rules are run in a tmux session" 1>&2
+    echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
 
 }
 
-while getopts ui:o:a:t:x:e:p:q:m:h flag
+while getopts ui:o:a:t:x:e:p:q:m:hflc flag
 do
     case $flag in
         u)
@@ -35,6 +38,12 @@ do
             RVS=$OPTARG;;
         m)
             MISM=$OPTARG;;
+        c)
+            CLUSTER=true;;
+        f)
+            FRONTEND=true;;
+        l)
+            LAPTOP=true;;
         h)
             usage
             exit;;
@@ -184,6 +193,7 @@ NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
 INPUT_BASE_t=$(basename $INPUT)
 INPUT_BASE=${INPUT_BASE_t//./_}
 JNAME="DBfilter_${INPUT_BASE}_${WF}_${NAMEHASH}"
+JNAME=${JNAME//./_}
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 VARCONFIG=$DIR/VARIABLE_CONFIG
@@ -192,9 +202,11 @@ while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
+   CONDA_END_t="conda deactivate;"
 else
    CONDA_START=""
    CONDA_END=""
+   CONDA_END_t="conda deactivate;"
 fi
 
 if [ "$UNLOCK" = true ]; then
@@ -204,12 +216,27 @@ if [ "$UNLOCK" = true ]; then
     
     snakemake -j 1 -s $DIR/DB_snakefile --unlock --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT
 
-else
+elif[ "$CLUSTER" = true ]; then
 
   echo "Submitting DB job ${JNAME} to cluster - snakemake stays on the frontend, via tmux."
   tmux new -s $JNAME -d
   tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
   tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
-  tmux send-keys -t $JNAME "snakemake -j 5 -s $DIR/DB_snakefile --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{params.runtime} {cluster.mem_per_cpu} {cluster.threads}{threads} {cluster.partition}\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/conda $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+  tmux send-keys -t $JNAME "snakemake -j 5 -s $DIR/DB_snakefile --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/conda $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+
+elif [ "$FRONTEND" = true ]; then
+  echo "Running workflow on frontend - don't use this setting except with small datasets and with no more than one run at a time."
+  tmux new -s $JNAME -d
+  tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+  tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
+  tmux send-keys -t $JNAME "snakemake -j 5 -s $DIR/DB_snakefile --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/conda $DB_OUT $TAX_OUT >> $JNAME.stdout 2>> $JNAME.stderr; tmux kill-session" C-m
+
+elif [ "$LAPTOP" = true ]; then
+  echo "Running workflow in current session - don't use this setting except with small datasets."
+  eval $LOADING_MODULES
+  eval $CONDA_START
+  snakemake -j 5 -s $DIR/DB_snakefile --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/conda $DB_OUT $TAX_OUT
+else
+  echo "Nothing was done, please give -u, -c, -f, or -l to start anything."
 fi
 
