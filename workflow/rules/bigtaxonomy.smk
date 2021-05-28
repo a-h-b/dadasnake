@@ -38,6 +38,8 @@ rule bigtaxonomy_to_OTUtab:
     resources:
         runtime="12:00:00",
         mem=config['bigMem']
+    params:
+        rank_num = config["taxonomy"]["mothur"]["rank_number"]
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/bigtaxonomy_to_OTUtab.log"
     message: "Combining taxa and OTU tables {input}."
@@ -195,7 +197,7 @@ if config['blast']['do']:
             conda: ENVDIR + "dada2_env.yml"
             message: "Preparing blast: extracting un-annotated sequences."
             script:
-                SCRIPTSDIR+"bigprepare_blastn.R"
+                SCRIPTSDIR+"prepare_blastn.R"
         BLAST_IN="sequenceTables/no_anno.seqs.fasta"
     else:
         BLAST_IN="sequenceTables/all.seqs.fasta"
@@ -221,7 +223,7 @@ if config['blast']['do']:
                      -out {config[blast][db_path]}/{config[blast][tax_db]} &> {log}
                   fi
                   blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
-                   -query {input} -outfmt 7 -out {output} -max_target_seqs 10 &> {log}
+                   -query {input} -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle" -out {output} -max_target_seqs 10 &> {log}
                 else
                   touch {output}
                 fi

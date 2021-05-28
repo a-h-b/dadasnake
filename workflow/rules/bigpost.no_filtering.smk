@@ -13,6 +13,8 @@ if config['postprocessing']['fungalTraits']['do']:
     CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/all.seqTab.traits.RDS")
+if config['postprocessing']['tax4fun2']['do']:
+    postConts.append("post/tax4fun2/KOs_per_OTU.txt")
 
 localrules: post_control_noFilter
 
@@ -62,9 +64,51 @@ rule bigguilds_noFilter:
         {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]}&> {log} || touch {output}
         """
 
+rule bbigfunTraits_noFilter:
+    input:
+        "sequenceTables/all.seqTab.tax.RDS"
+    output:
+        "post/all.seqTab.traits.tsv",
+        "post/all.seqTab.traits.RDS"
+    threads: config['bigCores']
+    resources:
+        runtime="6:00:00",
+        mem=config['bigMem']
+    log: "logs/fungalTraits.log"
+    conda: ENVDIR + "dada2_env.yml"
+    message: "Adding fungalTraits to {input}."
+    script:
+        SCRIPTSDIR + "add_fungalTraits.R"
+
+rule bigtax4fun2_noFilter:
+    input:
+        "sequenceTables/all.seqs.fasta",
+        "sequenceTables/all.seqTab.RDS"
+    output:
+        "post/tax4fun2/KOs_per_OTU.txt",
+        "post/tax4fun2/pathway_per_OTU.txt",
+        "post/tax4fun2/functional_prediction.txt",
+        "post/tax4fun2/pathway_prediction.txt"
+    threads: getThreads(config['bigCores'])
+    resources:
+        runtime="6:00:00",
+        mem=config['bigMem']
+    params:
+        tmp=TMPDIR,
+        outputDir="post/tax4fun2",
+        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R"
+    log: "logs/tax4fun2.log"
+    conda: ENVDIR + "tax4fun2_env.yml"
+    message: "Running tax4fun2 on {input}."
+    script:
+        SCRIPTSDIR + "tax4fun2.R"
+
 
 if config['hand_off']['phyloseq']:
-    physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
+    if config['do_taxonomy']:
+        physInputs = ["sequenceTables/all.seqTab.tax.RDS","reporting/finalNumbers_perSample.tsv"]
+    else:
+        physInputs = ["sequenceTables/all.seqTab.RDS","reporting/finalNumbers_perSample.tsv"]
     if config['postprocessing']['treeing']['do']:
         physInputs.append("post/tree.newick")
     rule bigphyloseq_handoff_post:

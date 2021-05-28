@@ -107,7 +107,7 @@ if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
 if 'postprocessing' in STEPS:
     inputs.append('postprocessing.done')
-if config['hand_off']['biom']:
+if config['hand_off']['biom'] and ( 'dada' in STEPS or 'taxonomy' in STEPS or 'postprocessing' in STEPS):
     inputs.append('sequenceTables/all.seqTab.biom')
 
 if EMAIL == "":
