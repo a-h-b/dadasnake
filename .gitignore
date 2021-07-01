@@ -6,6 +6,7 @@ dada_env_common/
 dada_env_common_2/
 dada_env_test/
 testoutput/
+testoutput*
 test.*
 snakemake_env/
 conda/
