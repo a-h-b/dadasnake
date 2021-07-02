@@ -46,8 +46,8 @@ rule taxonomy_to_OTUtab:
     script:
         SCRIPTSDIR+"add_taxonomy.R"
 
-if config['taxonomy']['dada']['do'] and config['taxonomy']['mothur']['do']:
-    print("dadasnake will run Only one implementation of the bayesian classifier (default: mothur). Disable mothur to run the DADA2 implementation.")
+# if config['taxonomy']['dada']['do'] and config['taxonomy']['mothur']['do']:
+#    print("dadasnake will run Only one implementation of the bayesian classifier (default: mothur). Disable mothur to run the DADA2 implementation.")
 
 if config['taxonomy']['dada']['post_ITSx']:
     rule dada_taxonomy:
@@ -56,6 +56,8 @@ if config['taxonomy']['dada']['post_ITSx']:
         output:
             "sequenceTables/tax.dada.tsv",
             "sequenceTables/tax.dada.RDS"
+#        params:
+#            db=
         threads: 1
         resources:
             runtime="48:00:00",
