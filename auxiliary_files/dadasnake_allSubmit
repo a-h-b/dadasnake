@@ -76,6 +76,19 @@ if [[ !  -e "$1" ]]; then
    exit 1
 fi
 
+if lin=`grep "trunc_qual: *[^[:space:]]" $CONFIGFILE`; then
+   echo "Your configfile is invalid since dadasnake version 0.9."
+   echo "$lin"
+   qual=`echo $lin | grep -Eo '[0-9]*'`
+   echo "Please change the line printed above to"
+   echo ""
+   echo "  trunc_qual:"
+   echo "    fwd: $qual" 
+   echo "    rvs: $qual"
+   echo ""
+   exit 1
+fi
+
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
