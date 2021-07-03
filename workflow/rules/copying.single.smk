@@ -8,7 +8,7 @@ localrules: primers_control
 
 rule primers_control:
     input:
-        expand("preprocessing/{samples.run}/{samples.sample}.fastq", samples=samples.itertuples()),
+        expand("preprocessing/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples()),
         "reporting/readNumbers.tsv",
         "reporting/primerNumbers_perSample.tsv"
     output:
@@ -21,9 +21,9 @@ rule primers_control:
 rule combine_or_rename:
     input:
         "reporting/primerNumbers_perLibrary.tsv",
-        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".fastq")    
+        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".fastq.gz")    
     output:
-        "preprocessing/{run}/{sample}.fastq"
+        "preprocessing/{run}/{sample}.fastq.gz"
     wildcard_constraints:
         sample='|'.join(samples['sample'])
     threads: 1
@@ -59,7 +59,7 @@ rule input_numbers:
 rule primer_numbers:
     input:
         "reporting/readNumbers.tsv",
-        expand("preprocessing/{samples.run}/{samples.library}.fastq", samples=samples.itertuples())
+        expand("preprocessing/{samples.run}/{samples.library}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/primerNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
@@ -78,7 +78,7 @@ rule copy_fwd:
     input:
         get_fastq
     output:
-        "preprocessing/{run}/{library}.fastq",
+        "preprocessing/{run}/{library}.fastq.gz",
     threads: 1
     resources:
         runtime="12:00:00",
@@ -89,9 +89,9 @@ rule copy_fwd:
         """
         if [[ {input[0]} = *.gz ]]
         then
-          zcat {input[0]} > {output[0]}
-        else
           cp {input[0]} {output[0]}
+        else
+          gzip -c {input[0]} > {output[0]}
         fi
         """
 

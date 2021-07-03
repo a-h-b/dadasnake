@@ -55,8 +55,8 @@ rule merged_numbers:
 
 rule dada_qc1:
     input:
-        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq"),
-        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq")
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq.gz"),
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq.gz")
     output:
         report("stats/QC_1.{run}.fwd.pdf"),
         report("stats/QC_1.{run}.rvs.pdf")
@@ -74,35 +74,50 @@ rule dada_qc1:
 
 rule fastqc_1:
     input:
-        expand("preprocessing/{samples.run}/{samples.sample}.{{dir}}.fastq", samples=samples.itertuples())
+        expand("preprocessing/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
         directory('stats/fastqc_1_{dir}'),
-        directory('stats/multiqc_1_{dir}_data'),
-        "stats/multiqc_1_{dir}_report.html"
-    threads: getThreads(6)
+#        directory('stats/multiqc_1_{dir}_data'),
+#        "stats/multiqc_1_{dir}_report.html"
+    threads: 1
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
-    params:
-        outputdir = 'stats/fastqc_1_{dir}'
     conda: ENVDIR + "fastqc.yml"
     log: "logs/fastqc_1_{dir}.log"
     message: "fastqc_1: Running fastQC on raw {wildcards.dir} reads."
     shell:
         """
-        mkdir -p {params.outputdir}
-        fastqc --noextract -o {params.outputdir} -f fastq {input} -t {threads} -d {TMPDIR} > {log} 2>&1
-        multiqc -n {output[2]} -o {output[1]} {params.outputdir} >> {log} 2>&1
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
+        """
+
+rule multiqc:
+    input:
+        "stats/fastqc_{step}_{dir}"
+    output:
+        directory('stats/multiqc_{step}_{dir}_report_data'),
+        "stats/multiqc_{step}_{dir}_report.html"
+    wildcard_constraints: 
+        dir="rvs|fwd"
+    threads: 1
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/multiqc_{step}_{dir}.log"
+    message: "multiqc_1: Collecting fastQC on {wildcards.step} {wildcards.dir} reads."
+    shell:
+        """
+        multiqc -n {output[1]} {input} >> {log} 2>&1
         """
 
 rule fastqc_filtered:
     input:
         expand("filtered/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
-        directory('stats/fastqc_filtered_{dir}'),
-        directory('stats/multiqc_filtered_{dir}_data'),
-        "stats/multiqc_filtered_{dir}_report.html"
-    threads: getThreads(6)
+        directory('stats/fastqc_filtered_{dir}')
+    threads: 1
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -113,9 +128,8 @@ rule fastqc_filtered:
     message: "fastqc_filtered: Running fastQC on filtered {wildcards.dir} reads."
     shell:
         """
-        mkdir -p {params.outputdir}
-        fastqc --noextract -o {params.outputdir} -f fastq {input} -t {threads} -d {TMPDIR} > {log} 2>&1
-        multiqc -n {output[2]} -o {output[1]} {params.outputdir} >> {log} 2>&1
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
         """
 
 rule dada_qc_filtered:
@@ -139,8 +153,8 @@ rule dada_qc_filtered:
 
 rule dada_filter:
     input:
-        "preprocessing/{run}/{sample}.fwd.fastq",
-        "preprocessing/{run}/{sample}.rvs.fastq"
+        "preprocessing/{run}/{sample}.fwd.fastq.gz",
+        "preprocessing/{run}/{sample}.rvs.fastq.gz"
     output:
         "filtered/{run}/{sample}.fwd.fastq.gz",
         "filtered/{run}/{sample}.rvs.fastq.gz"

@@ -55,7 +55,7 @@ rule merged_numbers:
 
 rule dada_qc1:
     input:
-        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fastq")
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fastq.gz")
     output:
         report("stats/QC_1.{run}.pdf")
     threads: 1
@@ -89,7 +89,7 @@ rule dada_qc_filtered:
 
 rule dada_filter:
     input:
-        "preprocessing/{run}/{sample}.fastq"
+        "preprocessing/{run}/{sample}.fastq.gz"
     output:
         "filtered/{run}/{sample}.fastq.gz"
     threads: 1

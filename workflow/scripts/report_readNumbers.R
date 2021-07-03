@@ -21,8 +21,8 @@ if(snakemake@params[["currentStep"]] == "raw"){
       as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
     }
   })
-  prefix <- paste0(snakemake@config[["raw_directory"]],"/")
-  names(readnums) <- gsub(prefix,"",names(readnums))
+  prefix <- gsub("[/]{2}$","/",paste0(snakemake@config[["raw_directory"]],"/"))
+  names(readnums) <- gsub(paste0("^[/].+",prefix),"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
   sampleTab$reads_raw_r2 <- sapply(sampleTab$r2_file,function(x) readnums[x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
@@ -36,7 +36,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
     }
   })
   prefix <- "preprocessing/"
-  suffix <- ".{5}fastq"
+  suffix <- ".{5}fastq[.gz]*"
   names(readnums) <- gsub(prefix,"",names(readnums))
   runs_libs <- sapply(names(readnums),function(x) unlist(strsplit(x,split="/")))
   runs_libs[2,] <- gsub(suffix,"",runs_libs[2,])

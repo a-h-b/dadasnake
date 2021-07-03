@@ -8,7 +8,7 @@ localrules: primers_control
 
 rule primers_control:
     input:
-        expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"]),
+        expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"]),
         "reporting/readNumbers.tsv",
         "reporting/primerNumbers_perSample.tsv"
     output:
@@ -23,7 +23,7 @@ rule combine_or_rename:
         "reporting/primerNumbers_perLibrary.tsv",
         files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq")    
     output:
-        "preprocessing/{run}/{sample}.{direction}.fastq"
+        "preprocessing/{run}/{sample}.{direction}.fastq.gz"
     wildcard_constraints:
         direction="(fwd|rvs)",
         sample='|'.join(samples['sample'])
@@ -61,7 +61,7 @@ rule input_numbers:
 rule primer_numbers:
     input:
         "reporting/readNumbers.tsv",
-        expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq", samples=samples.itertuples(), direction=["fwd","rvs"])
+        expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
         report("reporting/primerNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
@@ -82,8 +82,8 @@ if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] =
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fwd.fastq",
-            "preprocessing/{run}/{library}.rvs.fastq"
+            "preprocessing/{run}/{library}.fwd.fastq.gz",
+            "preprocessing/{run}/{library}.rvs.fastq.gz"
         threads: 1
         resources:
             runtime="12:00:00",
@@ -94,15 +94,15 @@ if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] =
             """
             if [[ {input[0]} = *.gz ]]
             then
-              zcat {input[0]} > {output[0]}
-            else
               cp {input[0]} {output[0]}
+            else
+              gzip -c {input[0]} > {output[0]}
             fi
             if [[ {input[1]} = *.gz ]]
             then
-              zcat {input[1]} > {output[1]}
-            else
               cp {input[1]} {output[1]}
+            else
+              gzip -c {input[1]} > {output[1]}
             fi
             """
 
@@ -111,8 +111,8 @@ elif config['sequencing_direction'] == "rvs_1":
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fwd.fastq",
-            "preprocessing/{run}/{library}.rvs.fastq"
+            "preprocessing/{run}/{library}.fwd.fastq.gz",
+            "preprocessing/{run}/{library}.rvs.fastq.gz"
         threads: 1
         resources:
             runtime="12:00:00",
@@ -123,15 +123,15 @@ elif config['sequencing_direction'] == "rvs_1":
             """
             if [[ {input[1]} = *.gz ]]
             then
-              zcat {input[1]} > {output[0]}
-            else
               cp {input[1]} {output[0]}
+            else
+              gzip -c {input[1]} > {output[0]}
             fi
             if [[ {input[0]} = *.gz ]]
             then
-              zcat {input[0]} > {output[1]}
-            else
               cp {input[0]} {output[1]}
+            else
+              gzip -c {input[0]} > {output[1]}
             fi
             """
 

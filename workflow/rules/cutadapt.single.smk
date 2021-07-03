@@ -9,7 +9,7 @@ localrules: primers_control
 
 rule primers_control:
     input:
-        expand("preprocessing/{samples.run}/{samples.sample}.fastq", samples=samples.itertuples()),
+        expand("preprocessing/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples()),
         "reporting/readNumbers.tsv",
         "reporting/primerNumbers_perSample.tsv"
     output:
@@ -22,9 +22,9 @@ rule primers_control:
 rule combine_or_rename:
     input:
         "reporting/primerNumbers_perLibrary.tsv",
-        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".fastq")    
+        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".fastq.gz")    
     output:
-        "preprocessing/{run}/{sample}.fastq"
+        "preprocessing/{run}/{sample}.fastq.gz"
     wildcard_constraints:
         sample='|'.join(samples['sample'])
     threads: 1
@@ -60,7 +60,7 @@ rule input_numbers:
 rule primer_numbers:
     input:
         "reporting/readNumbers.tsv",
-        expand("preprocessing/{samples.run}/{samples.library}.fastq", samples=samples.itertuples())
+        expand("preprocessing/{samples.run}/{samples.library}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/primerNumbers_perLibrary.tsv",category="Reads"),
         report("reporting/primerNumbers_perSample.tsv",category="Reads")
@@ -88,7 +88,7 @@ if config['sequencing_direction'] == "fwd_1":
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fastq"
+            "preprocessing/{run}/{library}.fastq.gz"
         threads: 1
         resources:
             runtime="12:00:00",
@@ -107,13 +107,13 @@ if config['sequencing_direction'] == "fwd_1":
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
             -m 1 \
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
-            -o $TMPD/{wildcards.library}.fastq {input} &> {log}
+            -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
 
             cutadapt -a $RVS_RC {config[primer_cutting][indels]} \
              -n {config[primer_cutting][count]} -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              {params.both_match} \
-             -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
+             -o {output} $TMPD/{wildcards.library}.fastq.gz >> {log} 2>&1
              """
 
 elif config['sequencing_direction'] == "rvs_1":
@@ -121,7 +121,7 @@ elif config['sequencing_direction'] == "rvs_1":
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fastq",
+            "preprocessing/{run}/{library}.fastq.gz",
         threads: 1
         resources:
             runtime="12:00:00",
@@ -142,14 +142,14 @@ elif config['sequencing_direction'] == "rvs_1":
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
-             -o $TMPD/{wildcards.library}.fastq {input} &> {log}
+             -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
 
             cutadapt -a $FWD_RC \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              {params.both_match} \
-             -o {output} $TMPD/{wildcards.library}.fastq >> {log}  2>&1
+             -o {output} $TMPD/{wildcards.library}.fastq.gz >> {log}  2>&1
             """
 
 else:
@@ -157,7 +157,7 @@ else:
         input:
             get_fastq
         output:
-            "preprocessing/{run}/{library}.fastq"
+            "preprocessing/{run}/{library}.fastq.gz"
         threads: 1
         resources:
             runtime="12:00:00",
@@ -177,34 +177,34 @@ else:
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
-             --untrimmed-output=$TMPD/{wildcards.library}.unt.fastq \
-             -o $TMPD/{wildcards.library}.fastq {input} &> {log}
+             --untrimmed-output=$TMPD/{wildcards.library}.unt.fastq.gz \
+             -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
             
             cutadapt -a $RVS_RC \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              {params.both_match} \
-             -o {output} $TMPD/{wildcards.library}.fastq >> {log} 2>&1
+             -o {output} $TMPD/{wildcards.library}.fastq.gz >> {log} 2>&1
 
             cutadapt -g {config[primers][rvs][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
               -m 1\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
-             -o $TMPD/{wildcards.library}.tr2.fastq \
-             $TMPD/{wildcards.library}.unt.fastq >> {log} 2>&1
+             -o $TMPD/{wildcards.library}.tr2.fastq.gz \
+             $TMPD/{wildcards.library}.unt.fastq.gz >> {log} 2>&1
 
-            fastx_reverse_complement -i $TMPD/{wildcards.library}.tr2.fastq -o $TMPD/{wildcards.library}.tr2.rc.fastq &>> {log} || touch $TMPD/{wildcards.library}.tr2.rc.fastq
+            zcat $TMPD/{wildcards.library}.tr2.fastq | fastx_reverse_complement -z -o $TMPD/{wildcards.library}.tr2.rc.fastq.gz &>> {log} || touch $TMPD/{wildcards.library}.tr2.rc.fastq.gz
 
             cutadapt -a {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
-             -o $TMPD/{wildcards.library}.final.fastq \
+             -o $TMPD/{wildcards.library}.final.fastq.gz \
              {params.both_match} \
-             $TMPD/{wildcards.library}.tr2.rc.fastq  >> {log} 2>&1
+             $TMPD/{wildcards.library}.tr2.rc.fastq.gz  >> {log} 2>&1
 
-            cat $TMPD/{wildcards.library}.final.fastq >> {output}
+            cat $TMPD/{wildcards.library}.final.fastq.gz >> {output}
             """
 
 
