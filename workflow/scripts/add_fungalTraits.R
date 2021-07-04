@@ -13,9 +13,12 @@ print("reading FungalTraits table")
 fun <- read.delim(snakemake@config[['postprocessing']][['fungalTraits']][['db']])
 colnames(fun) <- paste0(colnames(fun),".FungalTraits")
 
-seqTab <- merge(seqTab,fun,
-                by.x=paste0("Genus.",
+colOI <- grep(paste0("^Genus.",
                             snakemake@config[['postprocessing']][['fungalTraits']][['classifier']]),
+              colnames(seqTab),value=T)
+
+seqTab <- merge(seqTab,fun,
+                by.x=colOI,
                 by.y="GENUS.FungalTraits",all.x=T,sort=F)
 seqTab <- seqTab[,c(ori_colnames,setdiff(colnames(seqTab),ori_colnames))]
 
