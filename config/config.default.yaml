@@ -167,7 +167,7 @@ postprocessing:
   fungalTraits:
     do: false
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
-    classifier: mothur
+    classifier: mothur.SILVA_138_SSURef_NR99_cut
   tax4fun2:
     do: false
     db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"
