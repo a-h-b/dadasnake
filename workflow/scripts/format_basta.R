@@ -8,7 +8,7 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 print("reading basta result")
 currName <- paste0("blast.",snakemake@config[["blast"]][["tax_db"]])
-basta <- read.delim(snakemake@input[[1]],stringsAsFactors=F,headers=F)  
+basta <- read.delim(snakemake@input[[1]],stringsAsFactors=F,header=F)  
 if(ncol(basta) == 2) colnames(basta) <- c("OTU","taxonomy") else colnames(basta) <- c("OTU","taxonomy", "bestHit")
 rownames(basta) <- basta$OTU
 tmpTax <- data.frame(do.call(rbind, strsplit(basta$taxonomy, ";", fixed=TRUE)),stringsAsFactors = F)

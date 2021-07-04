@@ -36,7 +36,8 @@ filtering:
     fwd: 0
     rvs: 0
 downsampling:
-  do: false
+  do: true
+  number: 1000
 tmp_dir: "tmp"
 outputdir: "testoutput"
 final_table_filtering:

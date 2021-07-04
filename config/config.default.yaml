@@ -142,7 +142,7 @@ blast:
   basta_min: 3
   basta_id: 80
   basta_besthit: true
-  basta_perchits: 100
+  basta_perchits: 99
 ITSx:
   do: false
   min_regions: 1
