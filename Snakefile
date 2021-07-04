@@ -115,7 +115,7 @@ if EMAIL == "":
         shell("mkdir -p job.errs.outs &>> logs/cleanup.log; ( mv dadasnake* job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *stdout job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *log job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *logfile job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log")
 else:
     onsuccess:
-        shell('mkdir -p job.errs.outs &>> logs/cleanup.log; ( mv dadasnake* job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *stdoout job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *log job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *logfile job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
+        shell('mkdir -p job.errs.outs &>> logs/cleanup.log; ( mv dadasnake* job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *stderr job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *stdout job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *log job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *logfile job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; echo "$(date) {config[sessionName]}" | mail -s "dadasnake finished" {EMAIL} ')
     onerror:
         shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake exited with error" {EMAIL} ')
     onstart:

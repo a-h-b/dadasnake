@@ -5,6 +5,8 @@ if config['blast']['do']:
     taxConts.append("sequenceTables/blast_results.tsv")
 if config['hand_off']['phyloseq'] and not config['do_postprocessing']:
     taxConts.append("sequenceTables/all.seqTab.phyloseq.RDS")
+if config['blast']['do'] and config['blast']['run_basta']:
+    taxConts.append("sequenceTables/all.seqTab.tax.blast.RDS")
 
 localrules: taxonomy_control
 
@@ -24,8 +26,8 @@ if config['ITSx']['do']:
 if config['taxonomy']['decipher']['do']:
     taxTabs.append("sequenceTables/tax.decipher.RDS")
 if config['taxonomy']['mothur']['do']:
-    taxTabs.append("sequenceTables/tax.mothur.tsv")
-else:
+    taxTabs.append("sequenceTables/tax.mothur.RDS")
+if config['taxonomy']['dada']['do']:
     taxTabs.append("sequenceTables/tax.dada.RDS")
 
 rule taxonomy_to_OTUtab:
@@ -38,33 +40,77 @@ rule taxonomy_to_OTUtab:
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
-    params:
-        rank_num = config["taxonomy"]["mothur"]["rank_number"]
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/taxonomy.log"
     message: "Combining taxa and OTU tables {input}."
     script:
         SCRIPTSDIR+"add_taxonomy.R"
 
-# if config['taxonomy']['dada']['do'] and config['taxonomy']['mothur']['do']:
-#    print("dadasnake will run Only one implementation of the bayesian classifier (default: mothur). Disable mothur to run the DADA2 implementation.")
+rule gather_mothur_taxonomy:
+    input:
+        expand("sequenceTables/tax.mothur.{db}.tsv",db=[db for db in MOTHDB.keys()])
+    output:
+        "sequenceTables/tax.mothur.RDS"
+    threads: 1
+    resources:
+        runtime="12:00:00",
+        mem=config['normalMem']
+    params:
+        rank_num = config["taxonomy"]["mothur"]["rank_number"]
+    conda: ENVDIR + "dada2_env.yml"
+    log: "logs/taxonomy_mothur.log"
+    message: "Combining mothur taxonomy tables {input}."
+    script:
+        SCRIPTSDIR+"gather_mothur_taxonomy.R"
+
+rule gather_dada_taxonomy:
+    input:
+        expand("sequenceTables/tax.dada.{db}.RDS",db=[db for db in DADADB.keys()])
+    output:
+        "sequenceTables/tax.dada.RDS"
+    threads: 1
+    resources:
+        runtime="12:00:00",
+        mem=config['normalMem']
+    conda: ENVDIR + "dada2_env.yml"
+    log: "logs/taxonomy_dada.log"
+    message: "Combining dada taxonomy tables {input}."
+    script:
+        SCRIPTSDIR+"gather_dada_taxonomy.R"
+
+rule gather_decipher_taxonomy:
+    input:
+        expand("sequenceTables/tax.decipher.{db}.RDS",db=[db for db in DECIDB.keys()])
+    output:
+        "sequenceTables/tax.decipher.RDS"
+    threads: 1
+    resources:
+        runtime="12:00:00",
+        mem=config['normalMem']
+    conda: ENVDIR + "dada2_env.yml"
+    log: "logs/taxonomy_decipher.log"
+    message: "Combining decipher taxonomy tables {input}."
+    script:
+        SCRIPTSDIR+"gather_decipher_taxonomy.R"
+
 
 if config['taxonomy']['dada']['post_ITSx']:
     rule dada_taxonomy:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
-            "sequenceTables/tax.dada.tsv",
-            "sequenceTables/tax.dada.RDS"
-#        params:
-#            db=
+            "sequenceTables/tax.dada.{db}.tsv",
+            "sequenceTables/tax.dada.{db}.RDS"
+        params: 
+            DB = lambda wildcards: DADADB[wildcards.db],
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
         threads: 1
         resources:
             runtime="48:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/dada_taxonomy.log"
-        message: "Running DADA2's classifier on {input}."
+        log: "logs/dada_taxonomy_postITSx.{db}.log"
+        message: "Running DADA2's classifier on {input} against {wildcards.db}."
         script:
             SCRIPTSDIR+"dadatax_ID.R"
 else:
@@ -72,15 +118,18 @@ else:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
-            "sequenceTables/tax.dada.tsv",
-            "sequenceTables/tax.dada.RDS"
+            "sequenceTables/tax.dada.{db}.tsv",
+            "sequenceTables/tax.dada.{db}.RDS"
+        params: 
+            DB = lambda wildcards: DADADB[wildcards.db],
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
         threads: 1
         resources:
             runtime="48:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/dada_taxonomy.log"
-        message: "Running DADA2's classifier on {input}."
+        log: "logs/dada_taxonomy.{db}.log"
+        message: "Running DADA2's classifier on {input} against {wildcards.db}."
         script:
             SCRIPTSDIR+"dadatax_ID.R"
 
@@ -89,15 +138,18 @@ if config['taxonomy']['decipher']['post_ITSx']:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
-            "sequenceTables/tax.decipher.tsv",
-            "sequenceTables/tax.decipher.RDS"
+            "sequenceTables/tax.decipher.{db}.tsv",
+            "sequenceTables/tax.decipher.{db}.RDS"
+        params:
+            DB = lambda wildcards: DECIDB[wildcards.db],
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
         threads: 1
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/decipher_taxonomy.log"
-        message: "Running decipher on {input}."
+        log: "logs/decipher_taxonomy_postITSx.{db}.log"
+        message: "Running decipher on {input} against {wildcards.db}."
         script:
             SCRIPTSDIR+"decipher_ID.R"
 else:
@@ -105,15 +157,18 @@ else:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
-            "sequenceTables/tax.decipher.tsv", 
-            "sequenceTables/tax.decipher.RDS"
+            "sequenceTables/tax.decipher.{db}.tsv", 
+            "sequenceTables/tax.decipher.{db}.RDS"
+        params:
+            DB = lambda wildcards: DECIDB[wildcards.db],
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
         threads: 1
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
-        log: "logs/decipher_taxonomy.log"
-        message: "Running decipher on {input}."
+        log: "logs/decipher_taxonomy.{db}.log"
+        message: "Running decipher on {input} against {wildcards.db}."
         script:
             SCRIPTSDIR+"decipher_ID.R"
 
@@ -122,42 +177,52 @@ if config['taxonomy']['mothur']['post_ITSx']:
         input:
             "sequenceTables/ITSx.seqs.fasta"
         output:
-            "sequenceTables/tax.mothur.tsv"
+            "sequenceTables/tax.mothur.{db}.tsv"
         threads: 1 
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
         params:
-            outBase="sequenceTables/ITSx.seqs"
+            outFull= lambda wildcards: "sequenceTables/ITSx.seqs.for_" + wildcards.db,
+            inBase= "ITSx.seqs.fasta",
+            mothPath = lambda wildcards: MOTHPATH[wildcards.db],
+            mothDb = lambda wildcards: MOTHDB[wildcards.db]
         conda: ENVDIR + "mothur_env.yml"
-        log: "logs/mothur_taxonomy.log"
-        message: "Running mothur classifier on {input}."
+        log: "logs/mothur_taxonomy_postITSx.{db}.log"
+        message: "Running mothur classifier on {input} against {wildcards.db}."
         shell:
             """
-            mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
-            classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log}
-            mv {params[outBase]}.*.wang.taxonomy {output}
+            ln -s {params.inBase} {params.outFull}.fasta
+            mothur "#set.dir(tempdefault={params.mothPath});
+            classify.seqs(fasta={params.outFull}.fasta, template={params.mothDb}.fasta, taxonomy={params.mothDb}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log}
+            mv {params[outFull]}.*.wang.taxonomy {output}
+            rm {params.outFull}.fasta
             """
 else:
     rule mothur_taxonomy:
         input:
             "sequenceTables/all.seqs.fasta"
         output:
-            "sequenceTables/tax.mothur.tsv"
+            "sequenceTables/tax.mothur.{db}.tsv"
         threads: 1
         resources:
             runtime="48:00:00",
             mem=config['bigMem']
         params:
-            outBase="sequenceTables/all.seqs"
+            outFull= lambda wildcards: "sequenceTables/all.seqs.for_" + wildcards.db,
+            inBase= "all.seqs.fasta",
+            mothPath = lambda wildcards: MOTHPATH[wildcards.db],
+            mothDb = lambda wildcards: MOTHDB[wildcards.db]
         conda: ENVDIR + "mothur_env.yml"
-        log: "logs/mothur_taxonomy.log"
-        message: "Running mothur classifier on {input}."
+        log: "logs/mothur_taxonomy.{db}.log"
+        message: "Running mothur classifier on {input} against {wildcards.db}."
         shell:
             """
-            mothur "#set.dir(tempdefault={config[taxonomy][mothur][db_path]});
-            classify.seqs(fasta={input}, template={config[taxonomy][mothur][tax_db]}.fasta, taxonomy={config[taxonomy][mothur][tax_db]}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log}
-            mv {params[outBase]}.*.wang.taxonomy {output}
+            ln -s {params.inBase} {params.outFull}.fasta
+            mothur "#set.dir(tempdefault={params.mothPath});
+            classify.seqs(fasta={params.outFull}.fasta, template={params.mothDb}.fasta, taxonomy={params.mothDb}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log} 
+            mv {params[outFull]}.*.wang.taxonomy {output}
+            rm {params.outFull}.fasta
             """
 
 if config['ITSx']['do']:
@@ -180,8 +245,10 @@ if config['ITSx']['do']:
             export PERL5LIB=$CONDA_PREFIX/lib/5.26.2/x86_64-linux-thread-multi:$PL5
             mkdir {output[0]}
             ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
-            -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -E {config[ITSx][e_val]} &> {log}
-            grep '|F|{config[ITSx][region]}' -A 1 --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
+             -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -t {config[ITSx][query_taxa]} \
+             -E {config[ITSx][e_val]} &> {log}
+            grep '|{config[ITSx][target_taxon]}|{config[ITSx][region]}' -A 1 \
+             --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
             """
 
 if config['blast']['do']:
@@ -230,6 +297,42 @@ if config['blast']['do']:
                   touch {output}
                 fi
                 """
+
+        rule basta:
+            input:
+                "sequenceTables/blast_results.tsv"
+            output:
+                "sequenceTables/basta_results.tsv",
+                "sequenceTables/basta_details.txt"
+            params: best=  "-b 1" if config['blast']['basta_besthit'] else ""
+            threads: 1
+            resources:
+                runtime="24:00:00",
+                mem=config['normalMem']
+            log: "logs/basta.log"
+#            conda: ENVDIR + "basta_env.yml"
+            message: "Running basta on {input}."
+            shell:
+                """
+                {config[blast][basta_path]} sequence -e {config[blast][basta_e_val]} -l {config[blast][basta_alen]} -m {config[blast][basta_min]} -i {config[blast][basta_id]} {params.best} -p {config[blast][basta_perchits]} -d {config[blast][basta_db]} -v {output[1]} -b {config[blast][basta_besthit]} {input} {output[0]} gb
+                """
+
+        rule format_basta:
+            input:
+                "sequenceTables/basta_results.tsv",
+                "sequenceTables/all.seqTab.tax.RDS"
+            output:
+                "sequenceTables/all.seqTab.tax.blast.RDS",
+                "sequenceTables/all.seqTab.tax.blast.tsv"
+            threads: 1
+            resources:
+                runtime="24:00:00",
+                mem=config['bigMem']
+            log: "logs/basta_format.log"
+            conda: ENVDIR + "dada2_env.yml"
+            message: "Formatting basta output {input}."
+            script:
+                SCRIPTSDIR+"format_basta.R"
     else:
         rule blastn:
             input:

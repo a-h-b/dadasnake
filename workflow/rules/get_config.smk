@@ -187,4 +187,132 @@ if not os.path.isabs(TMPDIR):
 if not os.path.exists(TMPDIR):
     os.makedirs(TMPDIR)
 
-
+if config['do_taxonomy']:
+    if config['taxonomy']['dada']['do']:
+        DADADB_OLD = os.path.join(config['taxonomy']['dada']['db_path'], config['taxonomy']['dada']['refFasta'])
+        DADADB_MULT = config['taxonomy']['dada']['ref_dbs_full'].split()
+        DADADB_NAMES = config['taxonomy']['dada']['db_short_names'].split()
+        if config['taxonomy']['dada']['look_for_species']:
+               DADA_SPEC = config['taxonomy']['dada']['spec_db'].split()
+        else:
+               DADA_SPEC = []
+        if DADADB_MULT:
+            if DADADB_OLD:
+                print("Warning: you have given configuration for both ref_dbs_full and db_path / refFasta in taxonomy: dada . Only the ref_dbs_full database will be used.")
+                DADADB_OLD = ""
+            if DADADB_NAMES:
+                DADADB = dict(zip(DADADB_NAMES,DADADB_MULT))
+                if DADA_SPEC:
+                    if len(DADA_SPEC) == 1:
+                        DADADB_SPEC = dict(zip(DADADB_NAMES,[DADA_SPEC] * len(DADADB_MULT)))
+                    else:
+                        DADADB_SPEC = dict(zip(DADADB_NAMES,DADA_SPEC))    
+                else:
+                    DADADB_SPEC = {}
+            else:
+                DADADB_FILES = [os.path.basename(s) for s in DADADB_MULT]
+                DADADB = dict(zip(DADADB_FILES,DADADB_MULT))
+                if DADA_SPEC:
+                    if len(DADA_SPEC) == 1:
+                        DADADB_SPEC = dict(zip(DADADB_FILES,[DADA_SPEC] * len(DADADB_MULT)))
+                    else:
+                        DADADB_SPEC = dict(zip(DADADB_FILES,DADA_SPEC)) 
+                else:
+                    DADADB_SPEC = {}
+        elif DADADB_OLD:
+            if DADADB_NAMES:
+                DADADB = dict(zip(DADADB_NAMES,DADADB_OLD))
+                if DADA_SPEC:
+                    DADADB_SPEC = dict(zip(DADADB_NAMES,DADA_SPEC))
+                else:
+                    DADADB_SPEC = {}        
+            else:
+                DADADB = dict(zip(os.path.basename(DADADB_OLD),DADADB_OLD))
+                if DADA_SPEC:
+                    DADADB_SPEC = dict(zip(os.path.basename(DADADB_OLD),DADA_SPEC))
+                else:
+                    DADADB_SPEC = {}        
+        else:
+            DADADB = {}
+            DADADB_SPEC = {}
+    else:
+        DADADB = {}
+        DADADB_SPEC = {}
+    if config['taxonomy']['decipher']['do']:
+        DECIDB_OLD = os.path.join(config['taxonomy']['decipher']['db_path'], config['taxonomy']['decipher']['tax_db'])
+        DECIDB_MULT = config['taxonomy']['decipher']['ref_dbs_full'].split()
+        DECIDB_NAMES = config['taxonomy']['decipher']['db_short_names'].split()
+        if config['taxonomy']['decipher']['look_for_species']:
+               DECI_SPEC = config['taxonomy']['decipher']['spec_db'].split()
+        else:
+               DECI_SPEC = []
+        if DECIDB_MULT:
+            if DECIDB_OLD:
+                print("Warning: you have given configuration for both ref_dbs_full and db_path / tax_db in taxonomy: decipher . Only the ref_dbs_full database will be used.")
+                DECIDB_OLD = ""
+            if DECIDB_NAMES:
+                DECIDB = dict(zip(DECIDB_NAMES,DECIDB_MULT))
+                if DECI_SPEC:
+                    if len(DECI_SPEC) == 1:
+                        DECIDB_SPEC = dict(zip(DECIDB_NAMES,[DECI_SPEC] * len(DECIDB_MULT)))
+                    else:
+                        DECIDB_SPEC = dict(zip(DECIDB_NAMES,DECI_SPEC))
+                else:
+                    DECIDB_SPEC = {}
+            else:
+                DECIDB_FILES = [os.path.basename(s) for s in DECIDB_MULT]
+                DECIDB = dict(zip(DECIDB_FILES,DECIDB_MULT))
+                if DECI_SPEC:
+                    if len(DECI_SPEC) == 1:
+                        DECIDB_SPEC = dict(zip(DECIDB_FILES,[DECI_SPEC] * len(DECIDB_MULT)))
+                    else:
+                        DECIDB_SPEC = dict(zip(DECIDB_FILES,DECI_SPEC))
+                else:
+                    DECIDB_SPEC = {}
+        elif DECIDB_OLD:
+            if DECIDB_NAMES:
+                DECIDB = dict(zip(DECIDB_NAMES,DECIDB_OLD))
+                if DECI_SPEC:
+                    DECIDB_SPEC = dict(zip(DECIDB_NAMES,DECI_SPEC))
+                else:
+                    DECIDB_SPEC = {}
+            else:
+                DECIDB = dict(zip(os.path.basename(DECIDB_OLD),DECIDB_OLD))
+                if DECI_SPEC:
+                    DECIDB_SPEC = dict(zip(os.path.basename(DECIDB_OLD),DECI_SPEC))
+                else:
+                    DECIDB_SPEC = {}
+        else:
+            DECIDB = {}
+            DECIDB_SPEC = {}
+    else:
+        DECIDB = {}
+        DECIDB_SPEC = {}
+    if config['taxonomy']['mothur']['do']:
+        MOTHDB_OLD = os.path.join(config['taxonomy']['mothur']['db_path'], config['taxonomy']['mothur']['tax_db'])
+        MOTHDB_MULT = config['taxonomy']['mothur']['ref_dbs_full'].split()
+        MOTHDB_NAMES = config['taxonomy']['mothur']['db_short_names'].split()
+        if MOTHDB_MULT:
+            if MOTHDB_OLD:
+                print("Warning: you have given configuration for both ref_dbs_full and db_path / tax_db in taxonomy: mothur . Only the ref_dbs_full database will be used.")
+                MOTHDB_OLD = ""
+            if MOTHDB_NAMES:
+                MOTHPATH = dict(zip(MOTHDB_NAMES,[os.path.dirname(s) for s in MOTHDB_MULT]))
+                MOTHDB = dict(zip(MOTHDB_NAMES,[os.path.basename(s) for s in MOTHDB_MULT]))
+            else:
+                MOTHDB_FILES = [os.path.basename(s) for s in MOTHDB_MULT]
+                MOTHPATH = dict(zip(MOTHDB_FILES,[os.path.dirname(s) for s in MOTHDB_MULT]))
+                MOTHDB = dict(zip(MOTHDB_FILES,MOTHDB_FILES))
+        elif MOTHDB_OLD:
+            if MOTHDB_NAMES:
+                MOTHPATH = dict(zip(MOTHDB_NAMES,os.path.dirname(MOTHDB_OLD)))
+                MOTHDB = dict(zip(MOTHDB_NAMES,os.path.basename(MOTHDB_OLD)))
+            else:
+                MOTHPATH = dict(zip(os.path.basename(MOTHDB_OLD),os.path.dirname(MOTHDB_OLD)))
+                MOTHDB = dict(zip(os.path.basename(MOTHDB_OLD),os.path.basename(MOTHDB_OLD)))
+        else:
+            MOTHDB = {}
+            MOTHPATH = {}
+    else:
+        MOTHDB = {}
+        MOTHPATH = {}

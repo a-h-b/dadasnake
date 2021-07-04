@@ -34,6 +34,7 @@ filtering:
     rvs: 0.2
 blast:
   do: true
+  run_basta: true
 hand_off:
   biom: true
   phyloseq: false
@@ -48,3 +49,6 @@ postprocessing:
     do: false
   treeing:
     do: true
+  tax4fun2:
+    do: true
+    user_data: true

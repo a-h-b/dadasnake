@@ -23,7 +23,7 @@ seqs <- readDNAStringSet(snakemake@input[[1]])
 seqTab <- readRDS(snakemake@input[[2]])
 
 if(!snakemake@config[['final_table_filtering']][['keep_target_taxa']] %in% c(".","")){
- if(any(grepl("taxonomy",colnames(seqTab)))){
+ if(any(grepl("^taxonomy",colnames(seqTab)))){
   taxcols <- grep("taxonomy",colnames(seqTab))
   if(length(taxcols)>1){
    taxS <- apply(seqTab[,taxcols],1,function(x)paste(x,collapse=";",sep=";"))

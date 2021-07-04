@@ -96,6 +96,8 @@ taxonomy:
     post_ITSx: false
     db_path: "../DBs/DADA2"
     refFasta: "silva_nr99_v138_train_set.fa.gz"
+    ref_dbs_full: ""
+    db_short_names: "silva_v138_nr99"
     minBoot: 50 
     tryRC: false
     look_for_species: false
@@ -106,6 +108,8 @@ taxonomy:
     post_ITSx: false
     db_path: "../DBs/decipher"
     tax_db: "SILVA_SSU_r138_2019.RData"
+    ref_dbs_full: ""
+    db_short_names: "SILVA_SSU_r138"
     threshold: 60
     strand: top
     bootstraps: 100
@@ -117,21 +121,35 @@ taxonomy:
     post_ITSx: false
     db_path: "../DBs/mothur"
     tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
+    ref_dbs_full: ""
+    db_short_names: "SILVA_138_SSURef_NR99_cut"
     cutoff: 60
-    rank_number: 6
+    rank_number: 7
 blast:
   do: false
   db_path: "../DBs/blast"
   tax_db: nt
   e_val: 0.01
   tax2id: ""
-  all: false
+  all: true
   max_targets: 10
+  run_basta: false
+  basta_path: "../bin/basta"
+  basta_db: "../DBs/ncbi_taxonomy"
+  basta_e_val: 0.00001
+  basta_alen: 100
+  basta_number: 0
+  basta_min: 3
+  basta_id: 80
+  basta_besthit: true
+  basta_perchits: 100
 ITSx:
   do: false
   min_regions: 1
   region: ITS2
   e_val: 1e-5
+  query_taxa: .
+  target_taxon: F
 hand_off:
   biom: true
   phyloseq: false
@@ -152,10 +170,13 @@ postprocessing:
     classifier: mothur
   tax4fun2:
     do: false
-    db: "../DBs/functions/Tax4Fun2_ReferenceData_v2"
+    db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"
     database_mode: "Ref99NR"
     normalize_by_copy_number: true 
     min_identity_to_reference: 0.97
+    user_data: false
+    user_dir: "../DBs/Functions/GTDB_202_tax4fun2"
+    user_db: "GTDB_fun"
   treeing:
     do: true
     fasttreeMP: ""
