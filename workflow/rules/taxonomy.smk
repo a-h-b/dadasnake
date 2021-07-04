@@ -292,7 +292,7 @@ if config['blast']['do']:
                      -out {config[blast][db_path]}/{config[blast][tax_db]} &> {log}
                   fi
                   blastn -db {config[blast][db_path]}/{config[blast][tax_db]} \
-                   -query {input} -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle" -out {output} -max_target_seqs {config[blast][max_targets]} &> {log}
+                   -query {input} -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids stitle" -out {output} -max_target_seqs {config[blast][max_targets]} &>> {log}
                 else
                   touch {output}
                 fi
@@ -314,7 +314,7 @@ if config['blast']['do']:
             message: "Running basta on {input}."
             shell:
                 """
-                {config[blast][basta_path]} sequence -e {config[blast][basta_e_val]} -l {config[blast][basta_alen]} -m {config[blast][basta_min]} -i {config[blast][basta_id]} {params.best} -p {config[blast][basta_perchits]} -d {config[blast][basta_db]} -v {output[1]} -b {config[blast][basta_besthit]} {input} {output[0]} gb
+                {config[blast][basta_path]} sequence -e {config[blast][basta_e_val]} -l {config[blast][basta_alen]} -m {config[blast][basta_min]} -i {config[blast][basta_id]} {params.best} -p {config[blast][basta_perchits]} -d {config[blast][basta_db]} -v {output[1]} -b {config[blast][basta_besthit]} {input} {output[0]} gb &>> {log}
                 """
 
         rule format_basta:

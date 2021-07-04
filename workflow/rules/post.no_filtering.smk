@@ -158,7 +158,7 @@ if config['postprocessing']['treeing']['fasttreeMP'] != "":
         shell:
             """
             {config[postprocessing][treeing][fasttreeMP]} -nt -gamma -no2nd -fastest -spr 4 \
-             -log {log} -quiet {input} > {output} 2> {log}
+             -log {log} -quiet {input} > {output} 2> {log}  || touch {output}
             """
 else:
     rule treeing_noFilter:
