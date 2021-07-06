@@ -127,8 +127,8 @@ taxonomy:
     rank_number: 7
 blast:
   do: false
-  db_path: "../DBs/blast"
-  tax_db: nt
+  db_path: "../DBs/ncbi_16SMicrobial"
+  tax_db: 16S_ribosomal_RNA
   e_val: 0.01
   tax2id: ""
   all: true

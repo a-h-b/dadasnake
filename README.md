@@ -91,13 +91,14 @@ The dadasnake does not supply databases. I'd suggest to use the [SILVA database]
 * In addition to the bayesian classifier, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
 * dadasnake can use [fungal traits](https://link.springer.com/article/10.1007/s13225-020-00466-2#data-availability) to assign traits to fungal genere. Download the latest table from [here](https://docs.google.com/spreadsheets/d/1cxImJWMYVTr6uIQXcTLwK1YNNzQvKJJifzzNpKCM6O0/edit#gid=492619054) - dadasnake has been tested with v1.2.
 * You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
+* You can also use [tax4fun2](https://github.com/bwemheu/Tax4Fun2) within dadasnake, and you need to set up suitable databases, as described [here](https://github.com/bwemheu/Tax4Fun2#step-2-generate-your-own-reference-datasets).
 **You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
 
 9) Fasttree:
 dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
 
 ## How to cite dadasnake
-[Christina Weißbecker, Beatrix Schnabel, Anna Heintz-Buschart, Dadasnake, a Snakemake implementation of DADA2 to process amplicon sequencing data for microbial ecology, GigaScience, Volume 9, Issue 12, December 2020, giaa135](https://doi.org/10.1093/gigascience/giaa135). Please also cite [DADA2](https://www.nature.com/articles/nmeth.3869): Callahan, B., McMurdie, P., Rosen, M. et al. DADA2: High-resolution sample inference from Illumina amplicon data. Nat Methods 13, 581–583 (2016), and any other tools you use within dadasnake, e.g. [mothur](https://mothur.org/wiki/frequently_asked_questions/#how-do-i-cite-mothur-how-about-the-individual-functions), [DECIPHER](http://www2.decipher.codes/Citation.html), [ITSx](https://microbiology.se/software/itsx), [Fasttree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490), [FUNGuild](https://www.sciencedirect.com/science/article/abs/pii/S1754504815000847).
+[Christina Weißbecker, Beatrix Schnabel, Anna Heintz-Buschart, Dadasnake, a Snakemake implementation of DADA2 to process amplicon sequencing data for microbial ecology, GigaScience, Volume 9, Issue 12, December 2020, giaa135](https://doi.org/10.1093/gigascience/giaa135). Please also cite [DADA2](https://www.nature.com/articles/nmeth.3869): Callahan, B., McMurdie, P., Rosen, M. et al. DADA2: High-resolution sample inference from Illumina amplicon data. Nat Methods 13, 581–583 (2016), and any other tools you use within dadasnake, e.g. [mothur](https://mothur.org/wiki/frequently_asked_questions/#how-do-i-cite-mothur-how-about-the-individual-functions), [DECIPHER](http://www2.decipher.codes/Citation.html), [ITSx](https://microbiology.se/software/itsx), [Fasttree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490), [FUNGuild](https://www.sciencedirect.com/science/article/abs/pii/S1754504815000847), [BASTA](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13095), [tax4fun2](https://environmentalmicrobiome.biomedcentral.com/articles/10.1186/s40793-020-00358-7).
 
 ##  
 
@@ -156,15 +157,17 @@ Depending on your dataset and settings, and your cluster's queue, the workflow w
 ## What does the dadasnake do?
 * primer removal - using cutadapt
 * quality filtering and trimming - using DADA2
+* optional downsampling of reads per sample - using [seqtk](https://github.com/lh3/seqtk) 
 * error estimation & denoising - using DADA2
 * paired-ends assembly - using DADA2
 * OTU table generation - using DADA2
 * chimera removal - using DADA2
-* taxonomic classification - using mothur and/or DECIPHER (& ITS detection - using ITSx & blastn)
+* taxonomic classification - using mothur and/or DECIPHER (& ITS detection - using ITSx & blastn + BASTA)
+* functional annotation - using funguild, fungalTraits, or tax4fun2
 * length check - in R
 * treeing - using clustal omega and fasttree
 * hand-off in biom-format, as R object, as R phyloseq object, and as fasta and tab-separated tables
-* keeping tabs on number of reads in each step
+* keeping tabs on number of reads in each step, and read quality control - using fastqc & multiQC
 You can control the settings for each step in a config file.
 
 ![steps](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
@@ -267,10 +270,12 @@ chimeras|||||dada||settings for chimera removal
 &nbsp;|  maxShift|| 16|a number|dada|maximum shift when aligning to potential parents| Don't change unless you know what you're doing.
 taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;|  dada||||taxonomy||settings for DADA2 implementation of bayesian classifier
-&nbsp;||    do| false|true or false|taxonomy|whether DADA2 should be used for taxonomic annotation| the DADA2 implementation may work less well than the mothur classifier, and it may be slower; you can run either the DADA classifier or mothur (not both)
+&nbsp;||    do| false|true or false|taxonomy|whether DADA2 should be used for taxonomic annotation| the DADA2 implementation may work less well than the mothur classifier, and it may be slower
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether the classifier should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
 &nbsp;||    db_path|"../DBs/DADA2"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    refFasta|"silva_nr99_v138_train_set.fa.gz"||taxonomy|training database name|
+&nbsp;||    db_short_names|"silva_v138_nr99"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
+&nbsp;||    ref_dbs_full|""||taxonomy|full path and database file name(s) (without suffix), separated by a whitespace|if your give less database names than databases, not all databases will be used
 &nbsp;||    minBoot|50|1-100|taxonomy|bootstrap value for classification|see DADA2 documentation for details
 &nbsp;||    tryRC| false|false or true|taxonomy|if your reads are in the direction of the database (false), or reverse complement or you don't know (true)|true takes longer than false
 &nbsp;||    seed|101|a positive integer|taxonomy|seed for DADA2 taxonomy classifier|keep constant in re-runs
@@ -281,6 +286,8 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
 &nbsp;||    db_path|"../DBs/decipher"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    tax_db|"SILVA_SSU_r138_2019.RData"||taxonomy|decipher database name|
+&nbsp;||    db_short_names|"SILVA_138_SSU"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
+&nbsp;||    ref_dbs_full|""||taxonomy|full path and database file name(s) (without suffix), separated by a whitespace|if your give less database names than databases, not all databases will be used
 &nbsp;||    threshold|60|1-100|taxonomy|threshold for classification|see DECIPHER documentation for details
 &nbsp;||    strand| bottom|bottom, top or both|taxonomy|if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)|both takes roughly twice as long as the others
 &nbsp;||    bootstraps|100|a positive integer|taxonomy|number of bootstraps|
@@ -292,14 +299,26 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
 &nbsp;||    db_path|"../DBs/amplicon"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    tax_db|"SILVA_138_SSURef_NR99_prok.515F.806R"||taxonomy|the beginning of the filename of a mothur-formatted database|don't add .taxonomy or .fasta
+&nbsp;||    db_short_names|"SILVA_138_SSU_NR99"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
+&nbsp;||    ref_dbs_full|""||taxonomy|full path and database file name(s) (without suffix), separated by a whitespace|if your give less database names than databases, not all databases will be used
 &nbsp;||    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
-&nbsp;|    do|false||true or false|taxonomy|whether blast should be run|
-&nbsp;|    db_path|"../DBs/blast"|||taxonomy|path to blast database|
-&nbsp;|    tax_db|nt|||taxonomy|name (without suffix) of blast database|
-&nbsp;|    e_val|0.01|||taxonomy|e-value for blast|
-&nbsp;|    tax2id|""||"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database
-&nbsp;|    all|false|||taxonomy|whether blastn should also be run on sequences that have been classified already|default means blast for run only on non-assigned sequences
+&nbsp;|    do||false|true or false|taxonomy|whether blast should be run|
+&nbsp;|    db_path||"../DBs/ncbi_16SMicrobial"||taxonomy|path to blast database|
+&nbsp;|    tax_db||16S_ribosomal_RNA||taxonomy|name (without suffix) of blast database|
+&nbsp;|    e_val||0.01||taxonomy|e-value for blast|
+&nbsp;|    tax2id||""|"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database
+&nbsp;|    all||true||taxonomy|whether blastn should also be run on sequences that have been classified already|
+&nbsp;|    run_basta||true|true or false|taxonomy|whether BASTA should be run on the BLASTn output|
+&nbsp;|    basta_path||"../bin/basta"||taxonomy|path to the basta binary|basta needs to be installed manually
+&nbsp;|    basta_db||"../DBs/ncbi_taxonomy"||taxonomy|path to the NCBI-taxonomy database that is prepared when basta is installed|make sure you run these steps during installation of basta
+&nbsp;|    basta_e_val||0.00001||taxonomy|e-value for hit selection|
+&nbsp;|    basta_alen||100||taxonomy|minimum alignment length of hits|
+&nbsp;|    basta_number||0|0 or a positive integer|taxonomy|maximum number of hits to use for classification|if set to 0 all hits will be considered
+&nbsp;|    basta_min||3|a positive number|taxonomy|minimum number of hits a sequence must have to be assigned an LCA|needs to be smaller or equal to max_targets
+&nbsp;|    basta_id||80|1-100|taxonomy|minimum identity of hit to be considered good|
+&nbsp;|    basta_besthit||true|true or false|taxonomy|if set the final taxonomy will contain an additional column containing the taxonomy of the best (first) hit with defined taxonomy|
+&nbsp;|    basta_perchits||99|an odd number greater than 50|taxonomy|percentage of hits that are used for LCA estimation|
 ITSx|||||taxonomy||settings for ITSx
 &nbsp;|  do|| false|true or false|taxonomy|whether ITSx should be run|only makes sense for analyses targetting an ITS region
 &nbsp;|  min_regions||1|1-4|taxonomy|minimum number of detected regions|counting includes SSU, LSU and 5.8 next to the ITS regions
@@ -317,7 +336,7 @@ postprocessing|||||postprocessing||settings for postprocessing
 &nbsp;|  fungalTraits||||postprocessing||settings for fungalTraits
 &nbsp;||    do|false|true or false|postprocessing|whether fungalTraits should be assigned|
 &nbsp;||    db|"../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"||postprocessing|path to fungalTraits DB|change when setting up dadasnake on a new system
-&nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
+&nbsp;||    classifier|mothur.SILVA_138_SSURef_NR99_cut||postprocessing|which classifier to use|can only be one
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
 &nbsp;||    funguild_db|"../DBs/functions/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
@@ -328,6 +347,9 @@ postprocessing|||||postprocessing||settings for postprocessing
 &nbsp;||    database_mod|Ref99NR|Ref99NR or Ref100NR|postprocessing|which database to use|
 &nbsp;||    normalize_by_copy_number|true|true or false|postprocessing|whether to normalize tax4fun2 results by copy number|normalization of pathway results is not possible
 &nbsp;||    min_identity_to_reference|0.97|90 to 100 or 0.9 to 1.0|postprocessing|minimum similarity between ASV sequence and tax4fun DB|
+&nbsp;||    user_data|false|true or false|postprocessing|whether user database should be used|
+&nbsp;||    user_dir|"../DBs/Functions/GTDB_202_tax4fun2"||postprocessing|path to user database|
+&nbsp;||    user_db|GTDB_fun||postprocessing|path to user database|
 &nbsp;|  treeing|||true or false|postprocessing||
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
 &nbsp;||    fasttreeMP|""||postprocessing|path to fasttreeMP executable|change when setting up dadasnake on a new system
@@ -369,6 +391,9 @@ pair_merging:
   min_overlap: 0
   just_concatenate: true
 ```
+
+**I need to set further parameters for job submission**
+You can change the cluster configs and add the parameter, for example directly as part of the call field.
 
 **I have a very large dataset**
 Great, if you have the computing power to match it, dadasnake will help you. It has successfully processed >27,000 samples in the same run. If you run out of memory in your run, set big_data to true in the config file and allow the use of multiple bigmem cores (we needed 360GB RAM for the 27,000 dataset). Disable highly memory intensive steps, such as treeing, chimera removal, plotting of rarefaction curves. If you didn't use the grouping by runs in your sample table, invent some runs of approx 100 samples each - these will be treated separately for some of the heavier DADA2 steps (error estimation).
