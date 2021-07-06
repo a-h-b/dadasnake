@@ -126,8 +126,8 @@ taxonomy					taxonomy		settings for taxonomic annotation
 		    cutoff	60	1-100	taxonomy	cut-off for classification	
 blast					taxonomy		
 	    do		   false	true or false	taxonomy	whether blast should be run	
-	    db_path		"    ""../DBs/blast"""		taxonomy	path to blast database	
-	    tax_db		   nt		taxonomy	name (without suffix) of blast database	
+	    db_path		"    ""../DBs/ncbi_16SMicrobial"""		taxonomy	path to blast database	
+	    tax_db		   	16S_ribosomal_RNA	taxonomy	name (without suffix) of blast database	
 	    e_val		0.01		taxonomy	e-value for blast	
 	    tax2id		""""""	"""tax2id table or ""none"""	taxonomy	whether taxonomic data is available in a tax2id table	"this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database"
 	    max_targets		10	a positive integer	taxonomy	maximum number of hits that are recorded	
