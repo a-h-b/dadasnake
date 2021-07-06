@@ -1,6 +1,6 @@
 top-level parameters	sub-parameters	subsub-parameters	default value	possible values	used in stage	explanation	comments / recommendations
 email 	  	 	" """" "	" """" or a valid email address "	 all 	 email address for mail notification 	 keep empty if you don't want emails. Check spelling, it does not test.
-sessionName			""""""	""""" or a single word"	all	session name	only read, if you're not using the dadasnake wrapper
+sessionName			""""""	""""" or a single word"	all	session name	no need to change - it's only read, if you're not using the dadasnake wrapper
 normalMem			""""""	""""" or a number and a letter"	all	size of the RAM of one core of your normal copute nodes (e.g. 8G)	may be fixed during installation, only necessary for cluster submission
 bigMem			""""""	""""" or a number and a letter"	all	size of the RAM of one core of your high memory copute nodes (e.g. 30G)	may be fixed during installation, only necessary for cluster submission
 bigCores			""""""	""""" or a number"	all	maximum number of high memory copute nodes to use (e.g. 4)	0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
@@ -92,10 +92,12 @@ chimeras					dada		settings for chimera removal
 	  maxShift		16	a number	dada	maximum shift when aligning to potential parents	 Don't change unless you know what you're doing.
 taxonomy					taxonomy		settings for taxonomic annotation
 	dada				taxonomy		settings for DECIPHER
-		    do	 false	true or false	taxonomy	whether the DADA2 implementation of the bayesian classifier should be used for taxonomic annotation	"the DADA2 implementation may work less well than the mothur classifier, and it may be slower; you can run either the DADA classifier or mothur (not both)"
+		    do	 false	true or false	taxonomy	whether the DADA2 implementation of the bayesian classifier should be used for taxonomic annotation	the DADA2 implementation may work less well than the mothur classifier, and it may be slower
 		    post_ITSx	 false	true or false	taxonomy	whether the DADA2 implementation of the bayesian classifier should be run before or after ITSx	" if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region"
-		    db_path	"""../DBs/DADA2"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
-		    refFasta	"""silva_nr99_v138_train_set.fa.gz"""		taxonomy	decipher database name	
+		    db_path	"""../DBs/DADA2"""		taxonomy	directory where the database sits	"change when setting up dadasnake on a new system; will be ignored, if is ref_dbs_full is set"
+		    refFasta	"""silva_nr99_v138_train_set.fa.gz"""		taxonomy	decipher database file name	will be ignored, if is ref_dbs_full is set
+		    db_short_names	"""silva_v138_nr99"""		taxonomy	"short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full"	if your give less database names than databases, not all databases will be used
+		    ref_dbs_full	""""""		taxonomy	full path and database file name(s) (without suffix), separated by a whitespace	if your give less database names than databases, not all databases will be used
 		    minBoot	50	1-100	taxonomy	threshold for classification	see the DADA2 implementation of the bayesian classifier documentation for details
 		    tryRC	 false	true or false	taxonomy	if your reads are in the direction of the database (false), or reverse complement or you don't know (true)	true takes longer than false
 		    seed	100	a positive integer	taxonomy	seed for the DADA2 implementation of the bayesian classifier	keep constant in re-runs
@@ -106,6 +108,8 @@ taxonomy					taxonomy		settings for taxonomic annotation
 		    post_ITSx	 false	true or false	taxonomy	whether DECIPHER should be run before or after ITSx	" if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region"
 		    db_path	"""../DBs/decipher"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
 		    tax_db	"""SILVA_SSU_r138_2019.RData"""		taxonomy	decipher database name	
+		    db_short_names	"""SILVA_SSU_r132"""		taxonomy	"short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full"	if your give less database names than databases, not all databases will be used
+		    ref_dbs_full	""""""		taxonomy	full path and database file name(s) (without suffix), separated by a whitespace	if your give less database names than databases, not all databases will be used
 		    threshold	60	1-100	taxonomy	threshold for classification	see DECIPHER documentation for details
 		    strand	 bottom	bottom, top or both	taxonomy	if your reads are in the direction of the database (top), reverse complement (bottom) or you don't know (both)	both takes roughly twice as long as the others
 		    bootstraps	100	a positive integer	taxonomy	number of bootstraps	
@@ -117,25 +121,40 @@ taxonomy					taxonomy		settings for taxonomic annotation
 		    post_ITSx	 false	true or false	taxonomy	whether mothur's classify.seqs should be run before or after ITSx	"if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards"
 		    db_path	"""../DBs/mothur"""		taxonomy	directory where the database sits	change when setting up dadasnake on a new system
 		    tax_db	"""SILVA_138_SSURef_NR99_prok.515F.806R"""		taxonomy	the beginning of the filename of a mothur-formatted database	don't add .taxonomy or .fasta
+		    db_short_names	"""SILVA_138_SSURef_NR99_cut"""		taxonomy	"short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full"	if your give less database names than databases, not all databases will be used
+		    ref_dbs_full	""""""		taxonomy	full path and database file name(s) (without suffix), separated by a whitespace	if your give less database names than databases, not all databases will be used
 		    cutoff	60	1-100	taxonomy	cut-off for classification	
 blast					taxonomy		
-	    do	FALSE		true or false	taxonomy	whether blast should be run	
-	    db_path	"""../DBs/blast"""			taxonomy	path to blast database	
-	    tax_db	nt			taxonomy	name (without suffix) of blast database	
-	    e_val	0.01			taxonomy	e-value for blast	
-	    tax2id	""""""		"""tax2id table or ""none"""	taxonomy	whether taxonomic data is available in a tax2id table	"this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database"
-	    all	FALSE			taxonomy	whether blastn should also be run on sequences that have been classified already	default means blast for run only on non-assigned sequences
+	    do		   false	true or false	taxonomy	whether blast should be run	
+	    db_path		"    ""../DBs/blast"""		taxonomy	path to blast database	
+	    tax_db		   nt		taxonomy	name (without suffix) of blast database	
+	    e_val		0.01		taxonomy	e-value for blast	
+	    tax2id		""""""	"""tax2id table or ""none"""	taxonomy	whether taxonomic data is available in a tax2id table	"this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database"
+	    max_targets		10	a positive integer	taxonomy	maximum number of hits that are recorded	
+	    all		true	true or false	taxonomy	whether blastn should also be run on sequences that have been classified already	default means blast is run on all ASV sequences
+	    run_basta		true	true or false	taxonomy	whether BASTA should be run on the BLASTn output	
+	    basta_path		"""../bin/basta"""		taxonomy	path to the basta binary	basta needs to be installed manually
+	    basta_db		"""../DBs/ncbi_taxonomy"""		taxonomy	path to the NCBI-taxonomy database that is prepared when basta is installed	make sure you run these steps during installation of basta
+	    basta_e_val		0.00001	a positive number	taxonomy	e-value for hit selection	
+	    basta_alen		100	a positive integer	taxonomy	minimum alignment length of hits	
+	    basta_number		0	0 or a positive integer	taxonomy	maximum number of hits to use for classification	if set to 0 all hits will be considered
+	    basta_min		3	a positive number	taxonomy	minimum number of hits a sequence must have to be assigned an LCA	needs to be smaller or equal to max_targets
+	    basta_id		80	1-100	taxonomy	minimum identity of hit to be considered good	
+	    basta_besthit		true	true or false	taxonomy	if set the final taxonomy will contain an additional column containing the taxonomy of the best (first) hit with defined taxonomy	
+	   basta_perchits		99	an odd number greater than 50	taxonomy	percentage of hits that are used for LCA estimation	
 ITSx					taxonomy		settings for ITSx
 	  do		 false	true or false	taxonomy	whether ITSx should be run	only makes sense for analyses targetting an ITS region
 	  min_regions		1	01. Apr	taxonomy	minimum number of detected regions	counting includes SSU, LSU and 5.8 next to the ITS regions
 	  region		 ITS2	ITS1 or ITS2	taxonomy	which region to extract	
+	  query_taxa		"""."""	. or a single letter (except J, K, N, V, W, Z)	taxonomy	evaluate ITS model for these taxonomic groups	see https://microbiology.se/publ/itsx_users_guide.pdf
+	  target_taxon		F	a single letter (except J, K, N, V, W, Z)	taxonomy	return hits to this taxonomic group	see https://microbiology.se/publ/itsx_users_guide.pdf
 	  e_val		1.00E-05	0-1	taxonomy	e-value for ITS detection	
 hand_off					dada, taxonomy, postprocessing		settings deciding if additional formats should be given
 	  biom		true	true or false	dada, taxonomy	whether a biome format output should be written	"biome contains OTU table or OTU table and taxonomy (if taxonomy was run); biome table is never filtered"
 	  phyloseq		false	true or false	taxonomy, postprocessing	whether a phyloseq object should be returned	"contains OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU table, phyloseq object contains filtered dataset)"
 final_table_filtering					postprocessing		settings for filtering the final OTU table (before postprocessing, if postprocessing is done)
 	do		true	true or false	postprocessing	whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps	
-	 keep_target_taxa		"""."""	"""."" or a regular expression for taxa to keep, e.g. ""Bacteria"""	postprocessing	pattern to look for in the taxstrings	" done based on mothur and DECIPHER result; ""."" means all are kept; both taxstrings are searched, if both classifiers were used"
+	 keep_target_taxa		"""."""	"""."" or a regular expression for taxa to keep, e.g. ""Bacteria"""	postprocessing	pattern to look for in the taxstrings	" done based on all classifiers; ""."" means all are kept"
 	target_min_length		1		postprocessing	minimal length sequence	doesn't care for ITSx results
 	target_max_length		10000		postprocessing	maximum length of sequence	doesn't care for ITSx results
 postprocessing					postprocessing		settings for postprocessinf
@@ -150,6 +169,9 @@ postprocessing					postprocessing		settings for postprocessinf
 	  tax4fun2				postprocessing		settings for funguild
 		    do	false	true or false	postprocessing	whether tax4fun2 should be run	
 		    db	"""../DBs/functions/funguild_db.json"""		postprocessing	path to tax4fun2 DB	change when setting up dadasnake on a new system
+		    user_data	false	true or false	postprocessing	whether user database should be used	
+		    user_dir	"""../DBs/Functions/GTDB_202_tax4fun2"""		postprocessing	path to user database	
+		    user_db    	GTDB_fun		postprocessing	name of the user database folder	
 		    database_mode	Ref99NR	Ref99NR or Ref100NR	postprocessing	which tax4fun2 database to use	
 		    normalize_by_copy_number	true	true or false	postprocessing	whether to normalize tax4fun2 data by copynumber	normalization for pathways is no available
 		    min_identity_to_reference	0.97	0.9 to 1.0 or 90 to 100	postprocessing	similarity of ASV to DB	
