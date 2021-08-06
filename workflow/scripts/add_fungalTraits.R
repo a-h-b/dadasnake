@@ -12,8 +12,14 @@ ori_colnames <- colnames(seqTab)
 print("reading FungalTraits table")
 fun <- read.delim(snakemake@config[['postprocessing']][['fungalTraits']][['db']])
 colnames(fun) <- paste0(colnames(fun),".FungalTraits")
-
-colOI <- grep(paste0("^Genus.",
+print(snakemake@config[['postprocessing']][['fungalTraits']][['level']])
+if(is.character(snakemake@config[['postprocessing']][['fungalTraits']][['level']])){ 
+  levelOI <- snakemake@config[['postprocessing']][['fungalTraits']][['level']]
+}else{
+  levelOI <- paste0("Level_",snakemake@config[['postprocessing']][['fungalTraits']][['level']])
+} 
+print(levelOI)
+colOI <- grep(paste0("^",levelOI,".",
                             snakemake@config[['postprocessing']][['fungalTraits']][['classifier']]),
               colnames(seqTab),value=T)
 

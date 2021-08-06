@@ -5,7 +5,8 @@ rule dada_control:
         "sequenceTables/all.seqTab.RDS",
         "sequenceTables/all.seqs.fasta",
         "reporting/finalNumbers_perSample.tsv",
-        expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique())  
+        expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique()),
+        expand("stats/multiqc_{step}.{run}_report.html",step=['1','filtered'],run=samples.run.unique()) 
     output:
         "dada.done"
     shell:
@@ -85,6 +86,63 @@ rule dada_qc_filtered:
     message: "Running QC on {params.path}."
     script:
         SCRIPTSDIR+"dada_QC.single.R"
+
+rule fastqc_1:
+    input:
+        lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fastq.gz")
+    output:
+        directory('stats/fastqc_1/{run}')
+    threads: getThreads(4)
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/fastqc_1.{run}.log"
+    message: "fastqc_1: Running fastQC on raw reads for {wildcards.run}."
+    shell:
+        """
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
+        """
+
+rule multiqc:
+    input:
+        "stats/fastqc_{step}/{run}"
+    output:
+        directory('stats/multiqc_{step}.{run}_report_data'),
+        "stats/multiqc_{step}.{run}_report.html"
+    threads: 1
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/multiqc_{step}.{run}.log"
+    message: "multiqc_1: Collecting fastQC on {wildcards.step} reads for {wildcards.run}."
+    shell:
+        """
+        export LC_ALL=en_GB.utf8
+        export LANG=en_GB.utf8
+        multiqc -n {output[1]} {input} >> {log} 2>&1
+        """
+
+rule fastqc_filtered:
+    input:
+        lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
+    output:
+        directory('stats/fastqc_filtered/{run}')
+    threads: getThreads(4)
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/fastqc_filtered.{run}.log"
+    message: "fastqc_filtered: Running fastQC on filtered reads for {wildcards.run}."
+    shell:
+        """
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
+        """
+
 
 rule dada_filter:
     input:

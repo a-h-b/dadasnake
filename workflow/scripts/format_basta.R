@@ -11,6 +11,7 @@ currName <- paste0("blast.",snakemake@config[["blast"]][["tax_db"]])
 basta <- read.delim(snakemake@input[[1]],stringsAsFactors=F,header=F)  
 if(ncol(basta) == 2) colnames(basta) <- c("OTU","taxonomy") else colnames(basta) <- c("OTU","taxonomy", "bestHit")
 rownames(basta) <- basta$OTU
+basta$taxonomy <- sapply(basta$taxonomy,function(x) paste0(x,paste0(rep(";",7-lengths(regmatches(x, gregexpr(";", x)))),collapse="",sep="")))
 tmpTax <- data.frame(do.call(rbind, strsplit(basta$taxonomy, ";", fixed=TRUE)),stringsAsFactors = F)
 rankNum <- 7
 if(ncol(tmpTax)>= rankNum+1){

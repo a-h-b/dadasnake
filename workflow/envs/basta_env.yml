@@ -1,0 +1,36 @@
+name: basta_env
+channels:
+  - timkahlke
+  - bnoon
+  - bioconda
+  - conda-forge/label/cf201901
+  - bioconda/label/cf201901
+  - defaults
+  - r
+dependencies:
+  - krona=2.8=pl526_0
+  - leveldb=1.15=1
+  - plyvel=0.8=py27_0
+  - snappy=1.1.1=0
+  - ca-certificates=2018.11.29=ha4d7672_0
+  - certifi=2018.11.29=py27_1000
+  - curl=7.49.1=0
+  - libffi=3.2.1=hfc679d8_5
+  - perl=5.26.2=h470a237_0
+  - pip=18.1=py27_1000
+  - setuptools=40.6.3=py27_0
+  - tk=8.6.9=ha92aebf_0
+  - wheel=0.32.3=py27_0
+  - zlib=1.2.11=h470a237_4
+  - _libgcc_mutex=0.1=main.conda
+  - libedit=3.1.20191231=h14c3975_1.conda
+  - libgcc-ng=9.1.0=hdf63c60_0.conda
+  - libstdcxx-ng=9.1.0=hdf63c60_0.conda
+  - ncurses=6.2=he6710b0_1.conda
+  - openssl=1.1.1i=h27cfd23_0.conda
+  - python=2.7.18=h02575d3_0.conda
+  - readline=8.1=h27cfd23_0.conda
+  - sqlite=3.33.0=h62c20be_0.conda
+  - wget=1.20.1=h20c2e04_0.conda
+  - basta=1.3=py27_1
+

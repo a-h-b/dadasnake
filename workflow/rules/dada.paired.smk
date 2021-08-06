@@ -76,10 +76,8 @@ rule fastqc_1:
     input:
         expand("preprocessing/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
-        directory('stats/fastqc_1_{dir}'),
-#        directory('stats/multiqc_1_{dir}_data'),
-#        "stats/multiqc_1_{dir}_report.html"
-    threads: 1
+        directory('stats/fastqc_1_{dir}')
+    threads: getThreads(4)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -109,6 +107,8 @@ rule multiqc:
     message: "multiqc_1: Collecting fastQC on {wildcards.step} {wildcards.dir} reads."
     shell:
         """
+        export LC_ALL=en_GB.utf8
+        export LANG=en_GB.utf8
         multiqc -n {output[1]} {input} >> {log} 2>&1
         """
 
@@ -117,7 +117,7 @@ rule fastqc_filtered:
         expand("filtered/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
         directory('stats/fastqc_filtered_{dir}')
-    threads: 1
+    threads: getThreads(4)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']

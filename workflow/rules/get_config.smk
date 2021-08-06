@@ -221,15 +221,15 @@ if config['do_taxonomy']:
                     DADADB_SPEC = {}
         elif DADADB_OLD:
             if DADADB_NAMES:
-                DADADB = dict(zip(DADADB_NAMES,DADADB_OLD))
+                DADADB = dict(zip(DADADB_NAMES,[DADADB_OLD]))
                 if DADA_SPEC:
                     DADADB_SPEC = dict(zip(DADADB_NAMES,DADA_SPEC))
                 else:
                     DADADB_SPEC = {}        
             else:
-                DADADB = dict(zip(os.path.basename(DADADB_OLD),DADADB_OLD))
+                DADADB = dict(zip([os.path.basename(DADADB_OLD)],[DADADB_OLD]))
                 if DADA_SPEC:
-                    DADADB_SPEC = dict(zip(os.path.basename(DADADB_OLD),DADA_SPEC))
+                    DADADB_SPEC = dict(zip([os.path.basename(DADADB_OLD)],DADA_SPEC))
                 else:
                     DADADB_SPEC = {}        
         else:
@@ -271,15 +271,15 @@ if config['do_taxonomy']:
                     DECIDB_SPEC = {}
         elif DECIDB_OLD:
             if DECIDB_NAMES:
-                DECIDB = dict(zip(DECIDB_NAMES,DECIDB_OLD))
+                DECIDB = dict(zip(DECIDB_NAMES,[DECIDB_OLD]))
                 if DECI_SPEC:
                     DECIDB_SPEC = dict(zip(DECIDB_NAMES,DECI_SPEC))
                 else:
                     DECIDB_SPEC = {}
             else:
-                DECIDB = dict(zip(os.path.basename(DECIDB_OLD),DECIDB_OLD))
+                DECIDB = dict(zip([os.path.basename(DECIDB_OLD)],[DECIDB_OLD]))
                 if DECI_SPEC:
-                    DECIDB_SPEC = dict(zip(os.path.basename(DECIDB_OLD),DECI_SPEC))
+                    DECIDB_SPEC = dict(zip([os.path.basename(DECIDB_OLD)],DECI_SPEC))
                 else:
                     DECIDB_SPEC = {}
         else:
@@ -305,14 +305,16 @@ if config['do_taxonomy']:
                 MOTHDB = dict(zip(MOTHDB_FILES,MOTHDB_FILES))
         elif MOTHDB_OLD:
             if MOTHDB_NAMES:
-                MOTHPATH = dict(zip(MOTHDB_NAMES,os.path.dirname(MOTHDB_OLD)))
-                MOTHDB = dict(zip(MOTHDB_NAMES,os.path.basename(MOTHDB_OLD)))
+                MOTHPATH = dict(zip(MOTHDB_NAMES,[os.path.dirname(MOTHDB_OLD)]))
+                MOTHDB = dict(zip(MOTHDB_NAMES,[os.path.basename(MOTHDB_OLD)]))
             else:
-                MOTHPATH = dict(zip(os.path.basename(MOTHDB_OLD),os.path.dirname(MOTHDB_OLD)))
-                MOTHDB = dict(zip(os.path.basename(MOTHDB_OLD),os.path.basename(MOTHDB_OLD)))
+                MOTHPATH = dict(zip([os.path.basename(MOTHDB_OLD)],[os.path.dirname(MOTHDB_OLD)]))
+                MOTHDB = dict(zip([os.path.basename(MOTHDB_OLD)],[os.path.basename(MOTHDB_OLD)]))
         else:
             MOTHDB = {}
             MOTHPATH = {}
     else:
         MOTHDB = {}
         MOTHPATH = {}
+
+#print(MOTHDB)

@@ -5,7 +5,8 @@ rule dada_control:
         "sequenceTables/all.seqTab.RDS",
         "sequenceTables/all.seqs.fasta",
         "reporting/finalNumbers_perSample.tsv",
-        expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique())  
+        expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique()),
+        expand("stats/multiqc_{step}_report.html",step=['1','filtered']) 
     output:
         "dada.done"
     shell:
@@ -85,6 +86,64 @@ rule dada_qc_filtered:
     message: "Running QC on {params.path}."
     script:
         SCRIPTSDIR+"dada_QC.single.R"
+
+rule fastqc_1:
+    input:
+        expand("preprocessing/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
+    output:
+        directory('stats/fastqc_1')
+    threads: getThreads(4)
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/fastqc_1.log"
+    message: "fastqc_1: Running fastQC on raw reads."
+    shell:
+        """
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
+        """
+
+rule multiqc:
+    input:
+        "stats/fastqc_{step}"
+    output:
+        directory('stats/multiqc_{step}_report_data'),
+        "stats/multiqc_{step}_report.html"
+    threads: 1
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/multiqc_{step}.log"
+    message: "multiqc_1: Collecting fastQC on {wildcards.step} reads."
+    shell:
+        """
+        export LC_ALL=en_GB.utf8
+        export LANG=en_GB.utf8
+        multiqc -n {output[1]} {input} >> {log} 2>&1
+        """
+
+rule fastqc_filtered:
+    input:
+        expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
+    output:
+        directory('stats/fastqc_filtered')
+    threads: getThreads(4)
+    resources:
+        runtime = "8:00:00",
+        mem = config['normalMem']
+    params:
+        outputdir = 'stats/fastqc_filtered'
+    conda: ENVDIR + "fastqc.yml"
+    log: "logs/fastqc_filtered.log"
+    message: "fastqc_filtered: Running fastQC on filtered reads."
+    shell:
+        """
+        mkdir -p {output[0]}
+        fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
+        """
 
 rule dada_filter:
     input:

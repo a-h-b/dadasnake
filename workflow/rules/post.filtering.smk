@@ -6,11 +6,11 @@ if config['postprocessing']['treeing']['do']:
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
 if config['postprocessing']['funguild']['do']:
-    CLASSIFY=config['postprocessing']['funguild']['classifier']
+    CLASSIFY=config['postprocessing']['funguild']['classifier'].split(".")[0]
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/filtered.seqTab.guilds.tsv")
 if config['postprocessing']['fungalTraits']['do']:
-    CLASSIFY=config['postprocessing']['fungalTraits']['classifier']
+    CLASSIFY=config['postprocessing']['fungalTraits']['classifier'].split(".")[0]
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/filtered.seqTab.traits.RDS")
 if config['postprocessing']['tax4fun2']['do']:

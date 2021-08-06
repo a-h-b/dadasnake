@@ -192,7 +192,7 @@ if config['taxonomy']['mothur']['post_ITSx']:
         message: "Running mothur classifier on {input} against {wildcards.db}."
         shell:
             """
-            ln -s {params.inBase} {params.outFull}.fasta
+            ln -sfn {params.inBase} {params.outFull}.fasta
             mothur "#set.dir(tempdefault={params.mothPath});
             classify.seqs(fasta={params.outFull}.fasta, template={params.mothDb}.fasta, taxonomy={params.mothDb}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log}
             mv {params[outFull]}.*.wang.taxonomy {output}
@@ -218,7 +218,7 @@ else:
         message: "Running mothur classifier on {input} against {wildcards.db}."
         shell:
             """
-            ln -s {params.inBase} {params.outFull}.fasta
+            ln -sfn {params.inBase} {params.outFull}.fasta
             mothur "#set.dir(tempdefault={params.mothPath});
             classify.seqs(fasta={params.outFull}.fasta, template={params.mothDb}.fasta, taxonomy={params.mothDb}.taxonomy, cutoff={config[taxonomy][mothur][cutoff]}, method=wang, processors={threads})" &> {log} 
             mv {params[outFull]}.*.wang.taxonomy {output}
