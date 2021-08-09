@@ -22,7 +22,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
     }
   })
   prefix <- gsub("[/]{2}$","/",paste0(snakemake@config[["raw_directory"]],"/"))
-  names(readnums) <- gsub(paste0("^[/].+",prefix),"",names(readnums))
+  names(readnums) <- gsub(paste0("^[/]{0,1}[^/]*",prefix),"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
   sampleTab$reads_raw_r2 <- sapply(sampleTab$r2_file,function(x) readnums[x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
