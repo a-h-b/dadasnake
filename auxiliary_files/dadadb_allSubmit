@@ -14,7 +14,7 @@ usage() {
 
 }
 
-while getopts ui:o:a:t:x:e:p:q:m:h flag
+while getopts ui:o:a:t:x:e:p:q:m:hcl flag
 do
     case $flag in
         u)
