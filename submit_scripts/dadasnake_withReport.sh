@@ -16,7 +16,7 @@ else
 fi
 
 if [ "$BIND_JOBS_TO_MAIN" = true ]; then
-   COREBINDER=$SLURMD_NODENAME
+   COREBINDER="${!NODENAME_VAR}"
 else
    COREBINDER==""
 fi

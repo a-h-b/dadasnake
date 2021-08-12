@@ -22,6 +22,8 @@ At this point, you have all the scripts you need to run the workflow using snake
 * SNAKEMAKE_EXTRA_ARGUMENTS - if you want to pass additional arguments to snakemake, put them here (e.g. --latency-wait=320 for slower file systems). Leave empty usually. 
 * LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
 * SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You alternatively have the option to run it on the frontend via tmux. Leave empty, if you want to use this frontend version and have [tmux](https://github.com/tmux/tmux/wiki) installed.
+* BIND_JOBS_TO_MAIN - if you use the option to run the snakemake top instance in a submitted job and need to bind the other jobs to the same node, you can set this option to true. See FAQ below for more details.
+* NODENAME_VAR - if you use the BIND_JOBS_TO_MAIN option, you need to let dadasnake know, how to access the node name (e.g.SLURMD_NODENAME on slurm). 
 * SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml . Also check that the settings in this file is correct. If you have a different system, contact us ( https://github.com/a-h-b/dadasnake/issues ).
 * MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
 * NORMAL_MEM_EACH - set the size of the RAM of one core of your normal copute nodes (e.g. 8G). If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. 
@@ -394,6 +396,35 @@ pair_merging:
 
 **I need to set further parameters for job submission**
 You can change the cluster configs and add the parameter, for example directly as part of the call field.
+
+**I need to bind the jobs to the same node as the main job**
+Yes, you can. If you use the submission-based wrapper, you can provide the flag for choosing a node as part of the SUBMIT_COMMAND variable in the VARIABLE_CONFIG file. Also, specify BIND_JOBS_TO_MAIN as true. You also need to set the variable that holds the node's name in your submission system as NODENAME_VAR. All jobs will then be submitted to the same node as the one that runs the main snakemake, if you include the flag for choosing a node as part of the call field in the cluster config. You can also specify that one, using -b. Example:
+*VARIABLE_CONFIG* file:
+```
+...
+SUBMIT_COMMAND	slurm --nodelist=
+BIND_JOBS_TO_MAIN	true
+NODENAME_VAR	SLURMD_NODENAME
+SCHEDULER	slurm_simple
+...
+```
+
+*slurm_simple.config*:
+```
+__default__:
+  call: "sbatch --nodelist="
+  mem_per_cpu: "--mem-per-cpu "
+  partition: ""
+  runtime: "-t"
+  threads: "-c"
+  stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
+```
+
+*call*:
+```
+./dadasnake -c -b favorite_node -n TESTRUN config/config.test.yaml
+```
+
 
 **I have a very large dataset**
 Great, if you have the computing power to match it, dadasnake will help you. It has successfully processed >27,000 samples in the same run. If you run out of memory in your run, set big_data to true in the config file and allow the use of multiple bigmem cores (we needed 360GB RAM for the 27,000 dataset). Disable highly memory intensive steps, such as treeing, chimera removal, plotting of rarefaction curves. If you didn't use the grouping by runs in your sample table, invent some runs of approx 100 samples each - these will be treated separately for some of the heavier DADA2 steps (error estimation).
