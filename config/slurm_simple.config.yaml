@@ -5,3 +5,9 @@ __default__:
   runtime: "-t"
   threads: "-c"
   stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
+
+fastqc_1:
+  partition: "-n 1"
+
+fastqc_filtered:
+  partition: "-n 1"

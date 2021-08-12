@@ -1,7 +1,7 @@
 #! /bin/bash -i
 
 usage() {
-    echo "Usage: $0 [-u] [-a emailAddress] [-t taxname] [-x region] [-e evalue] [-p primer] [-q primer2] [-m mismatches] -i /absolute_path/to/inputs -o /absolute_path/to/outputs " 1>&2
+    echo "Usage: $0 [-u] [-c] [-l] [-a emailAddress] [-t taxname] [-x region] [-e evalue] [-p primer] [-q primer2] [-m mismatches] -i /absolute_path/to/inputs -o /absolute_path/to/outputs " 1>&2
     echo "       -a <emailAddress>, address to send email about start and end to" 1>&2
     echo "       -t <taxname>, filters database by a pattern in the taxonomy file" 1>&2
     echo "       -x <ITSx region>, filters database by ITSx region (fungi only)" 1>&2
@@ -9,6 +9,8 @@ usage() {
     echo "       -p <forward primer>, filters database by primer presence, only works with -q" 1>&2
     echo "       -q <reverse primer>, filters database by primer presence, only works with -p" 1>&2
     echo "       -m <mismatch proportion>, only works with -q and -p" 1>&2
+    echo "       -c if set, the whole thing is submitted to the cluster" 1>&2
+    echo "       -l if set, the main snakemake thread and indivdual rules are run in the current terminal session" 1>&2
 
 }
 
@@ -35,6 +37,10 @@ do
             RVS=$OPTARG;;
         m)
             MISM=$OPTARG;;
+        c)
+            CLUSTER=true;;
+        l)
+            LAPTOP=true;;
         h)
             usage
             exit;;
@@ -162,20 +168,26 @@ fi
 
 if [ -z $REGION ]
 then
-  REGION=""
+  REGION="x"
 fi
 if [ -z $EVALUE ]
 then
-  EVALUE=""
+  EVALUE="0.1"
 fi
 if [ -z $FWD ]
 then
-  FWD=""
-  RVS=""
+  FWD="x"
+  RVS="x"
+  FWD_RC="x"
+  RVS_RC="x"
+fi
+if [ -z $TAXNAME ]
+then
+  TAXNAME="x"
 fi
 if [ -z $MISM ]
 then
-  MISM=""
+  MISM="x"
 fi
 
 
@@ -184,11 +196,12 @@ NAMEHASH=`echo $START_TIME| cksum | awk '{print $1}'`
 INPUT_BASE_t=$(basename $INPUT)
 INPUT_BASE=${INPUT_BASE_t//./_}
 JNAME="DBfilter_${INPUT_BASE}_${WF}_${NAMEHASH}"
+JNAME=${JNAME//./_}
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 VARCONFIG=$DIR/VARIABLE_CONFIG
 
-while read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
+while IFS=$'\t' read var val; do unset $var ; declare $var="$val" ; done < $VARCONFIG
 if [ "$SNAKEMAKE_VIA_CONDA" = true ]; then
    CONDA_START="conda activate $DIR/conda/snakemake_env"
    CONDA_END="conda deactivate"
@@ -204,9 +217,19 @@ if [ "$UNLOCK" = true ]; then
     
     snakemake -j 1 -s $DIR/DB_snakefile --unlock --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT
 
-else
+elif [ "$CLUSTER" = true ]; then
 
   echo "Submitting DB job ${JNAME} to cluster."
-  eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadadb.sh $CONFIGFILE $VARCONFIG $JNAME"
+  eval "${SUBMIT_COMMAND} $DIR/submit_scripts/dadadb.sh $VARCONFIG $JNAME $WG $EMAIL $REGION $EVALUE $FWD $RVS $FWD_RC $RVS_RC $MISM $TAXNAME $TAX $DB $TAX_OUT $DB_OUT"
+
+elif [ "$LAPTOP" = true ]; then
+  echo "Running workflow in current session - don't use this setting except with small datasets."
+  eval $LOADING_MODULES
+  eval $CONDA_START
+  CMD="snakemake -j 1 -s $DIR/DB_snakefile --config what=$WF email=$EMAIL sessionName=$JNAME region=$REGION evalue=$EVALUE fwd=$FWD rvs=$RVS fwd_rc=$FWD_RC rvs_rc=$RVS_RC mismatch=$MISM tax=$TAXNAME input_tax=$TAX input_DB=$DB output_tax=$TAX_OUT output_DB=$DB_OUT --use-conda --conda-prefix $DIR/conda $DB_OUT $TAX_OUT"
+  echo $CMD
+  eval $CMD
+else
+  echo "Nothing was done, please give -u, -c, or -l to start anything."
 fi
 
