@@ -55,12 +55,14 @@ rule guilds_noFilter:
         runtime="24:00:00",
         mem=config['normalMem']
     params:
-        src_path=SCRIPTSDIR
+        src_path=SCRIPTSDIR,
+        out_path="post"
     log: "logs/funguild.log"
     conda: ENVDIR + "dadasnake_env.yml"
     message: "Running funguild on {input}."
     shell:
         """
+        mkdir -p {params.out_path}
         {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]}&> {log} || touch {output}
         """
 
