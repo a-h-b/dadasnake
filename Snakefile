@@ -121,7 +121,8 @@ else:
     onstart:
         shell('echo "$(date) {config[sessionName]}" | mail -s "dadasnake started" {EMAIL} ')
 
-localrules: ALL, SamplesPrint
+localrules: ALL 
+#, SamplesPrint
 
 # master command
 rule ALL:
@@ -135,5 +136,10 @@ rule SamplesPrint:
         sam_path
     output:
         "reporting/sample_table.tsv"
+    threads: 1
+    log: "logs/printsamples.log"
+    resources:
+        runtime="01:00:00",
+        mem=config['normalMem']    
     run:
         samples.to_csv(path_or_buf=output[0],sep="\t",index=False,index_label=False)

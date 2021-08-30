@@ -96,7 +96,7 @@ rule fastqc_1:
         expand("preprocessing/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
         directory('stats/fastqc_1_{dir}')
-    threads: getThreads(4)
+    threads: 1
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -136,7 +136,7 @@ rule fastqc_filtered:
         expand("filtered/{samples.run}/{samples.sample}.{{dir}}.fastq.gz", samples=samples.itertuples())
     output:
         directory('stats/fastqc_filtered_{dir}')
-    threads: getThreads(4)
+    threads: 1
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
