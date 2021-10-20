@@ -17,21 +17,7 @@ cd dadasnake
 ```
 At this point, you have all the scripts you need to run the workflow using snakemake, and you'd just need to get some data and databases (see point 8). If you want to use the **comfortable dadasnake wrapper**, follow the points 2-6. 
 
-2) Adjust the file VARIABLE_CONFIG to your requirements (have a tab between the variable name and your setting):
-* SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
-* SNAKEMAKE_EXTRA_ARGUMENTS - if you want to pass additional arguments to snakemake, put them here (e.g. --latency-wait=320 for slower file systems). Leave empty usually. 
-* LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
-* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You alternatively have the option to run it on the frontend via tmux. Leave empty, if you want to use this frontend version and have [tmux](https://github.com/tmux/tmux/wiki) installed.
-* BIND_JOBS_TO_MAIN - if you use the option to run the snakemake top instance in a submitted job and need to bind the other jobs to the same node, you can set this option to true. See FAQ below for more details.
-* NODENAME_VAR - if you use the BIND_JOBS_TO_MAIN option, you need to let dadasnake know, how to access the node name (e.g.SLURMD_NODENAME on slurm). 
-* SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml . Also check that the settings in this file is correct. If you have a different system, contact us ( https://github.com/a-h-b/dadasnake/issues ).
-* MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
-* NORMAL_MEM_EACH - set the size of the RAM of one core of your normal copute nodes (e.g. 8G). If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. 
-* BIGMEM_MEM_EACH - set the size of the RAM of one core of your bigmem (or highmem) compute nodes. If you're not planning to use dadasnake to submit to a cluster or don't have separate bigmem nodes, you don't need to set this.
-* BIGMEM_CORES - set this to the maximum number of bigmem cores you want to require for a task. Set to 0, if you don't have separate bigmem nodes. You don't need to set this, if you're not planning to use dadasnake to submit to a cluster.
-* LOCK_SETTINGS - set this to true, if you don't want users to choose numbers and sizes of compute nodes at run time. If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. Setting LOCK_SETTINGS  makes the workflow slightly less flexible, as all large data sets will be run with the maximum number of bigmem nodes you set up here (see big_data settings below). On the other hand, it can be helpful, if you're setting up dadasnake for inexperienced users or have only one possible setting anyhow. If you're not locking, it's advised to set useful settings in the config/config.default.yaml file for normalMem, bigMem, and bigCores.
-
-3) Decide how you want to run dadasnake, if you let it submit jobs to the cluster:
+2) Decide how you want to run dadasnake, if you let it submit jobs to the cluster:
 Only do one of the two:
 * if you want to submit the process running snakemake to the cluster:
 ```
@@ -43,6 +29,23 @@ chmod 755 dadasnake
 cp auxiliary_files/dadasnake_tmux dadasnake
 chmod 755 dadasnake
 ```
+
+If you don't submit jobs to the cluster, but want to run the whole workflow interactively, e.g. on a laptop, it doesn't matter which wrapper you use. Just copy one of them, as described above.
+
+3) Adjust the file VARIABLE_CONFIG to your requirements (have a tab between the variable name and your setting):
+* SNAKEMAKE_VIA_CONDA - set this to true, if you don't have snakemake in your path and want to install it via conda. Leave empty, if you don't need an additional snakemake.
+* SNAKEMAKE_EXTRA_ARGUMENTS - if you want to pass additional arguments to snakemake, put them here (e.g. --latency-wait=320 for slower file systems). Leave empty usually. 
+* LOADING_MODULES - insert a bash command to load modules, if you need them to run conda. Leave empty, if you don't need to load a module.
+* SUBMIT_COMMAND - insert the bash command you'll usually use to submit a job to your cluster to run on a single cpu for a few days. You only need this, if you want to have the snakemake top instance running in a submitted job. You alternatively have the option to run it on the frontend via tmux. Leave empty, if you want to use this frontend version and have [tmux](https://github.com/tmux/tmux/wiki) installed. You don't need to set this, if you are wanting to run the workflow interactively / on a laptop.
+* BIND_JOBS_TO_MAIN - if you use the option to run the snakemake top instance in a submitted job and need to bind the other jobs to the same node, you can set this option to true. See FAQ below for more details. You don't need to set this, if you are wanting to run the workflow interactively / on a laptop.
+* NODENAME_VAR - if you use the BIND_JOBS_TO_MAIN option, you need to let dadasnake know, how to access the node name (e.g.SLURMD_NODENAME on slurm). You don't need to set this, if you are wanting to run the workflow interactively / on a laptop.
+* SCHEDULER - insert the name of the scheduler you want to use (currently `slurm` or `uge`). This determines the cluster config given to snakemake, e.g. the cluster config file for slurm is config/slurm.config.yaml . Also check that the settings in this file is correct. If you have a different system, contact us ( https://github.com/a-h-b/dadasnake/issues ). You don't need to set this, if you are wanting to run the workflow interactively / on a laptop.
+* MAX_THREADS - set this to the maximum number of cores you want to be using in a run. If you don't set this, the default will be 50. Users can override this setting at runtime.
+* NORMAL_MEM_EACH - set the size of the RAM of one core of your normal copute nodes (e.g. 8G). If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. 
+* BIGMEM_MEM_EACH - set the size of the RAM of one core of your bigmem (or highmem) compute nodes. If you're not planning to use dadasnake to submit to a cluster or don't have separate bigmem nodes, you don't need to set this.
+* BIGMEM_CORES - set this to the maximum number of bigmem cores you want to require for a task. Set to 0, if you don't have separate bigmem nodes. You don't need to set this, if you're not planning to use dadasnake to submit to a cluster.
+* LOCK_SETTINGS - set this to true, if you don't want users to choose numbers and sizes of compute nodes at run time. If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. Setting LOCK_SETTINGS  makes the workflow slightly less flexible, as all large data sets will be run with the maximum number of bigmem nodes you set up here (see big_data settings below). On the other hand, it can be helpful, if you're setting up dadasnake for inexperienced users or have only one possible setting anyhow. If you're not locking, it's advised to set useful settings in the config/config.default.yaml file for normalMem, bigMem, and bigCores.
+
 
 4) **optional**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment, as [recommended by Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html):
