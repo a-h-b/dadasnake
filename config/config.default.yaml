@@ -83,6 +83,7 @@ pair_merging:
   trim_overhang: true
 chimeras:
   remove: true
+  remove_by_run: false
   method: consensus
   minFoldParentOverAbundance: 2
   minParentAbundance: 8

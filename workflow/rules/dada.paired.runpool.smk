@@ -317,15 +317,15 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.RDS",
             "sequenceTables/pre_chimera.seqs.fasta",
             "sequenceTables/pre_chimera.seqTab.tsv"
-        threads: 1
+        threads: getThreads(12)
         resources:
-            runtime="12:00:00",
+            runtime="48:00:00",
             mem=config['bigMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
         message: "merging runs and removing chimeras for {input}."
         script:
-            SCRIPTSDIR+"dada_mergeRuns.R"
+            SCRIPTSDIR+"dada_mergeRuns_runpools.R"
 
     rule nochime_numbers:
         input:

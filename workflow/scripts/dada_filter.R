@@ -302,6 +302,9 @@ sampleName <- gsub("preprocessing/","run.",gsub("/","",gsub(".fwd.fastq","",fast
 
 print(paste("filtering",sampleName))
 
+print(c(snakemake@config[['filtering']][['trunc_qual']][['fwd']],
+                               snakemake@config[['filtering']][['trunc_qual']][['rvs']]))
+
 fastqPairedFilter0(c(fastqF,fastqR), 
                     c(filtF,filtR),
                     truncLen=c(snakemake@config[['filtering']][['trunc_length']][['fwd']],

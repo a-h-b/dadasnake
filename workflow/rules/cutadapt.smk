@@ -1,5 +1,6 @@
 def get_fastq(wildcards):
-    return RAW+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    fastqs = config['raw_directory'] + "/" + samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    return fastqs
 
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix

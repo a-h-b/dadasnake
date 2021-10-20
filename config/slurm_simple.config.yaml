@@ -5,4 +5,5 @@ __default__:
   runtime: "-t"
   threads: "-c"
   stdout: "-o dadasnake.{rule}.{wildcards}.stdout"
+  tmpdir: "-tmpdir=/scratch"
 

@@ -158,6 +158,8 @@ if os.path.isabs(os.path.expandvars(config['raw_directory'])):
     RAW = os.path.expandvars(config['raw_directory'])
 else:
     RAW = os.getcwd() + "/" + os.path.expandvars(config['raw_directory'])
+config['raw_directory'] = RAW
+
 
 if config['big_data'] and config['dada']['pool']:
     raise Exception("No workflow is defined for pooled analysis of large datasets. Use per-sample analysis for large datasets by setting dada:pool: to true.")
