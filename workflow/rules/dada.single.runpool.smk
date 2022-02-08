@@ -185,6 +185,8 @@ if config['downsampling']['do']:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -238,6 +240,8 @@ else:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']

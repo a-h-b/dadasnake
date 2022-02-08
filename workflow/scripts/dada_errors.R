@@ -18,6 +18,7 @@ if(!require(dada2)){
   require(dada2)
 }
 
+source(snakemake@params[['errorFunctions']])
 
 filts <- unlist(snakemake@input)
 
@@ -46,7 +47,11 @@ if(length(filts)>0){
       }
     }
     drps <- drps[1:i]
-    errs <- learnErrors(drps, multithread=snakemake@threads)
+    errs <- learnErrors(drps, multithread=snakemake@threads, 
+                         nbases=as.numeric(snakemake@config[['dada']][['error_nbases']]),
+                         MAX_CONSIST=as.numeric(snakemake@config[['dada']][['error_max_consist']]),
+                         OMEGA_C=as.numeric(snakemake@config[['dada']][['error_omega_C']]),
+                         errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
     errsTmp <- as.data.frame(getErrors(errs))
     errsTmp <- t(apply(errsTmp,1,function(x) ifelse(x<x[length(x)],x[length(x)],x)))
     errs$err_out <- errsTmp
