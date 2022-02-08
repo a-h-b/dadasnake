@@ -197,7 +197,7 @@ else:
              -o $TMPD/{wildcards.library}.tr2.fastq.gz \
              $TMPD/{wildcards.library}.unt.fastq.gz >> {log} 2>&1
 
-            zcat $TMPD/{wildcards.library}.tr2.fastq | fastx_reverse_complement -z -o $TMPD/{wildcards.library}.tr2.rc.fastq.gz &>> {log} || touch $TMPD/{wildcards.library}.tr2.rc.fastq.gz
+            zcat $TMPD/{wildcards.library}.tr2.fastq.gz | fastx_reverse_complement -z -o $TMPD/{wildcards.library}.tr2.rc.fastq.gz &>> {log} || touch $TMPD/{wildcards.library}.tr2.rc.fastq.gz
 
             cutadapt -a {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \

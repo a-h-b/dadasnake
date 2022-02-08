@@ -28,8 +28,12 @@ if config['paired']:
         include:
             "workflow/rules/cutadapt.smk"
     else:
-        include:
-            "workflow/rules/copying.smk"
+        if config['nextseq']:
+            include:
+                "workflow/rules/gtail.smk"
+        else:
+            include:
+                "workflow/rules/copying.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             if not config['big_data']: 
@@ -50,8 +54,12 @@ else:
         include:
             "workflow/rules/cutadapt.single.smk"
     else:
-        include:
-            "workflow/rules/copying.single.smk"
+        if config['nextseq']:
+            include:
+                "workflow/rules/gtail.single.smk"
+        else:
+            include:
+                "workflow/rules/copying.single.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             if not config['big_data']:
@@ -101,6 +109,9 @@ if 'postprocessing' in STEPS:
 inputs = []
 if 'primers' in STEPS:
     inputs.append('primers.done')
+else:
+    if config['nextseq']:
+        inputs.append('gtails.done')
 if 'dada' in STEPS:
     inputs.append('dada.done')
 if 'taxonomy' in STEPS:
