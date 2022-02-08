@@ -59,6 +59,8 @@ downsampling:
   number: 50000
   min: true
   seed: 123
+  use_total: false
+  total: 100000000
 error_seed: 100
 dada:
   band_size: 16
