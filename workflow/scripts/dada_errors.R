@@ -47,10 +47,13 @@ if(length(filts)>0){
     }
     drps <- drps[1:i]
     errs <- learnErrors(drps, multithread=snakemake@threads)
+    errsTmp <- as.data.frame(getErrors(errs))
+    errsTmp <- t(apply(errsTmp,1,function(x) ifelse(x<x[length(x)],x[length(x)],x)))
+    errs$err_out <- errsTmp
     saveRDS(errs,errfile)
-pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
-    print(plotErrors(errs, nominalQ=TRUE))
-dev.off()
+    pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
+       print(plotErrors(errs, nominalQ=TRUE))
+    dev.off()
 }else{
    stop("No reads in any of the input files for learning errors.")
 }

@@ -94,7 +94,8 @@ if config['sequencing_direction'] == "fwd_1":
             runtime="12:00:00",
             mem=config['normalMem']
         params:
-            both_match=BOTHMATCH
+            both_match=BOTHMATCH,
+            nextseq="--nextseq-trim=2" if config['nextseq_novaseq'] else ""
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming forward primer is in read {config[primers][fwd][sequence]}"
@@ -105,7 +106,7 @@ if config['sequencing_direction'] == "fwd_1":
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             cutadapt -g {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-            -m 1 \
+            -m 1 {params.nextseq}\
             -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
             -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
 
@@ -127,7 +128,8 @@ elif config['sequencing_direction'] == "rvs_1":
             runtime="12:00:00",
             mem=config['normalMem']
         params:
-            both_match=BOTHMATCH
+            both_match=BOTHMATCH,
+            nextseq="--nextseq-trim=2" if config['nextseq_novaseq'] else ""
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Assuming reverse primer is in read."
@@ -140,7 +142,7 @@ elif config['sequencing_direction'] == "rvs_1":
 
             cutadapt -g {config[primers][rvs][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-              -m 1\
+              -m 1 {params.nextseq}\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} --trimmed-only \
              -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
 
@@ -163,7 +165,8 @@ else:
             runtime="12:00:00",
             mem=config['normalMem']
         params:
-            both_match=BOTHMATCH
+            both_match=BOTHMATCH,
+            nextseq="--nextseq-trim=2" if config['nextseq_novaseq'] else ""
         conda: ENVDIR + "dadasnake_env.yml"
         log: "logs/cutadapt.{run}.{library}.log"
         message: "Running cutadapt on {input}. Searching for both primers.\n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
@@ -175,7 +178,7 @@ else:
 
             cutadapt -g {config[primers][fwd][sequence]} \
             {config[primer_cutting][indels]} -n {config[primer_cutting][count]} -O {config[primer_cutting][overlap]} \
-              -m 1\
+              -m 1 {params.nextseq}\
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
              --untrimmed-output=$TMPD/{wildcards.library}.unt.fastq.gz \
              -o $TMPD/{wildcards.library}.fastq.gz {input} &> {log}
