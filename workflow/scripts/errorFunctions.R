@@ -39,11 +39,10 @@ loessErrfun_mod1 <- function(trans) {
   
   # enforce monotonicity
   # https://github.com/benjjneb/dada2/issues/791
+  # AHB version witout pipe
   estorig <- est
-  est <- est %>%
-    data.frame() %>%
-    mutate_all(funs(case_when(. < X40 ~ X40,
-                              . >= X40 ~ .))) %>% as.matrix()
+  est <- as.data.frame(est) 
+  est  <- as.matrix(t(apply(est,1,function(x) ifelse(x<x[length(x)],x[length(x)],x))))
   rownames(est) <- rownames(estorig)
   colnames(est) <- colnames(estorig)
   
@@ -97,11 +96,10 @@ loessErrfun_mod2 <- function(trans) {
   
   # enforce monotonicity
   # https://github.com/benjjneb/dada2/issues/791
+   # AHB version witout pipe
   estorig <- est
-  est <- est %>%
-    data.frame() %>%
-    mutate_all(funs(case_when(. < X40 ~ X40,
-                              . >= X40 ~ .))) %>% as.matrix()
+  est <- as.data.frame(est) 
+  est  <- as.matrix(t(apply(est,1,function(x) ifelse(x<x[length(x)],x[length(x)],x))))
   rownames(est) <- rownames(estorig)
   colnames(est) <- colnames(estorig)
   
@@ -159,11 +157,10 @@ loessErrfun_mod3 <- function(trans) {
   
   # enforce monotonicity
   # https://github.com/benjjneb/dada2/issues/791
+  # AHB version witout pipe
   estorig <- est
-  est <- est %>%
-    data.frame() %>%
-    mutate_all(funs(case_when(. < X40 ~ X40,
-                              . >= X40 ~ .))) %>% as.matrix()
+  est <- as.data.frame(est) 
+  est  <- as.matrix(t(apply(est,1,function(x) ifelse(x<x[length(x)],x[length(x)],x))))
   rownames(est) <- rownames(estorig)
   colnames(est) <- colnames(estorig)
   
@@ -217,11 +214,10 @@ loessErrfun_mod4 <- function(trans) {
   
   # enforce monotonicity
   # https://github.com/benjjneb/dada2/issues/791
+  # AHB version witout pipe
   estorig <- est
-  est <- est %>%
-    data.frame() %>%
-    mutate_all(funs(case_when(. < X40 ~ X40,
-                              . >= X40 ~ .))) %>% as.matrix()
+  est <- as.data.frame(est) 
+  est  <- as.matrix(t(apply(est,1,function(x) ifelse(x<x[length(x)],x[length(x)],x))))
   rownames(est) <- rownames(estorig)
   colnames(est) <- colnames(estorig)
   
