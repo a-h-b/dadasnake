@@ -28,7 +28,7 @@ if config['paired']:
         include:
             "workflow/rules/cutadapt.smk"
     else:
-        if config['nextseq']:
+        if config['nextseq_novaseq']:
             include:
                 "workflow/rules/gtail.smk"
         else:
@@ -54,7 +54,7 @@ else:
         include:
             "workflow/rules/cutadapt.single.smk"
     else:
-        if config['nextseq']:
+        if config['nextseq_novaseq']:
             include:
                 "workflow/rules/gtail.single.smk"
         else:
@@ -110,7 +110,7 @@ inputs = []
 if 'primers' in STEPS:
     inputs.append('primers.done')
 else:
-    if config['nextseq']:
+    if config['nextseq_novaseq']:
         inputs.append('gtails.done')
 if 'dada' in STEPS:
     inputs.append('dada.done')

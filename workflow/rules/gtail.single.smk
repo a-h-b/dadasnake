@@ -13,7 +13,7 @@ rule gtails_control:
         "reporting/readNumbers.tsv",
         "reporting/GtailsNumbers_perSample.tsv"
     output:
-        "primers.done"
+        "gtails.done"
     shell:
         """
         touch {output}

@@ -42,7 +42,7 @@ if(length(filts)>0){
       if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+31
       NREADS <- NREADS + sum(drps[[i]]$uniques)
       NBASES <- NBASES + sum(drps[[i]]$uniques * nchar(names(drps[[i]]$uniques)))
-      if (NBASES > 1e8) {
+      if (NBASES > as.numeric(snakemake@config[['dada']][['error_nbases']])) {
         break
       }
     }
@@ -52,9 +52,6 @@ if(length(filts)>0){
                          MAX_CONSIST=as.numeric(snakemake@config[['dada']][['error_max_consist']]),
                          OMEGA_C=as.numeric(snakemake@config[['dada']][['error_omega_C']]),
                          errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
-    errsTmp <- as.data.frame(getErrors(errs))
-    errsTmp <- t(apply(errsTmp,1,function(x) ifelse(x<x[length(x)],x[length(x)],x)))
-    errs$err_out <- errsTmp
     saveRDS(errs,errfile)
     pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
        print(plotErrors(errs, nominalQ=TRUE))
