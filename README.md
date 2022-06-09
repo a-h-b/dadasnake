@@ -51,6 +51,7 @@ If you don't submit jobs to the cluster, but want to run the whole workflow inte
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment, as [recommended by Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html):
 ```
 conda install -c conda-forge mamba
+mkdir -p conda
 mamba create --prefix $PWD/conda/snakemake_env
 conda activate $PWD/conda/snakemake_env
 mamba install -c conda-forge -c bioconda snakemake=6.9.1 mamba
