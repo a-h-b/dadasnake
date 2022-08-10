@@ -279,7 +279,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
@@ -298,7 +298,7 @@ if config["chimeras"]["remove"]:
         params:
             currentStep = "chimera"
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
@@ -316,7 +316,7 @@ else:
             "sequenceTables/all.seqTab.tsv"
         threads: 1
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
@@ -334,7 +334,7 @@ else:
         params:
             currentStep = "table"
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"
