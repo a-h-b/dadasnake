@@ -217,7 +217,8 @@ if config['downsampling']['do']:
                 direction = "fwd|rvs"
             threads: getThreads(int(config['bigCores']))
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             resources:
                 runtime="48:00:00",
                 mem=config['bigMem']
@@ -276,7 +277,8 @@ else:
                 direction = "fwd|rvs"
             threads: getThreads(int(config['bigCores']))
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             resources:
                 runtime="48:00:00",
                 mem=config['bigMem']

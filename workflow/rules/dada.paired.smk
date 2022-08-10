@@ -236,6 +236,8 @@ if config['dada']['use_quals']:
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
         message: "merging reads for {wildcards.run} {wildcards.sample}."

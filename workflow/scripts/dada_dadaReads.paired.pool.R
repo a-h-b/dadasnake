@@ -19,6 +19,7 @@ if(!require(dada2)){
   require(dada2)
 }
 library(Biostrings)
+source(snakemake@params[['errorFunctions']])
 
 # File parsing
 errfile <- snakemake@input[[1]]

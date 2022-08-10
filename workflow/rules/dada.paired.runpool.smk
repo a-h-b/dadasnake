@@ -199,7 +199,8 @@ if config['downsampling']['do']:
                 direction = "fwd|rvs"
             threads: getThreads(12)
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             resources:
                 runtime="12:00:00",
                 mem=config['normalMem']
@@ -259,7 +260,8 @@ else:
                 direction = "fwd|rvs"
             threads: getThreads(12)
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             resources:
                 runtime="12:00:00",
                 mem=config['normalMem']

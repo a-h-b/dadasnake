@@ -38,6 +38,8 @@ if(length(filts)>0){
     drps <- vector("list", length(filts))
     filts <- sample(filts)
     for (i in seq_along(filts)) {
+      print(i)
+      print("derepFastq:")
       drps[[i]] <- derepFastq(filts[[i]])
       if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+31
       NREADS <- NREADS + sum(drps[[i]]$uniques)
@@ -47,6 +49,7 @@ if(length(filts)>0){
       }
     }
     drps <- drps[1:i]
+    print("learnErrors:")
     errs <- learnErrors(drps, multithread=snakemake@threads, 
                          nbases=as.numeric(snakemake@config[['dada']][['error_nbases']]),
                          MAX_CONSIST=as.numeric(snakemake@config[['dada']][['error_max_consist']]),

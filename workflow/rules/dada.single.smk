@@ -224,6 +224,8 @@ if config['dada']['use_quals']:
         resources:
             runtime="24:00:00",
             mem=config['normalMem']
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_read2RDS.{run}.{sample}.log"
         message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."

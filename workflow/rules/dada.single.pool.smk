@@ -207,7 +207,8 @@ if config['downsampling']['do']:
                 runtime="24:00:00",
                 mem=config['normalMem']
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             conda: ENVDIR + "dada2_env.yml"
             log: "logs/DADA2_read2RDS.log"
             message: "converting fastq to dada-RDS."
@@ -260,7 +261,8 @@ else:
                 runtime="24:00:00",
                 mem=config['normalMem']
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             conda: ENVDIR + "dada2_env.yml"
             log: "logs/DADA2_read2RDS.log"
             message: "converting fastq to dada-RDS."

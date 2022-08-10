@@ -20,6 +20,8 @@ if(!require(dada2)){
 }
 library(Biostrings)
 
+source(snakemake@params[['errorFunctions']])
+
 # File parsing
 filt <- unlist(snakemake@input)
 sizes <- sapply(filt,function(x) as.numeric(unlist(strsplit(system2("zcat",args=c(x," 2>/dev/null | head |  wc -l"),stdout=T),split=" "))[1]))
