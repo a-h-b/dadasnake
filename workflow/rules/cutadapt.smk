@@ -195,8 +195,8 @@ else:
              {config[primer_cutting][indels]} -n {config[primer_cutting][count]} \
               -m 1:1 \
              -j {threads} -e {config[primer_cutting][perc_mismatch]} \
-             -o $TMPD/{wildcards.library}.rvs.final.fastq.gz -p $TMPD/{wildcards.library}.fwd.final.fastq.gz \
-             $TMPD/{wildcards.library}.rvs_tr2.fastq.gz $TMPD/{wildcards.library}.fwd_tr2.fastq.gz >> {log} 2>&1
+             -o $TMPD/{wildcards.library}.fwd.final.fastq.gz -p $TMPD/{wildcards.library}.rvs.final.fastq.gz \
+             $TMPD/{wildcards.library}.fwd_tr2.fastq.gz $TMPD/{wildcards.library}.rvs_tr2.fastq.gz >> {log} 2>&1
 
             cat $TMPD/{wildcards.library}.fwd.final.fastq.gz >> {output[0]}
             cat $TMPD/{wildcards.library}.rvs.final.fastq.gz >> {output[1]}
