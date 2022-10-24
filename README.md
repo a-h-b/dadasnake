@@ -47,13 +47,14 @@ If you don't submit jobs to the cluster, but want to run the whole workflow inte
 * LOCK_SETTINGS - set this to true, if you don't want users to choose numbers and sizes of compute nodes at run time. If you're not planning to use dadasnake to submit to a cluster, you don't need to set this. Setting LOCK_SETTINGS  makes the workflow slightly less flexible, as all large data sets will be run with the maximum number of bigmem nodes you set up here (see big_data settings below). On the other hand, it can be helpful, if you're setting up dadasnake for inexperienced users or have only one possible setting anyhow. If you're not locking, it's advised to set useful settings in the config/config.default.yaml file for normalMem, bigMem, and bigCores.
 
 
-4) **optional**: Install snakemake via conda:
+4) **optional, but highly recommended**: Install snakemake via conda:
 If you want to use snakemake via conda (and you've set SNAKEMAKE_VIA_CONDA to true), install the environment, as [recommended by Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html):
 ```
 conda install -c conda-forge mamba
+mkdir -p conda
 mamba create --prefix $PWD/conda/snakemake_env
 conda activate $PWD/conda/snakemake_env
-mamba install -c conda-forge -c bioconda snakemake=6.9.1
+mamba install -c conda-forge -c bioconda snakemake=6.9.1 mamba
 conda deactivate
 ```
 Alternatively, if the above does not work, you can install a fixed snakemake version without mamba like so:

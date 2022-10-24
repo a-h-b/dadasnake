@@ -18,7 +18,7 @@ fi
 if [ "$BIND_JOBS_TO_MAIN" = true ]; then
    COREBINDER="${!NODENAME_VAR}"
 else
-   COREBINDER==""
+   COREBINDER=""
 fi
 
 eval $LOADING_MODULES
