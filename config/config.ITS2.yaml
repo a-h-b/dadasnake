@@ -78,5 +78,6 @@ postprocessing:
     do: false
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
     classifier: mothur
+    level: "Genus"
   treeing:
     do: false
