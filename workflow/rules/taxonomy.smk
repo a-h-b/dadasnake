@@ -310,7 +310,7 @@ if config['blast']['do']:
                 runtime="24:00:00",
                 mem=config['normalMem']
             log: "logs/basta.log"
-#            conda: ENVDIR + "basta_env.yml"
+            conda: ENVDIR + "basta_env.yml"
             message: "Running basta on {input}."
             shell:
                 """

@@ -6,7 +6,7 @@ if config['postprocessing']['treeing']['do']:
 if config['postprocessing']['rarefaction_curve']:
     postConts.append("stats/rarefaction_curves.pdf")
 if config['postprocessing']['funguild']['do']:
-    CLASSIFY=config['postprocessing']['funguild']['classifier'].split(".")[0]
+    CLASSIFY=config['postprocessing']['funguild']['classifier_db'].split(".")[0]
     if config['taxonomy'][CLASSIFY]['do']:
         postConts.append("post/filtered.seqTab.guilds.tsv")
 if config['postprocessing']['fungalTraits']['do']:
@@ -93,13 +93,14 @@ rule guilds_Filter:
         runtime="12:00:00",
         mem=config['normalMem']
     params:
-        src_path=SCRIPTSDIR
+        src_path=SCRIPTSDIR,
+        tax_name="taxonomy." + config['postprocessing']['funguild']['classifier_db']
     log: "logs/funguild.log"
     conda: ENVDIR + "dadasnake_env.yml"
     message: "Running funguild on {input}."
     shell:
         """
-        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name taxonomy.{config[postprocessing][funguild][classifier]} &> {log} || touch {output}
+        {params.src_path}/Guilds_v1.1.local.2.py -otu {input} -output {output} -path_to_db {config[postprocessing][funguild][funguild_db]} -taxonomy_name {params.tax_name} &> {log} || touch {output}
         """
 
 rule funTraits_Filter:
