@@ -157,6 +157,14 @@ ITSx:
   e_val: 1e-5
   query_taxa: .
   target_taxon: F
+post_clustering:
+  do: true
+  pre_tax: false
+  cutoff: 0.97
+  method: vsearch
+# method can be vsearch or decipher  
+  strand: plus
+# strand only works for vsearch
 hand_off:
   biom: true
   phyloseq: false

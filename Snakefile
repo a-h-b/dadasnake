@@ -82,6 +82,8 @@ if 'dada' in STEPS:
     else:
         include:
             "workflow/rules/dada.common.smk"
+        include:
+            "workflow/rules/post_clustering.smk"
 if 'taxonomy' in STEPS:
     if config['big_data']:
         include:
@@ -114,6 +116,8 @@ else:
         inputs.append('gtails.done')
 if 'dada' in STEPS:
     inputs.append('dada.done')
+    if config['post_clustering']['do']:
+        inputs.append('post_clustering.done')
 if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
 if 'postprocessing' in STEPS:
