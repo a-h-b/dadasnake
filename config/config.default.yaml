@@ -160,6 +160,8 @@ ITSx:
 post_clustering:
   do: true
   pre_tax: false
+  post_ITSx: false
+# post_ITSx is only used with pre_tax otherwise it's determined by the taxonomy output
   cutoff: 0.97
   method: vsearch
 # method can be vsearch or decipher  

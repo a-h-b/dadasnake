@@ -9,8 +9,11 @@ rule post_clustering_control:
 
 
 if config['post_clustering']['pre_tax']:
-    toCluster = "sequenceTables/all.seqs.fasta"
     toClusterTab = "sequenceTables/all.seqTab.RDS"
+    if config['post_clustering']['post_ITSx']:
+        toCluster = "sequenceTables/ITSx.seqs.fasta"
+    else:
+        toCluster = "sequenceTables/all.seqs.fasta"
 else:
     if config['final_table_filtering']['do'] and 'postprocessing' in STEPS:
         toCluster = "post/filtered.seqs.fasta"
