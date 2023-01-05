@@ -221,7 +221,7 @@ if config['downsampling']['do']:
                 "merged/{run}/seqTabs.RDS"
             threads: getThreads(12)
             resources:
-            runtime="24:00:00",
+                runtime="24:00:00",
                 mem=config['normalMem']
             params:
                 pooling=config['dada']['pool']
@@ -274,7 +274,7 @@ else:
                 "merged/{run}/seqTabs.RDS"
             threads: getThreads(12)
             resources:
-            runtime="24:00:00",
+                runtime="24:00:00",
                 mem=config['normalMem']
             params:
                 pooling=config['dada']['pool']
