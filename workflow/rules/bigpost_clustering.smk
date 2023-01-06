@@ -38,7 +38,7 @@ if config['post_clustering']['method'] == "vsearch":
             strand=config['post_clustering']['strand'] 
         threads: getThreads(12)
         resources:
-            runtime="2:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: os.path.join(ENVDIR, "vsearch_env.yml")
         log: "logs/post_clustering_vsearch.log"
@@ -62,10 +62,10 @@ if config['post_clustering']['method'] == "vsearch":
         output:
             "clusteredTables/clusteredTab.tsv",
             "clusteredTables/clusteredTab.RDS"
-        threads: 1
+        threads: config['bigCores']
         resources:
-            runtime="2:00:00",
-            mem=config['normalMem']
+            runtime="12:00:00",
+            mem=config['bigMem']
         conda: os.path.join(ENVDIR, "dada2_env.yml")
         log: "logs/post_clustering_vsearch.log"
         message: "Running vsearch clustering on {input}."
@@ -84,10 +84,10 @@ else:
             "clusteredTables/clusteredTab.RDS"
         params:
             cutoff=config['post_clustering']['cutoff']
-        threads: getThreads(12)
+        threads: config['bigCores']
         resources:
-            runtime="2:00:00",
-            mem=config['normalMem']
+            runtime="48:00:00",
+            mem=config['bigMem']
         conda: os.path.join(ENVDIR, "dada2_env.yml")
         log: "logs/post_clustering_decipher.log"
         message: "Running decipher clustering on {input}."

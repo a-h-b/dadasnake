@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv" if (not config['nextseq_novaseq'] and not config['do_primers']) else "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),

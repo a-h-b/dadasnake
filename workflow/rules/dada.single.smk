@@ -8,18 +8,14 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique()),
         expand("stats/multiqc_{step}_report.html",step=['1','filtered']) 
     output:
-        "dada.done"
-    shell:
-        """
-        touch {output}
-        """
+        touch("dada.done")
 
 def get_sample_perRun(wildcards,prefix,suffix):
     return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv" if (not config['nextseq_novaseq'] and not config['do_primers']) else "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),

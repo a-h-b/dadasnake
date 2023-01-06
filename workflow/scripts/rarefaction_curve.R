@@ -17,7 +17,7 @@ if (snakemake@threads > 1) {
 library(vegan)
 
 ### rarefaction curve function
-dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = "sequence variants", 
+dadasnake_rarecurve <- function (x, step = 100, sample, xlab = "reads", ylab = snakemake@params[["thing"]], 
                                  ymax,xmax,
                                  label = TRUE, col="black", ...) {
   tot <- rowSums(x)

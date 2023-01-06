@@ -21,7 +21,7 @@ rule primers_control:
 rule combine_or_rename:
     input:
         "reporting/primerNumbers_perLibrary.tsv",
-        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq")    
+        files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq.gz")    
     output:
         "preprocessing/{run}/{sample}.{direction}.fastq.gz"
     wildcard_constraints:

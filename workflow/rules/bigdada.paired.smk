@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv" if (not config['nextseq_novaseq'] and not config['do_primers']) else "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -91,13 +91,13 @@ rule dada_qc_filtered:
     script:
         SCRIPTSDIR+"dada_QC.R"
 
-rule fastqc_1:
+rule big_fastqc_1:
     input:
         lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fwd.fastq.gz"),
         lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".rvs.fastq.gz")
     output:
         directory('stats/fastqc_1/{run}')
-    threads: getThreads(4)
+    threads: getThreads(8)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -110,7 +110,7 @@ rule fastqc_1:
         fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
         """
 
-rule multiqc:
+rule big_multiqc:
     input:
         "stats/fastqc_{step}/{run}"
     output:
@@ -130,13 +130,13 @@ rule multiqc:
         multiqc -n {output[1]} {input}/*{wildcards.dir}_fastqc.* >> {log} 2>&1
         """
 
-rule fastqc_filtered:
+rule big_fastqc_filtered:
     input:
         lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fwd.fastq.gz"),
         lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".rvs.fastq.gz")
     output:
         directory('stats/fastqc_filtered/{run}')
-    threads: getThreads(4)
+    threads: getThreads(8)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -230,6 +230,8 @@ if config['dada']['use_quals']:
             lambda wildcards: "downsampled/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz" if config['downsampling']['do'] else "filtered/"+ wildcards.run + "/" + wildcards.sample + ".rvs.fastq.gz"
         output:
             "merged/{run}/{sample}.RDS"
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         threads: 1
         resources:
             runtime="12:00:00",

@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv" if (not config['nextseq_novaseq'] and not config['do_primers']) else "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -224,7 +224,7 @@ if config['downsampling']['do']:
                 "merged/{run}/seqTabs.RDS"
             threads: getThreads(12)
             resources:
-            runtime="24:00:00",
+                runtime="24:00:00",
                 mem=config['normalMem']
             params:
                 pooling=config['dada']['pool']

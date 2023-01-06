@@ -100,6 +100,9 @@ outputdir: "dadasnake_output"
 taxonomy:
   dada:
     do: false
+    run_on:
+      - ASV
+      - cluster
     post_ITSx: false
     db_path: "../DBs/DADA2"
     refFasta: "silva_nr99_v138_train_set.fa.gz"
@@ -112,6 +115,9 @@ taxonomy:
     spec_db: "../DBs/DADA2/silva_species_assignment_v138.fa.gz"
   decipher:
     do: false
+    run_on:
+      - ASV
+      - cluster
     post_ITSx: false
     db_path: "../DBs/decipher"
     tax_db: "SILVA_SSU_r138_2019.RData"
@@ -125,6 +131,9 @@ taxonomy:
     spec_db: "../DBs/DADA2/silva_species_assignment_v138.fa.gz"
   mothur:
     do: true
+    run_on:
+      - ASV
+      - cluster
     post_ITSx: false
     db_path: "../DBs/mothur"
     tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
@@ -133,7 +142,10 @@ taxonomy:
     cutoff: 60
     rank_number: 7
 blast:
-  do: false
+  do: true
+  run_on:
+    - ASV
+    - cluster
   db_path: "../DBs/ncbi_16SMicrobial"
   tax_db: 16S_ribosomal_RNA
   e_val: 0.01
@@ -152,6 +164,9 @@ blast:
   basta_perchits: 99
 ITSx:
   do: false
+  run_on:
+    - ASV
+    - cluster
   min_regions: 1
   region: ITS2
   e_val: 1e-5
@@ -159,9 +174,7 @@ ITSx:
   target_taxon: F
 post_clustering:
   do: true
-  pre_tax: false
-  post_ITSx: false
-# post_ITSx is only used with pre_tax otherwise it's determined by the taxonomy output
+# do is only used if no taxonomy is done to trigger clustering
   cutoff: 0.97
   method: vsearch
 # method can be vsearch or decipher  
@@ -180,11 +193,11 @@ postprocessing:
   funguild:
     do: false
     funguild_db: "../DBs/functions/funguild_db.json"
-    classifier: mothur
+    classifier_db: mothur.SILVA_138_SSURef_NR99_cut
   fungalTraits:
     do: false
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
-    classifier: mothur.SILVA_138_SSURef_NR99_cut
+    classifier_db: mothur.SILVA_138_SSURef_NR99_cut
   tax4fun2:
     do: false
     db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"

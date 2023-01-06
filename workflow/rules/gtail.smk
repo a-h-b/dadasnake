@@ -65,8 +65,10 @@ rule gtails_numbers:
         "reporting/readNumbers.tsv",
         expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
-        report("reporting/GtailNumbers_perLibrary.tsv",category="Reads"),
-        report("reporting/GtailNumbers_perSample.tsv",category="Reads")
+        "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perSample.tsv"
+#        report("reporting/GtailsNumbers_perLibrary.tsv",category="Reads"),
+#        report("reporting/GtailsNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
         currentStep = "primers"

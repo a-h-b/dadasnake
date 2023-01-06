@@ -89,7 +89,7 @@ if 'taxonomy' in STEPS:
         include:
             "workflow/rules/bigtaxonomy.smk"
     else:
-        include:
+         include:
             "workflow/rules/taxonomy.smk"
 if 'postprocessing' in STEPS:
     if config['final_table_filtering']['do']:
