@@ -570,21 +570,37 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
 
     rule basta:
         input:
-            "sequenceTables/blast_results.tsv"
+            "{dir}/blast_results.tsv"
         output:
-            "sequenceTables/basta_results.tsv",
-            "sequenceTables/basta_details.txt"
-        params: best=  "-b 1" if config['blast']['basta_besthit'] else ""
+            "{dir}/basta_results.tsv",
+            "{dir}/basta_details.txt"
+        params: 
+            best=  "-b 1" if config['blast']['basta_besthit'] else "",
+            e_val=config['blast']['basta_e_val'],
+            alen=config['blast']['basta_alen'],
+            min=config['blast']['basta_min'],
+            id=config['blast']['basta_id'],
+            perchits=config['blast']['basta_perchits'],
+            besthit=config['blast']['basta_besthit'],
+            db_path=config['blast']['basta_db']
         threads: 1
         resources:
             runtime="24:00:00",
             mem=config['normalMem']
-        log: "logs/basta.log"
+        log: "logs/basta.{dir}.log"
         conda: ENVDIR + "basta_env.yml"
         message: "Running basta on {input}."
         shell:
             """
-            {config[blast][basta_path]} sequence -e {config[blast][basta_e_val]} -l {config[blast][basta_alen]} -m {config[blast][basta_min]} -i {config[blast][basta_id]} {params.best} -p {config[blast][basta_perchits]} -d {config[blast][basta_db]} -v {output[1]} -b {config[blast][basta_besthit]} {input} {output[0]} gb &>> {log}
+            TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+            cp -r {params.db_path}/gb_mapping.db $TMPD/
+            cp -r {params.db_path}/complete_taxa.db $TMPD/
+            basta sequence -e {params.e_val} -l {params.alen} \
+              -m {params.min} -i {params.id} {params.best} \
+              -p {params.perchits} -d $TMPD -v {output[1]} \
+              {input} {output[0]} gb &>> {log}
+            rm -rf $TMPD/gb_mapping.db
+            rm -rf $TMPD/complete_taxa.db
             """
 
     rule format_basta:
@@ -631,24 +647,6 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
             fi
             """
 
-    rule bastaCl:
-        input:
-            "clusteredTables/blast_results.tsv"
-        output:
-            "clusteredTables/basta_results.tsv",
-            "clusteredTables/basta_details.txt"
-        params: best=  "-b 1" if config['blast']['basta_besthit'] else ""
-        threads: 1
-        resources:
-            runtime="24:00:00",
-            mem=config['normalMem']
-        log: "logs/basta_cluster.log"
-        conda: ENVDIR + "basta_env.yml"
-        message: "Running basta on {input}."
-        shell:
-            """
-            {config[blast][basta_path]} sequence -e {config[blast][basta_e_val]} -l {config[blast][basta_alen]} -m {config[blast][basta_min]} -i {config[blast][basta_id]} {params.best} -p {config[blast][basta_perchits]} -d {config[blast][basta_db]} -v {output[1]} -b {config[blast][basta_besthit]} {input} {output[0]} gb &>> {log}
-            """
 
     rule format_bastaCl:
         input:

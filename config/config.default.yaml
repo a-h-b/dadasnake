@@ -153,7 +153,7 @@ blast:
   all: true
   max_targets: 10
   run_basta: false
-  basta_path: "../bin/basta"
+#  basta_path: "../bin/basta"
   basta_db: "../DBs/ncbi_taxonomy"
   basta_e_val: 0.00001
   basta_alen: 100
