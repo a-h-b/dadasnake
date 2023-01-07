@@ -85,6 +85,10 @@ rule funTraits_noFilter:
     output:
         "post/{prefix}.traits.tsv",
         "post/{prefix}.traits.RDS"
+    params:
+        db=config['postprocessing']['fungalTraits']['db'],
+        level=config['postprocessing']['fungalTraits']['level'],
+        classifier=config['postprocessing']['fungalTraits']['classifier_db']
     threads: 1
     resources:
         runtime="6:00:00",
@@ -111,7 +115,14 @@ rule tax4fun2_noFilter:
     params:
         tmp=TMPDIR,
         outputDir="post/tax4fun2",
-        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R"
+        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R",
+        db=config["postprocessing"]["tax4fun2"]["db"],
+        user_data=config["postprocessing"]["tax4fun2"]["user_data"],
+        user_dir=config["postprocessing"]["tax4fun2"]["user_dir"],
+        user_db=config["postprocessing"]["tax4fun2"]["user_db"],
+        database_mode=config["postprocessing"]["tax4fun2"]["database_mode"],
+        normalize_by_copy_number=config["postprocessing"]["tax4fun2"]["normalize_by_copy_number"],
+        min_identity_to_reference=config["postprocessing"]["tax4fun2"]["min_identity_to_reference"]
     log: "logs/tax4fun2.log"
     conda: ENVDIR + "tax4fun2_env.yml"
     message: "Running tax4fun2 on {input}."

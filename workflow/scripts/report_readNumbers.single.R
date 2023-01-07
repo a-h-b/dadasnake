@@ -20,7 +20,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
       as.numeric(unlist(strsplit(system2("wc",args=c("-l",x),stdout=T),split=" "))[1])/4
     }
   })
-  prefix <- gsub("[/]{2}$","/",paste0(snakemake@config[["raw_directory"]],"/"))
+  prefix <- gsub("[/]{2}$","/",paste0(snakemake@params[["raw_directory"]],"/"))
   names(readnums) <- gsub(paste0("^[/].+",prefix),"",names(readnums))
   sampleTab$reads_raw_r1 <- sapply(sampleTab$r1_file,function(x) readnums[x])
   write.table(sampleTab,snakemake@output[[1]],sep="\t",quote=F,row.names=F)
@@ -80,7 +80,7 @@ if(snakemake@params[["currentStep"]] == "raw"){
   }
   print("extracting read numbers")
   getN <- function(x) sum(getUniques(x))
-  if(length(filesOI)>1 | !snakemake@config[['dada']][['pool']] %in% c("true","pseudo")){
+  if(length(filesOI)>1 | !snakemake@params[['pool']] %in% c("true","pseudo")){
     readnums <- sapply(filesOI,function(x){
       if(file.info(x)$size>0){
         getN(readRDS(x))

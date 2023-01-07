@@ -79,6 +79,8 @@ if 'dada' in STEPS:
     if config['big_data']:
         include:
             "workflow/rules/bigdada.common.smk"
+        include:
+            "workflow/rules/bigpost_clustering.smk"
     else:
         include:
             "workflow/rules/dada.common.smk"

@@ -58,12 +58,15 @@ if config['taxonomy']['dada']['do'] and 'cluster' in config['taxonomy']['dada'][
     taxTabsCl.append("clusteredTables/tax.dada.RDS")
 
 
-rule taxonomy_to_OTUtab:
+rule taxonomy_to_ASVtab:
     input:
         taxTabs
     output:
         "sequenceTables/all.seqTab.tax.tsv",
         "sequenceTables/all.seqTab.tax.RDS"
+    params:
+        what="ASV",
+        ITSX="add" if config['ITSx']['do'] and 'ASV' in config['ITSx']['run_on'] else "none"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -80,6 +83,9 @@ rule taxonomy_to_clustertab:
     output:
         "clusteredTables/clusteredTab.tax.tsv",
         "clusteredTables/clusteredTab.tax.RDS"
+    params:
+        what="cluster",
+        ITSX="add" if config['ITSx']['do'] and 'cluster' in config['ITSx']['run_on'] else "none"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -101,7 +107,8 @@ rule gather_mothur_taxonomy:
         runtime="120:00:00",
         mem=config['bigMem']
     params:
-        rank_num = config["taxonomy"]["mothur"]["rank_number"]
+        rank_num = config["taxonomy"]["mothur"]["rank_number"],
+        what="ASV"
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/taxonomy_mothur.log"
     message: "Combining mothur taxonomy tables {input}."
@@ -113,6 +120,8 @@ rule gather_dada_taxonomy:
         expand("sequenceTables/tax.dada.{db}.RDS",db=[db for db in DADADB.keys()])
     output:
         "sequenceTables/tax.dada.RDS"
+    params:
+        what="ASV"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -128,6 +137,8 @@ rule gather_decipher_taxonomy:
         expand("sequenceTables/tax.decipher.{db}.RDS",db=[db for db in DECIDB.keys()])
     output:
         "sequenceTables/tax.decipher.RDS"
+    params:
+        what="ASV"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -149,7 +160,8 @@ rule gather_mothur_taxonomyCl:
         runtime="12:00:00",
         mem=config['bigMem']
     params:
-        rank_num = config["taxonomy"]["mothur"]["rank_number"]
+        rank_num = config["taxonomy"]["mothur"]["rank_number"],
+        what="cluster"
     conda: ENVDIR + "dada2_env.yml"
     log: "logs/taxonomy_mothur_clusters.log"
     message: "Combining mothur taxonomy tables {input}."
@@ -161,6 +173,8 @@ rule gather_dada_taxonomyCl:
         expand("clusteredTables/tax.dada.{db}.RDS",db=[db for db in DADADB.keys()])
     output:
         "clusteredTables/tax.dada.RDS"
+    params:
+        what="cluster"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -176,6 +190,8 @@ rule gather_decipher_taxonomyCl:
         expand("clusteredTables/tax.decipher.{db}.RDS",db=[db for db in DECIDB.keys()])
     output:
         "clusteredTables/tax.decipher.RDS"
+    params:
+        what="cluster"
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -195,7 +211,14 @@ if config['taxonomy']['dada']['post_ITSx'] and config['ITSx']['do']:
             "sequenceTables/tax.dada.{db}.RDS"
         params: 
             DB = lambda wildcards: DADADB[wildcards.db],
-            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else "",
+            do_species=config['taxonomy']['dada']['look_for_species'],
+            what="ASV",
+            seed=config['taxonomy']['dada']['seed'],
+            db_path=config['taxonomy']['dada']['db_path'],
+            ref=config['taxonomy']['dada']['refFasta'],
+            tryRC=config['taxonomy']['dada']['tryRC'],
+            minBoot=config['taxonomy']['dada']['minBoot']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -214,7 +237,14 @@ else:
             "sequenceTables/tax.dada.{db}.RDS"
         params: 
             DB = lambda wildcards: DADADB[wildcards.db],
-            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else "",
+            do_species=config['taxonomy']['dada']['look_for_species'],
+            what="ASV",
+            seed=config['taxonomy']['dada']['seed'],
+            db_path=config['taxonomy']['dada']['db_path'],
+            ref=config['taxonomy']['dada']['refFasta'],
+            tryRC=config['taxonomy']['dada']['tryRC'],
+            minBoot=config['taxonomy']['dada']['minBoot']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -234,7 +264,15 @@ if config['taxonomy']['decipher']['post_ITSx'] and config['ITSx']['do']:
             "sequenceTables/tax.decipher.{db}.RDS"
         params:
             DB = lambda wildcards: DECIDB[wildcards.db],
-            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else "",
+            what="ASV",
+            db_path=config['taxonomy']['decipher']['db_path'],
+            tax_db=config['taxonomy']['decipher']['tax_db'],
+            seed=config['taxonomy']['decipher']['seed'],
+            strand=config['taxonomy']['decipher']['strand'],
+            threshold=config['taxonomy']['decipher']['threshold'],
+            bootstraps=config['taxonomy']['decipher']['bootstraps'],
+            do_species=config['taxonomy']['decipher']['look_for_species']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -253,7 +291,15 @@ else:
             "sequenceTables/tax.decipher.{db}.RDS"
         params:
             DB = lambda wildcards: DECIDB[wildcards.db],
-            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else "",
+            what="ASV",
+            db_path=config['taxonomy']['decipher']['db_path'],
+            tax_db=config['taxonomy']['decipher']['tax_db'],
+            seed=config['taxonomy']['decipher']['seed'],
+            strand=config['taxonomy']['decipher']['strand'],
+            threshold=config['taxonomy']['decipher']['threshold'],
+            bootstraps=config['taxonomy']['decipher']['bootstraps'],
+            do_species=config['taxonomy']['decipher']['look_for_species']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -326,7 +372,14 @@ if config['taxonomy']['dada']['post_ITSx'] and config['ITSx']['do']:
             "clusteredTables/tax.dada.{db}.RDS"
         params:
             DB = lambda wildcards: DADADB[wildcards.db],
-            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else "",
+            do_species=config['taxonomy']['dada']['look_for_species'],
+            what="cluster",
+            seed=config['taxonomy']['dada']['seed'],
+            db_path=config['taxonomy']['dada']['db_path'],
+            ref=config['taxonomy']['dada']['refFasta'],
+            tryRC=config['taxonomy']['dada']['tryRC'],
+            minBoot=config['taxonomy']['dada']['minBoot']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -345,7 +398,14 @@ else:
             "clusteredTables/tax.dada.{db}.RDS"
         params:
             DB = lambda wildcards: DADADB[wildcards.db],
-            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else ""
+            SPEC = lambda wildcards: DADADB_SPEC[wildcards.db] if config['taxonomy']['dada']['look_for_species'] else "",
+            do_species=config['taxonomy']['dada']['look_for_species'],
+            what="cluster",
+            seed=config['taxonomy']['dada']['seed'],
+            db_path=config['taxonomy']['dada']['db_path'],
+            ref=config['taxonomy']['dada']['refFasta'],
+            tryRC=config['taxonomy']['dada']['tryRC'],
+            minBoot=config['taxonomy']['dada']['minBoot']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -366,7 +426,15 @@ if config['taxonomy']['decipher']['post_ITSx'] and config['ITSx']['do']:
             "clursteredTables/tax.decipher.{db}.RDS"
         params:
             DB = lambda wildcards: DECIDB[wildcards.db],
-            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else "",
+            what="cluster",
+            db_path=config['taxonomy']['decipher']['db_path'],
+            tax_db=config['taxonomy']['decipher']['tax_db'],
+            seed=config['taxonomy']['decipher']['seed'],
+            strand=config['taxonomy']['decipher']['strand'],
+            threshold=config['taxonomy']['decipher']['threshold'],
+            bootstraps=config['taxonomy']['decipher']['bootstraps'],
+            do_species=config['taxonomy']['decipher']['look_for_species']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -385,7 +453,15 @@ else:
             "clusteredTables/tax.decipher.{db}.RDS"
         params:
             DB = lambda wildcards: DECIDB[wildcards.db],
-            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else ""
+            SPEC = lambda wildcards: DECIDB_SPEC[wildcards.db] if config['taxonomy']['decipher']['look_for_species'] else "",
+            what="cluster",
+            db_path=config['taxonomy']['decipher']['db_path'],
+            tax_db=config['taxonomy']['decipher']['tax_db'],
+            seed=config['taxonomy']['decipher']['seed'],
+            strand=config['taxonomy']['decipher']['strand'],
+            threshold=config['taxonomy']['decipher']['threshold'],
+            bootstraps=config['taxonomy']['decipher']['bootstraps'],
+            do_species=config['taxonomy']['decipher']['look_for_species']
         threads: config['bigCores']
         resources:
             runtime="120:00:00",
@@ -508,6 +584,8 @@ if not config['blast']['all']:
             expand("sequenceTables/all.seqTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] or config['taxonomy']['dada']['do']) else "")
         output:
             "sequenceTables/no_anno.seqs.fasta"
+        params:
+            what="ASV"
         threads: config['bigCores']
         resources:
             runtime="12:00:00",
@@ -525,6 +603,8 @@ if not config['blast']['all']:
             expand("clusteredTables/clusteredTab.{tax}RDS",tax="tax." if (config['taxonomy']['decipher']['do'] or config['taxonomy']['mothur']['do'] or config['taxonomy']['dada']['do']) else "")
         output:
             "clusteredTables/no_anno.seqs.fasta"
+        params:
+            what="cluster"
         threads: config['bigCores']
         resources:
             runtime="12:00:00",
@@ -610,6 +690,9 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         output:
             "sequenceTables/all.seqTab.tax.blast.RDS",
             "sequenceTables/all.seqTab.tax.blast.tsv"
+        params:
+            what="ASV",
+            tax_db=config["blast"]["tax_db"]
         threads: 1
         resources:
             runtime="24:00:00",
@@ -654,6 +737,9 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         output:
             "clusteredTables/clusteredTab.tax.blast.RDS",
             "clusteredTables/clusteredTab.tax.blast.tsv"
+        params:
+            what="cluster",
+            tax_db=config["blast"]["tax_db"]
         threads: 1
         resources:
             runtime="24:00:00",

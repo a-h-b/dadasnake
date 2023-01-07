@@ -8,20 +8,38 @@ condap <- Sys.getenv("CONDA_PREFIX")
 library(Biostrings)
 
 
+if(snakemake@params[["what"]]=="ASV"){
+  units <- "ASV"
+}else{
+  units <- "OTU"
+}
+
 print("reading OTU table")
 seqTab <- readRDS(snakemake@input[[1]])
-if(snakemake@config[['ITSx']][['do']]){
+if(units=="ASV" & any(colnames(seqTab)=="OTU")){
+  seqTab$OTU <- gsub("OTU_","ASV_",seqTab$OTU)
+  colnames(seqTab)[which(colnames(seqTab)=="OTU")] <- "ASV"
+}
+
+if(snakemake@params[['ITSx']]=="add"){
   print("reading ITSx result")
   iadd <- 1
   seqs <- readDNAStringSet(snakemake@input[[2]])
-  seqTab$ITSx <- seqTab$OTU %in% names(seqs)
+  if(units=="ASV" & any(grepl("^OTU",names(seqTab)))){
+    names(seqs) <- gsub("OTU_","ASV_",names(seqs))
+  }
+  seqTab$ITSx <- seqTab[,which(colnames(seqTab)==units)] %in% names(seqs)
   rm(seqs)
 }else{
   iadd <- 0
 }
 for(i in (2+iadd):length(snakemake@input)){
   cTax <- readRDS(snakemake@input[[i]])
-  seqTab <- merge(seqTab,cTax,by="OTU",all.x=T) 
+  if(units=="ASV" & any(colnames(cTax)=="OTU")){
+    cTax$OTU <- gsub("OTU_","ASV_",cTax$OTU)
+    colnames(cTax)[which(colnames(cTax)=="OTU")] <- "ASV"
+  }
+  seqTab <- merge(seqTab,cTax,by=units,all.x=T) 
 }
 seqTab[is.na(seqTab)] <- ""
 print("Saving OTU table with taxonomy")

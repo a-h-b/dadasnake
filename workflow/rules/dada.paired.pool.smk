@@ -44,7 +44,8 @@ rule merged_numbers:
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "merged"
+        currentStep = "merged",
+        pool = snakemake@config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']

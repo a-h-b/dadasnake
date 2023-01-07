@@ -5,6 +5,13 @@ sink(log, type="message")
 condap <- Sys.getenv("CONDA_PREFIX")
 .libPaths(paste0(condap,"/lib/R/library"))
 
+if(snakemake@params[["what"]]=="ASV"){
+  units <- "ASV"
+}else{
+  units <- "OTU"
+}
+
+
 print("reading DECIPHER result")
 for(dt in 1:length(snakemake@input)){
   currName <- gsub(".RDS$","",gsub("sequenceTables/tax.decipher.","",snakemake@input[[dt]]))
@@ -12,7 +19,11 @@ for(dt in 1:length(snakemake@input)){
   decTax <- decTax[,-ncol(decTax)]
   colnames(decTax) <- paste0(colnames(decTax),".decipher.",currName)
   decTax$OTU <- rownames(decTax)
-  if(!"lastTab" %in% ls()) lastTab <- decTax else lastTab <- merge(lastTab,decTax,by="OTU", all=T)
+   if(units=="ASV" & any(colnames(decTax)=="OTU")){
+     decTax$OTU <- gsub("OTU_","ASV_",decTax$OTU)
+     colnames(decTax)[which(colnames(decTax)=="OTU")] <- "ASV"
+  }
+  if(!"lastTab" %in% ls()) lastTab <- decTax else lastTab <- merge(lastTab,decTax,by=units, all=T)
   lastTab[is.na(lastTab)] <- ""
 }
 print("Saving table with all taxonomies")

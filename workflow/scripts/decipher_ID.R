@@ -21,14 +21,20 @@ if(!require(dada2)){
   require(dada2)
 }
 
+if(snakemake@params[["what"]]=="ASV"){
+  units <- "ASV"
+}else{
+  units <- "OTU"
+}
+
 print("loading training set:")
-theoPath <- paste0(snakemake@config[['taxonomy']][['decipher']][['db_path']],"/",snakemake@config[['taxonomy']][['decipher']][['tax_db']])
+theoPath <- snakemake@params[['DB']]
 if(file.exists(theoPath)){
   loadPath <- theoPath
 }else{
-  altPath <- paste0(snakemake@config[['taxonomy']][['decipher']][['db_path']],"/",
-                    list.files(path=snakemake@config[['taxonomy']][['decipher']][['db_path']],
-                               pattern=snakemake@config[['taxonomy']][['decipher']][['tax_db']]))
+  altPath <- paste0(snakemake@params[['db_path']],"/",
+                    list.files(path=snakemake@params[['db_path']],
+                               pattern=snakemake@params[['tax_db']]))
   if(length(altPath)==1) loadPath <- altPath else stop(paste0(theoPath," not found."))
 }
 print(loadPath)
@@ -37,12 +43,14 @@ ranks <- c("Domain","Phylum","Class","Order","Family","Genus")
 
 print(paste0("loading sequence ",snakemake@input))
 seqs <- readDNAStringSet(snakemake@input[[1]])
+if(units=="ASV" & any(grepl("^OTU",names(seqs)))) names(seqs) <- gsub("OTU_","ASV_",names(seqs))
+
 
 print("running classification")
-set.seed(snakemake@config[['taxonomy']][['decipher']][['seed']])
-ids <- IdTaxa(seqs, trainingSet, strand=snakemake@config[['taxonomy']][['decipher']][['strand']],
-               threshold=snakemake@config[['taxonomy']][['decipher']][['threshold']],
-               bootstraps=snakemake@config[['taxonomy']][['decipher']][['bootstraps']], 
+set.seed(snakemake@params[['seed']])
+ids <- IdTaxa(seqs, trainingSet, strand=snakemake@params[['strand']],
+               threshold=snakemake@params[['threshold']],
+               bootstraps=snakemake@params[['bootstraps']], 
                processors=snakemake@threads, verbose=T)
 taxid <- t(sapply(ids, function(x) {
         m <- match(tolower(ranks), x$rank)
@@ -52,8 +60,8 @@ taxid <- t(sapply(ids, function(x) {
 }))
 colnames(taxid) <- ranks
 rownames(taxid) <- as.character(seqs)
-if(snakemake@config[['taxonomy']][['decipher']][['look_for_species']]){
-  taxid <- addSpecies(taxid,snakemake@config[['taxonomy']][['decipher']][['spec_db']])
+if(snakemake@params[['do_species']]){
+  taxid <- addSpecies(taxid,snakemake@params[['SPEC']])
 }
 rownames(taxid) <- names(seqs)
 taxid <- taxid[order(rownames(taxid)),]

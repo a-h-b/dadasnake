@@ -59,7 +59,12 @@ rule filtering_table:
     output:
        "post/filtered.seqTab.RDS",
        "post/filtered.seqTab.tsv",   
-       "post/filtered.seqs.fasta"  
+       "post/filtered.seqs.fasta"
+    params:
+        what="ASV",
+        target_taxa=config['final_table_filtering']['keep_target_taxa'],
+        min=config['final_table_filtering']['target_min_length'],
+        max=config['final_table_filtering']['target_max_length'] 
     threads: config['bigCores']
     resources:
         runtime="8:00:00",
@@ -89,6 +94,11 @@ rule filtering_tableCl:
        "post/filtered.clusteredTab.RDS",
        "post/filtered.clusteredTab.tsv",
        "post/filtered.consensus.fasta"
+    params:
+        what="cluster",
+        target_taxa=config['final_table_filtering']['keep_target_taxa'],
+        min=config['final_table_filtering']['target_min_length'],
+        max=config['final_table_filtering']['target_max_length']
     threads: config['bigCores']
     resources:
         runtime="8:00:00",
@@ -163,6 +173,10 @@ rule funTraits_Filter:
     output:
         "post/filtered.{tab}.traits.tsv",
         "post/filtered.{tab}.traits.RDS"
+    params:
+        db=config['postprocessing']['fungalTraits']['db'],
+        level=config['postprocessing']['fungalTraits']['level'],
+        classifier=config['postprocessing']['fungalTraits']['classifier_db']
     threads: config['bigCores']
     resources:
         runtime="12:00:00",
@@ -189,7 +203,14 @@ rule tax4fun2_Filter:
     params:
         tmp=TMPDIR,
         outputDir="post/tax4fun2",
-        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R"
+        customFunc=SCRIPTSDIR + "/functionalPredictionCustom.R",
+        db=config["postprocessing"]["tax4fun2"]["db"],
+        user_data=config["postprocessing"]["tax4fun2"]["user_data"],
+        user_dir=config["postprocessing"]["tax4fun2"]["user_dir"],
+        user_db=config["postprocessing"]["tax4fun2"]["user_db"],
+        database_mode=config["postprocessing"]["tax4fun2"]["database_mode"],
+        normalize_by_copy_number=config["postprocessing"]["tax4fun2"]["normalize_by_copy_number"],
+        min_identity_to_reference=config["postprocessing"]["tax4fun2"]["min_identity_to_reference"]
     log: "logs/tax4fun2.log"
     conda: ENVDIR + "tax4fun2_env.yml"
     message: "Running tax4fun2 on {input}."

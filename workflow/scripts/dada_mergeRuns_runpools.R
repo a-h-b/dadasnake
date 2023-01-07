@@ -97,14 +97,14 @@ if(snakemake@config[['chimeras']][['remove']] & (length(seqTabList)==1 | !snakem
                                maxShift=snakemake@config[['chimeras']][['maxShift']])
 }
 seqs <- DNAStringSet(colnames(seqtab))
-names(seqs) <- sprintf(paste0("OTU_%0",num_digits,"d"),1:length(seqs))
+names(seqs) <- sprintf(paste0("ASV_%0",num_digits,"d"),1:length(seqs))
 if(snakemake@config[['chimeras']][['remove']]){
   seqs_prechim <- DNAStringSet(colnames(seqtab_prechim))
   seqs_prechim <- append(seqs,setdiff(seqs_prechim,seqs))
-  names(seqs_prechim)[names(seqs_prechim)==""] <- sprintf(paste0("chimeric_OTU_%0",num_digits,"d"),(length(seqs)+1):length(seqs_prechim))
+  names(seqs_prechim)[names(seqs_prechim)==""] <- sprintf(paste0("chimeric_ASV_%0",num_digits,"d"),(length(seqs)+1):length(seqs_prechim))
   writeXStringSet(seqs_prechim,snakemake@output[[6]])
   outtab_prechim <- merge(t(seqtab_prechim),
-                          data.frame("OTU"=names(seqs_prechim),"seq"=seqs_prechim,stringsAsFactors=F),
+                          data.frame("ASV"=names(seqs_prechim),"seq"=seqs_prechim,stringsAsFactors=F),
                           by.x=0,by.y="seq")
   write.table(outtab_prechim,snakemake@output[[7]],row.names=F,sep="\t",quote=F)
   rm(outtab_prechim)
@@ -114,10 +114,10 @@ if(snakemake@config[['chimeras']][['remove']]){
 print("Saving sequences")
 saveRDS(seqtab,snakemake@output[[1]])
 writeXStringSet(seqs,snakemake@output[[3]])
-print("Saving merged OTU table")
+print("Saving merged ASV table")
 seqtab <- data.frame(t(seqtab),stringsAsFactors=F)
 seqtab$Row.names <- rownames(seqtab)
-seqtab$OTU <- names(seqs)
+seqtab$ASV <- names(seqs)
 saveRDS(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[2]])
 write.table(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[4]],row.names=F,sep="\t",quote=F)
 
