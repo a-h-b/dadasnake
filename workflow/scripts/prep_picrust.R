@@ -17,5 +17,5 @@ if(any(colnames(seqTab)=="ASV")){
 
 print("write ASV table for picrust")
 write.table(seqTab[,c("#OTU_ID",colnames(seqTab)[which(sapply(seqTab,class) %in% c("integer","numeric"))])],
-  snakemake@output,sep="\t",quote=F,row.names=F)
+  snakemake@output[[1]],sep="\t",quote=F,row.names=F)
 
