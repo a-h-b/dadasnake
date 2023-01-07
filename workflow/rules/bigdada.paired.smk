@@ -45,7 +45,7 @@ rule merged_numbers:
     threads: 1
     params:
         currentStep = "merged",
-        pool = snakemake@config['dada']['pool']
+        pool = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
