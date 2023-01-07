@@ -113,6 +113,7 @@ dependencies:
   - r-blob=1.2.3=r42hc72bb7e_1
   - r-cachem=1.0.6=r42h06615bd_1
   - r-cli=3.5.0=r42h38f115c_1
+  - r-cluster=2.1.4=r42h8da6f51_0
   - r-codetools=0.2_18=r42hc72bb7e_1
   - r-colorspace=2.0_3=r42h06615bd_1
   - r-cpp11=0.4.3=r42hc72bb7e_0
@@ -146,6 +147,7 @@ dependencies:
   - r-mgcv=1.8_41=r42h5f7b363_0
   - r-munsell=0.5.0=r42hc72bb7e_1005
   - r-nlme=3.1_161=r42hac0b197_0
+  - r-permute=0.9_7=r42hc72bb7e_1
   - r-pillar=1.8.1=r42hc72bb7e_1
   - r-pkgconfig=2.0.3=r42hc72bb7e_2
   - r-plogr=0.2.0=r42hc72bb7e_1004
@@ -168,6 +170,7 @@ dependencies:
   - r-tibble=3.1.8=r42h06615bd_1
   - r-utf8=1.2.2=r42h06615bd_1
   - r-vctrs=0.5.1=r42h7525677_0
+  - r-vegan=2.6_4=r42hb20cf53_0
   - r-viridislite=0.4.1=r42hc72bb7e_1
   - r-withr=2.5.0=r42hc72bb7e_1
   - readline=8.1.2=h0f457ee_0
