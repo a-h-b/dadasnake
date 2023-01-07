@@ -27,6 +27,8 @@ if config['postprocessing']['fungalTraits']['do'] and 'taxonomy' in STEPS:
         postConts.append("post/filtered.clusteredTab.traits.RDS")
 if config['postprocessing']['tax4fun2']['do']:
     postConts.append("post/tax4fun2/KOs_per_ASV.txt")
+if config['postprocessing']['picrust2']['do']:
+    postConts.append("post/picrust2_output")
 
 localrules: post_control_Filter
 
@@ -186,6 +188,75 @@ rule funTraits_Filter:
     message: "Adding fungalTraits to {input}."
     script:
         SCRIPTSDIR + "add_fungalTraits.R"
+
+rule prep_picrust:
+    input:
+        "post/filtered.seqTab.RDS"
+    output:
+        "post/filtered.seqTab.biom"
+    conda: ENVDIR + "picrust2_env.yml"
+    threads: config['bigCores']
+    resources:
+        runtime="4:00:00",
+        mem=config['bigMem']
+    log: "logs/picrust_prep.log"
+    message: "Prepping seqTab for picrust"
+    script:
+        SCRIPTSDIR + "prep_picrust.R"
+
+rule picrust2:
+    input:
+        tab="post/filtered.seqTab.biom",
+        seqs="post/filtered.seqs.fasta"
+    output:
+        directory("post/picrust2_output")
+    params:
+        stratified="--stratified" if config['postprocessing']['picrust2']['do'] else "",
+        per_sequence_contrib="per_sequence_contrib" if config['postprocessing']['picrust2']['per_sequence_contrib'] else "",
+        skip_norm="--skip_norm" if config['postprocessing']['picrust2']['skip_norm'] else "",
+        max_nsti=config['postprocessing']['picrust2']['max_nsti'],
+        do_nsti="" if config['postprocessing']['picrust2']['do_nsti'] else "--skip_nsti",
+        do_minpath="" if config['postprocessing']['picrust2']['do_minpath'] else "--skip_minpath",
+        do_gapfill="" if config['postprocessing']['picrust2']['do_gapfill'] else "--no_gap_fill",
+        do_coverage="--coverage" if config['postprocessing']['picrust2']['do_coverage'] else "",
+        min_reads=config['postprocessing']['picrust2']['min_reads'],
+        min_samples=config['postprocessing']['picrust2']['min_samples'],
+        pathways="" if config['postprocessing']['picrust2']['pathways'] else "--no_pathways",
+        placement_tool= config['postprocessing']['picrust2']['placement_tool'],
+        in_traits= config['postprocessing']['picrust2']['in_traits'],
+        custom_trait_tables= "--custom_trait_tables " + config['postprocessing']['picrust2']['custom_trait_tables'] if config['postprocessing']['picrust2']['custom_trait_tables'] != "" else "",
+        marker_gene_table= "--marker_gene_tables " + config['postprocessing']['picrust2']['marker_gene_table'] if config['postprocessing']['picrust2']['marker_gene_table'] != "" else "",
+        pathway_map= "--pathway_map " + config['postprocessing']['picrust2']['pathway_map'] if config['postprocessing']['picrust2']['pathway_map'] != "" else "",
+        reaction_func= "--reaction_func " + config['postprocessing']['picrust2']['reaction_func'] if config['postprocessing']['picrust2']['reaction_func'] != "" else "",
+        regroup_map="--no_regroup --regroup_map " + config['postprocessing']['picrust2']['regroup_map'] if config['postprocessing']['picrust2']['regroup_map'] != "" else "",
+        hsp_method= config['postprocessing']['picrust2']['hsp_method'],
+        edge_exponent= config['postprocessing']['picrust2']['edge_exponent'],
+        min_align= config['postprocessing']['picrust2']['min_align']
+    conda: ENVDIR + "picrust2_env.yml"
+    threads: config['bigCores']
+    resources:
+        runtime="48:00:00",
+        mem=config['bigMem']
+    log: "logs/picrust2.log"
+    message: "Runing picrust2"
+    shell:
+        """
+        if grep --quiet OTU_ {input.seqs}; then
+           echo "replacing OTU with ASV in seqs" > {log}
+           TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+           SEQS=$TMPD/seqs.fa
+           sed 's#OTU_#ASV_#g' {input.seqs} > $SEQS
+        else
+           SEQS={input.seqs}
+        fi
+        picrust2_pipeline.py -s $SEQS -i {input.tab} -o {output} -p {threads} \
+         {params.stratified} {params.per_sequence_contrib} {params.skip_norm} --max_nsti {params.max_nsti} \
+         {params.do_nsti} {params.do_minpath} {params.do_gapfill} {params.do_coverage} --min_reads {params.min_reads} \
+         --min_samples {params.min_samples} {params.pathways} -t {params.placement_tool} \
+         --in_traits {params.in_traits} {params.custom_trait_tables} {params.marker_gene_table} {params.pathway_map} \
+         {params.reaction_func} {params.regroup_map} -e {params.edge_exponent} -m {params.hsp_method} \
+         --min_align {params.min_align} &>> {log}
+        """
 
 rule tax4fun2_Filter:
     input:

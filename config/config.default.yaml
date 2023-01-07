@@ -199,6 +199,32 @@ postprocessing:
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
     classifier_db: mothur.SILVA_138_SSURef_NR99_cut
     level: "Genus"
+  picrust2:
+    do: false
+    stratified: true
+    per_sequence_contrib: true
+    skip_norm: false
+    max_nsti: 2
+    do_nsti: true
+    do_minpath: true
+    do_gapfill: true
+    do_coverage: false
+    min_reads: 1
+    min_samples: 1
+    pathways: true
+    placement_tool: "epa-ng"
+#placement_tool can be epa-ng or sepp
+    in_traits: "EC,KO"
+#can be any combination of COG, EC, KO, PFAM, TIGRFAM (with just a comma, no space between)
+    custom_trait_tables: ""
+    marker_gene_table: ""
+    pathway_map: ""
+    reaction_func: ""
+    regroup_map: ""
+    hsp_method: "mp"
+# can be one of mp,emp_prob,pic,scp,subtree_average
+    edge_exponent: 0.5
+    min_align: 0
   tax4fun2:
     do: false
     db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"
