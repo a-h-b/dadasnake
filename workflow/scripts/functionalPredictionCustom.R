@@ -67,7 +67,7 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   }
   #ref_blast_result_reduced
   otu_table <- readRDS(path_to_otu_table)
-  if(any(colnames(otu_table)=="OTU")) <- colnames(otu_table)[which(colnames(otu_table)=="OTU")] <- "ASV"
+  if(any(colnames(otu_table)=="OTU")) colnames(otu_table)[which(colnames(otu_table)=="OTU")] <- "ASV"
   otu_table <- otu_table[,c(which(colnames(otu_table)=="ASV"),
                           which(sapply(otu_table,class) %in% c("numeric","integer")))]
   otu_table_reduced <- merge(x = ref_blast_result_reduced, 
