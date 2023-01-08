@@ -69,8 +69,8 @@ blast:
   run_on:
     - ASV
     - cluster
-  db_path: "../DBs/ncbi_28Sfungal"
-  tax_db: 28S_fungal_sequences
+  db_path: "../DBs/ncbi_18Sfungal"
+  tax_db: 18S_fungal_sequences
   all: true
   run_basta: true
   basta_db: "../DBs/ncbi_taxonomy"
