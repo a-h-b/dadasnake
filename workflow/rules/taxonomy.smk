@@ -85,7 +85,7 @@ rule taxonomy_to_clustertab:
         "clusteredTables/clusteredTab.tax.RDS"
     params:
         what="cluster",
-        ITSX="add" if config['ITSx']['do'] and 'cluster' in config['ITSx']['run_on'] else "none"
+        ITSx="add" if config['ITSx']['do'] and 'cluster' in config['ITSx']['run_on'] else "none"
     threads: 1
     resources:
         runtime="12:00:00",
