@@ -28,7 +28,7 @@ if(snakemake@params[["what"]]=="ASV"){
 }
 
 print("finding training set:")
-theoPath <- snakemake@parama[['DB']]
+theoPath <- snakemake@params[['DB']]
 if(file.exists(theoPath)){
   loadPath <- theoPath
 }else{
