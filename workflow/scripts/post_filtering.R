@@ -68,7 +68,7 @@ if(nrow(filtTab)==0){
  }else{
   saveRDS(filtTab,snakemake@output[[1]])
   write.table(filtTab,snakemake@output[[2]],row.names=F,sep="\t",quote=F)
-  filtSeq <- seqs[filtTab[,which(colnames(filtTab)==units)]
+  filtSeq <- seqs[filtTab[,which(colnames(filtTab)==units)]]
   writeXStringSet(filtSeq,snakemake@output[[3]])
  }
 }
