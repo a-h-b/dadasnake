@@ -7,23 +7,30 @@ condap <- Sys.getenv("CONDA_PREFIX")
 
 library(Biostrings)
 
-print(paste0("loading ASV table",snakemake@input[[1]]))
-seqTab <- readRDS(snakemake@input[[1]])
+print(paste0("loading ASV table",snakemake@input[[2]]))
+seqTab <- readRDS(snakemake@input[[2]])
 if(any(colnames(seqTab)=="OTU")){
  seqTab$OTU <- gsub("OTU_","ASV_",seqTab$OTU)
  colnames(seqTab)[colnames(seqTab)=="OTU"] <- "ASV"
 }
 
 print("loading clusters")
-clusters <- read.delim(snakemake@input[[2]],sep="\t", header=F,comment.char="S")[,c(2,9)]
+clusters <- read.delim(snakemake@input[[3]],sep="\t", header=F)[,c(1,2,9)]
+clusters <- clusters[clusters$V1 != "S",c(2,3)]
 colnames(clusters) <- c("OTU","ASV")
 
-print(paste0("loading cluster sequence ",snakemake@input[[3]]))
-clusSeqs <- readDNAStringSet(snakemake@input[[3]])
+num_digits <- as.character(ceiling(log10(length(unique(clusters$OTU)))))
+clusters$OTU <- sprintf(paste0("OTU_%0",num_digits,"d"),clusters$OTU)
+
+
+print(paste0("loading cluster sequence ",snakemake@input[[1]]))
+clusSeqs <- readDNAStringSet(snakemake@input[[1]])
 
 
 print("calculate clustered table")
 seqTab <- merge(clusters,seqTab,by="ASV")
+
+print(dim(seqTab))
 
 clusTab <- aggregate(seqTab[,which(!colnames(seqTab) %in% c("OTU","Row.names"))],
                      list(seqTab$OTU),function(x){

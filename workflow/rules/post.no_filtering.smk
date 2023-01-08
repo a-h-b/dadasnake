@@ -156,7 +156,7 @@ rule picrust2:
         directory("post/picrust2_output")
     params:
         stratified="--stratified" if config['postprocessing']['picrust2']['do'] else "",
-        per_sequence_contrib="per_sequence_contrib" if config['postprocessing']['picrust2']['per_sequence_contrib'] else "",
+        per_sequence_contrib="--per_sequence_contrib" if config['postprocessing']['picrust2']['per_sequence_contrib'] else "",
         skip_norm="--skip_norm" if config['postprocessing']['picrust2']['skip_norm'] else "",
         max_nsti=config['postprocessing']['picrust2']['max_nsti'],
         do_nsti="" if config['postprocessing']['picrust2']['do_nsti'] else "--skip_nsti",

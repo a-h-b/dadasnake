@@ -55,18 +55,22 @@ if(file.info(snakemake@input[[1]])$size == 0){
       colnames(taxMat) <- units
     }
     if(snakemake@params[['cluster']]=="add" & snakemake@params[['what']]=="ASV"){
-      cFile <- which(sapply(snakemake@input,function(x) grepl("cluster",x))
-      if(snakemake@params[['clusterMeth'=="vsearch"]])){
-        clusterInf <- read.delim(snakemake@input[[cFile]],sep="\t", header=F,comment.char="S")[,c(2,9)]
+      cFile <- which(sapply(snakemake@input,function(x) grepl("cluster",x)))
+      if(snakemake@params[['clusterMeth']]=="vsearch"){
+        clusterInfo <- read.delim(snakemake@input[[cFile]],sep="\t", header=F)[,c(1,2,9)]
+        clusterInfo <- clusterInfo[clusterInfo$V1 != "S",c(2,3)]
         colnames(clusterInfo) <- c("OTU","ASV")
+        num_digits <- as.character(ceiling(log10(length(unique(clusterInfo$OTU)))))
+        clusterInfo$OTU <- sprintf(paste0("OTU_%0",num_digits,"d"),clusterInfo$OTU)
       }else{
-        clusterInf <- read.delim(snakemake@input[[cFile]],sep="\t")
+        clusterInfo <- read.delim(snakemake@input[[cFile]],sep="\t")
         colnames(clusterInfo) <- c("ASV","OTU")
       }
-      taxMat[,ncol(taxMat)+1] <- sapply(seqTab$ASV,function(x) clusterInfo$OTU[clusterInfo$ASV==x])
+
+      taxMat <- cbind(taxMat, sapply(taxMat[,which(colnames(taxMat)=="ASV")],function(x) clusterInfo$OTU[clusterInfo$ASV==x]))
       colnames(taxMat)[ncol(taxMat)] <- "OTU"
     }
-
+    print(head(taxMat))
     if(any(grepl("^[[:digit:]]",rownames(sInfo)))) rownames(sInfo) <- ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo))
