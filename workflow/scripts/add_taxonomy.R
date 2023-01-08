@@ -24,22 +24,28 @@ if(units=="ASV" & any(colnames(seqTab)=="OTU")){
 if(snakemake@params[['ITSx']]=="add"){
   print("reading ITSx result")
   iadd <- 1
-  seqs <- readDNAStringSet(snakemake@input[[2]])
-  if(units=="ASV" & any(grepl("^OTU",names(seqTab)))){
-    names(seqs) <- gsub("OTU_","ASV_",names(seqs))
+  if(as.numeric(file.info(snakemake@input[[2]])$size)>0){
+    seqs <- readDNAStringSet(snakemake@input[[2]])
+    if(units=="ASV" & any(grepl("^OTU",names(seqTab)))){
+      names(seqs) <- gsub("OTU_","ASV_",names(seqs))
+    }
+    seqTab$ITSx <- seqTab[,which(colnames(seqTab)==units)] %in% names(seqs)
+    rm(seqs)
   }
-  seqTab$ITSx <- seqTab[,which(colnames(seqTab)==units)] %in% names(seqs)
-  rm(seqs)
 }else{
   iadd <- 0
 }
-for(i in (2+iadd):length(snakemake@input)){
-  cTax <- readRDS(snakemake@input[[i]])
-  if(units=="ASV" & any(colnames(cTax)=="OTU")){
-    cTax$OTU <- gsub("OTU_","ASV_",cTax$OTU)
-    colnames(cTax)[which(colnames(cTax)=="OTU")] <- "ASV"
+
+if(length(snakemake@input)>2+iadd){
+  print("reading taxonomy results")
+  for(i in (2+iadd):length(snakemake@input)){
+    cTax <- readRDS(snakemake@input[[i]])
+    if(units=="ASV" & any(colnames(cTax)=="OTU")){
+      cTax$OTU <- gsub("OTU_","ASV_",cTax$OTU)
+      colnames(cTax)[which(colnames(cTax)=="OTU")] <- "ASV"
+    }
+    seqTab <- merge(seqTab,cTax,by=units,all.x=T) 
   }
-  seqTab <- merge(seqTab,cTax,by=units,all.x=T) 
 }
 seqTab[is.na(seqTab)] <- ""
 print("Saving OTU table with taxonomy")

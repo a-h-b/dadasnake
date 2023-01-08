@@ -146,7 +146,7 @@ blast:
   run_on:
     - ASV
     - cluster
-  db_path: "../DBs/ncbi_16SMicrobial"
+  db_path: "../DBs/ncbi_16S_ribosomal_RNA"
   tax_db: 16S_ribosomal_RNA
   e_val: 0.01
   tax2id: ""
