@@ -582,8 +582,15 @@ rule ITSxCl:
         ITSx -i {input} --cpu {threads} --detailed_results T --save_regions {config[ITSx][region]} --graphical F \
          -o {output[0]}/ITSx -N {config[ITSx][min_regions]} -t {config[ITSx][query_taxa]} \
          -E {config[ITSx][e_val]} &> {log}
-        grep '|{config[ITSx][target_taxon]}|{config[ITSx][region]}' -A 1 \
-         --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta | sed 's/|.*//' > {output[1]}
+        if [[ -s {output[0]}/ITSx.{config[ITSx][region]}.fasta ]]
+        then
+           grep '|{config[ITSx][target_taxon]}|{config[ITSx][region]}' -A 1 \
+            --no-group-separator {output[0]}/ITSx.{config[ITSx][region]}.fasta \
+            | sed 's/|.*//' > {output[1]} 2>> {log}
+        else
+           echo "no ITS found" >> /tmp/sizelog.log
+           touch {output[1]}
+        fi
         """
 
 if not config['blast']['all']:
