@@ -13,7 +13,7 @@ if(snakemake@params[["what"]]=="ASV"){
 
 print("reading DADA2 classifier result")
 for(dt in 1:length(snakemake@input)){
-   currName <- gsub(".RDS$","",gsub("sequenceTables/tax.dada.","",snakemake@input[[dt]]))
+   currName <- gsub(".RDS$","",gsub(".+Tables/tax.dada.","",snakemake@input[[dt]]))
    dadTax <- readRDS(snakemake@input[[dt]])
    dadTax <- dadTax[,-ncol(dadTax)]
    colnames(dadTax) <- paste0(colnames(dadTax),".dada2",currName)

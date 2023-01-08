@@ -14,7 +14,7 @@ if(snakemake@params[["what"]]=="ASV"){
 
 print("reading DECIPHER result")
 for(dt in 1:length(snakemake@input)){
-  currName <- gsub(".RDS$","",gsub("sequenceTables/tax.decipher.","",snakemake@input[[dt]]))
+  currName <- gsub(".RDS$","",gsub(".+Tables/tax.decipher.","",snakemake@input[[dt]]))
   decTax <- readRDS(snakemake@input[[dt]])
   decTax <- decTax[,-ncol(decTax)]
   colnames(decTax) <- paste0(colnames(decTax),".decipher.",currName)

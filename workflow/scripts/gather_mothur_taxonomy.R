@@ -13,7 +13,7 @@ if(snakemake@params[["what"]]=="ASV"){
 
 print("reading mothur classifier result")
 for(mt in 1:length(snakemake@input)){
-  currName <- gsub(".tsv$","",gsub("sequenceTables/tax.mothur.","",snakemake@input[[mt]]))
+  currName <- gsub(".tsv$","",gsub(".+Tables/tax.mothur.","",snakemake@input[[mt]]))
   mothTax <- read.delim(snakemake@input[[mt]],
                         stringsAsFactors = F,quote="",header=F)
   colnames(mothTax) <- c(units,"taxonomy.mothur")
