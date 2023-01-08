@@ -1,27 +1,37 @@
-email: ""
+# GENERAL INFORMATION
+# you will always want to change these directories
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 outputdir: "/work/$USER/output16S"
-taxonomy:
-  mothur:
-    do: true
-    db_path: "../DBs/amplicon"
-    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
-  decipher:
-    do: false
+
+paired: true
+# change to false for single-end
+email: ""
+
+# STEPS
+# by default everything is run
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
+
+hand_off:
+  biom: false
+  phyloseq: true
+
+# PRIMER REMOVAL SETTINGS
 primers:
-  fwd: 
+  fwd:
     sequence: GTGYCAGCMGCCGCGGTAA
     name: 515F
-  rvs: 
+  rvs:
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-paired: true
+# these are also the default primers, by the way
 sequencing_direction: "unknown"
+# can be unknown, fwd_1, or rvs_1 (fwd_1 means the first read contains the fwd primer)
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 170
@@ -32,23 +42,59 @@ filtering:
   max_EE:
     fwd: 0.2
     rvs: 0.2
+# these settings were evaluated for 515-806 on a HiSeq dataset in the original publication
+
+# DOWNSAMPLING IS OFF BY DEFAULT
+downsampling:
+  do: false
+
+# DADA2 SETTINGS
+dada:
+  pool: false
+  errorEstimationFunction: loessErrfun
+  error_nbases: 1e8
+# default is per-sample analysis using the standard error function trained on 1e8 reads
+chimeras:
+  remove: true
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  mothur:
+    do: true
+    db_path: "../DBs/amplicon"
+    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
+# You'll have to set these
+    run_on:
+      - ASV
+      - cluster
+# other classifiers are implemented, check the documentation (but mothur is most efficient)
 blast:
   do: true
   run_basta: true
-hand_off:
-  biom: true
-  phyloseq: false
+  all: true
+  db_path: "../DBs/ncbi_16S_ribosomal_RNA"
+  basta_db: "../DBs/ncbi_taxonomy"
+# You'll have to set these
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+
 final_table_filtering:
   do: true
   keep_target_taxa: "."
   target_min_length: 245
   target_max_length: 275
+# this will remove most mitochondrial and plastid sequences
+
 postprocessing:
   rarefaction_curve: true
-  funguild:
-    do: false
+  picrust2:
+    do: true
+    stratified: true
+    per_sequence_contrib: true
+    skip_norm: false
+
   treeing:
     do: true
-  tax4fun2:
-    do: true
-    user_data: true

@@ -1,18 +1,30 @@
-email: ""
-sessionName: ""
-normalMem: ""
-bigMem: ""
-bigCores: ""
-sessionKind: ""
-settingsLocked: false
-big_data: false
-tmp_dir: "tmp"
+# GENERAL INFORMATION
 raw_directory: "testdata"
+# where all the raw data is kept (or linked to)
 sample_table: "testdata/samples.small.tsv"
+# a tab-separated table with at least the library name, name of the first (and second) read file
+outputdir: "dadasnake_output"
+# where all the output goes
+paired: true
+# set to false for single-end sequences, second read files will be ignored
+tmp_dir: "tmp"
+# by default, a folder for temporary files is created in the output directory
+big_data: false
+# set big_data to true, if you have several thousands of samples and can make use of big-mem computing nodes
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
+hand_off:
+  biom: false
+  phyloseq: true
+# default output is tsv and RDS; get additional phyloseq object here
+
+# PRIMER REMOVAL SETTINGS
 primers:
   fwd: 
     sequence: GTGYCAGCMGCCGCGGTAA
@@ -20,8 +32,6 @@ primers:
   rvs: 
     sequence: GGACTACNVGGGTWTCTAAT
     name: 806R
-paired: true
-sequencing_direction: "unknown"
 primer_cutting:
   overlap: 10
   count: 2
@@ -29,7 +39,12 @@ primer_cutting:
   perc_mismatch: 0.2
   indels: "--no-indels"
   both_primers_in_read: false
+sequencing_direction: "unknown"
+# can be unknown, fwd_1, or rvs_1 (fwd_1 means the first read contains the fwd primer)
 nextseq_novaseq: false
+# set to true, if data comes from 2-color chemistry to remove poly-G ends
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 0
@@ -54,6 +69,8 @@ filtering:
   trim_left:
     fwd: 0
     rvs: 0
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
 downsampling:
   do: false
   number: 50000
@@ -61,6 +78,8 @@ downsampling:
   seed: 123
   use_total: false
   total: 100000000
+
+# DADA2 SETTINGS
 error_seed: 100
 dada:
   band_size: 16
@@ -78,6 +97,8 @@ dada:
   mismatch: -5
   gap_penalty: -8
   errorEstimationFunction: loessErrfun
+# alternatives are loessErrfun_mod1, loessErrfun_mod2, loessErrfun_mod3, loessErrfun_mod4
+# see https://github.com/ErnakovichLab/dada2_ernakovichlab
   use_quals: true
   error_nbases: 1e8
   error_omega_C: 0
@@ -96,10 +117,12 @@ chimeras:
   allowOneOff: false
   minOneOffParentDistance: 4
   maxShift: 16
-outputdir: "dadasnake_output"
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
 taxonomy:
   dada:
     do: false
+# classification is only done, if do_taxonomy is true
     run_on:
       - ASV
       - cluster
@@ -115,6 +138,7 @@ taxonomy:
     spec_db: "../DBs/DADA2/silva_species_assignment_v138.fa.gz"
   decipher:
     do: false
+# classification is only done, if do_taxonomy is true
     run_on:
       - ASV
       - cluster
@@ -131,6 +155,7 @@ taxonomy:
     spec_db: "../DBs/DADA2/silva_species_assignment_v138.fa.gz"
   mothur:
     do: true
+# classification is only done, if do_taxonomy is true
     run_on:
       - ASV
       - cluster
@@ -143,6 +168,7 @@ taxonomy:
     rank_number: 7
 blast:
   do: true
+# blast is only done, if do_taxonomy is true
   run_on:
     - ASV
     - cluster
@@ -152,8 +178,7 @@ blast:
   tax2id: ""
   all: true
   max_targets: 10
-  run_basta: false
-#  basta_path: "../bin/basta"
+  run_basta: true
   basta_db: "../DBs/ncbi_taxonomy"
   basta_e_val: 0.00001
   basta_alen: 100
@@ -164,6 +189,7 @@ blast:
   basta_perchits: 99
 ITSx:
   do: false
+# ITSx is only done, if do_taxonomy is true
   run_on:
     - ASV
     - cluster
@@ -172,20 +198,24 @@ ITSx:
   e_val: 1e-5
   query_taxa: .
   target_taxon: F
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
 post_clustering:
   do: true
 # do is only used if no taxonomy is done to trigger clustering
   cutoff: 0.97
+# similarity cut-off
   method: vsearch
 # method can be vsearch or decipher  
   strand: plus
 # strand only works for vsearch
-hand_off:
-  biom: true
-  phyloseq: false
+
+# SETTINGS FOR POST-PROCESSING
 final_table_filtering:
   do: true
+# filtering is only done, if do_postprocessing is true
   keep_target_taxa: "."
+# this should understand regular expression for R
   target_min_length: 1
   target_max_length: 10000
 postprocessing:
@@ -200,7 +230,7 @@ postprocessing:
     classifier_db: mothur.SILVA_138_SSURef_NR99_cut
     level: "Genus"
   picrust2:
-    do: false
+    do: true
     stratified: true
     per_sequence_contrib: true
     skip_norm: false
@@ -227,6 +257,7 @@ postprocessing:
     min_align: 0
   tax4fun2:
     do: false
+# I can't really recommend running tax4fun2 at this moment, as the package is unavailable
     db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"
     database_mode: "Ref99NR"
     normalize_by_copy_number: true 
@@ -237,3 +268,12 @@ postprocessing:
   treeing:
     do: true
     fasttreeMP: ""
+# you can add settings for fasttreeMP, which needs to be configured for specific HPCs
+
+# DON'T TOUCH THESE SETTINGS:
+sessionName: ""
+normalMem: ""
+bigMem: ""
+bigCores: ""
+sessionKind: ""
+settingsLocked: false

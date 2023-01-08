@@ -1,0 +1,79 @@
+# GENERAL INFORMATION
+# you will always want to change these directories
+raw_directory: "/work/$USER"
+sample_table: "/work/$USER/samples.tsv"
+outputdir: "/work/$USER/output16S_EMP"
+
+paired: false
+big_data: true
+# set big_data to true, if you have several thousands of samples and can make use of big-mem computing nodes
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: false
+# no post-processing, because everything is painfully big
+
+hand_off:
+  biom: false
+  phyloseq: false
+# no phyloseq handoff, because it's too big anyway
+
+# PRIMER REMOVAL SETTINGS
+sequencing_direction: "fwd_1"
+nextseq_novaseq: false
+
+# READ FILTERING SETTINGS (in DADA2)
+filtering:
+  trunc_length:
+    fwd: 90
+  trunc_qual: 
+    fwd: 13
+  max_EE:
+    fwd: 0.2
+  minLen:
+    fwd: 0
+  rm_phix: true
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
+downsampling:
+  do: false
+
+# DADA2 SETTINGS
+error_seed: 100
+dada:
+  pool: false
+# big data can't be handled another way
+  error_nbases: 1e9
+# use more reads
+chimeras:
+  remove: false
+# not done because too much data
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  dada:
+    do: false
+  decipher:
+    do: false
+  mothur:
+    do: true
+    run_on:
+#      - ASV
+      - cluster
+    db_path: "../DBs/mothur"
+    tax_db: "SILVA_138_SSURef_NR99_prok.515F.806R"
+    db_short_names: "SILVA_138_SSURef_NR99_cut"
+# set these paths/names
+blast:
+  do: false
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+  method: vsearch
+

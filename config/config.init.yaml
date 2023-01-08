@@ -1,12 +1,70 @@
+# GENERAL INFORMATION
+raw_directory: "testdata"
+# where all the raw data is kept (or linked to)
+sample_table: "testdata/samples.small.tsv"
+# a tab-separated table with at least the library name, name of the first (and second) read file
 outputdir: "dadasnake_initialized"
-taxonomy:
-  mothur:
-    do: true
-blast:
-  do: true
-postprocessing:
-  tax4fun2:
-    do: true
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
 hand_off:
   biom: true
   phyloseq: true
+
+nextseq_novaseq: true
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
+downsampling:
+  do: true
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  dada:
+    do: true
+    run_on:
+      - ASV
+  decipher:
+    do: true
+    run_on:
+      - cluster
+  mothur:
+    do: true
+    run_on:
+      - ASV
+      - cluster
+blast:
+  do: true
+  run_on:
+    - cluster
+  run_basta: true
+ITSx:
+  do: true
+  run_on:
+    - cluster
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  method: vsearch
+
+# SETTINGS FOR POST-PROCESSING
+final_table_filtering:
+  do: false
+
+postprocessing:
+  rarefaction_curve: true
+  funguild:
+    do: true
+  fungalTraits:
+    do: true
+  picrust2:
+    do: true
+  tax4fun2:
+    do: false
+  treeing:
+    do: true
