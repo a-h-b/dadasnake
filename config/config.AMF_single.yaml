@@ -63,7 +63,7 @@ taxonomy:
     db_short_names: "SILVA_138_SSURef_NR99_euk_AMF"
 # set these paths/names
     cutoff: 60
-    rank_number: 13
+    rank_number: 17
 blast:
   do: true
   run_on:
