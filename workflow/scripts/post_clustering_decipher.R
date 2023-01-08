@@ -79,7 +79,7 @@ clusTab <- aggregate(seqTab[,which(!colnames(seqTab) %in% c("OTU","Row.names.y")
 colnames(clusTab)[which(sapply(clusTab,class)=="character")] <- paste0("consensus.",colnames(clusTab)[which(sapply(clusTab,class)=="character")]) 
 colnames(clusTab)[1:2] <- c("OTU","ASV")
 clusTab$OTU <- sprintf(paste0("OTU_%0",num_digits,"d"),clusTab$OTU)
-clusTab$Row.names <- clusSeqs$x
+clusTab$Row.names <- sapply(clusTab$OTU, function(x) as.character(cluseq[[x]]))
 
 print("writing output")
 write.table(clusTab,

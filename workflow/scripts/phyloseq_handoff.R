@@ -70,7 +70,6 @@ if(file.info(snakemake@input[[1]])$size == 0){
       taxMat <- cbind(taxMat, sapply(taxMat[,which(colnames(taxMat)=="ASV")],function(x) clusterInfo$OTU[clusterInfo$ASV==x]))
       colnames(taxMat)[ncol(taxMat)] <- "OTU"
     }
-    print(head(taxMat))
     if(any(grepl("^[[:digit:]]",rownames(sInfo)))) rownames(sInfo) <- ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo))
