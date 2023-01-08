@@ -50,7 +50,7 @@ clusters <- DECIPHER::TreeLine(
 colnames(clusters) <- "OTU"
 
 
-write.table(cluster,
+write.table(clusters,
             snakemake@output[[1]],sep="\t",col.names=NA,quote=F)
 
 print("calculate clustered table")
