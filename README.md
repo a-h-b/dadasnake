@@ -96,8 +96,10 @@ The dadasnake does not supply databases. I'd suggest to use the [SILVA database]
 * dadasnake can alternatively use the DADA2 implementation of the same classifier. You can find some databases maintained by Michael R. McLaren [here](https://zenodo.org/record/3986799). More information on the format is in the [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html).
 * In addition to the bayesian classifier, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
 * dadasnake can use [fungal traits](https://link.springer.com/article/10.1007/s13225-020-00466-2#data-availability) to assign traits to fungal genere. Download the latest table from [here](https://docs.google.com/spreadsheets/d/1cxImJWMYVTr6uIQXcTLwK1YNNzQvKJJifzzNpKCM6O0/edit#gid=492619054) - dadasnake has been tested with v1.2.
-* You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
-* You can also use [tax4fun2](https://github.com/bwemheu/Tax4Fun2) within dadasnake, and you need to set up suitable databases, as described [here](https://github.com/bwemheu/Tax4Fun2#step-2-generate-your-own-reference-datasets).
+* You can also use dadasnake to blast and summarize results using [basta](https://github.com/timkahlke/BASTA). Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
+* To annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+* If you still have a tax4fun2 installation, you can also use it within dadasnake. The package and database were taken off github, so it's not part of defaut dadasnake anymore. 
+* You can now use [picrust2](https://github.com/picrust/picrust2/wiki/) within dadasnake.
 **You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
 
 9) Fasttree:
@@ -161,15 +163,16 @@ snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cl
 Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
 
 ## What does the dadasnake do?
-* primer removal - using cutadapt
+* primer removal and removal of poly-G-tails - using cutadapt
 * quality filtering and trimming - using DADA2
 * optional downsampling of reads per sample - using [seqtk](https://github.com/lh3/seqtk) 
-* error estimation & denoising - using DADA2
+* error estimation & denoising - using DADA2, including Novaseq-enabled models
 * paired-ends assembly - using DADA2
-* OTU table generation - using DADA2
+* "OTU" table generation (it contains ASVs, of course) - using DADA2
 * chimera removal - using DADA2
+* clustering of ASVs at a user-set similarity (these are called OTU now)
 * taxonomic classification - using mothur and/or DECIPHER (& ITS detection - using ITSx & blastn + BASTA)
-* functional annotation - using funguild, fungalTraits, or tax4fun2
+* functional annotation - using funguild, fungalTraits, picrust2 (or tax4fun2)
 * length check - in R
 * treeing - using clustal omega and fasttree
 * hand-off in biom-format, as R object, as R phyloseq object, and as fasta and tab-separated tables
@@ -179,7 +182,7 @@ You can control the settings for each step in a config file.
 ![steps](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
 
 ## The configuration
-The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Here are some explanations.
+The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Explanations can be found in the config-file in config/config.default.yaml .
 
 **top-level parameters** | **sub-parameters** | **subsub-parameters** | **default value** | **possible values** | **used in stage** | **explanation** | **comments / recommendations**
 ---|---|---|---|---|---|---|---
