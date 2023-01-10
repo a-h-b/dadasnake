@@ -36,7 +36,7 @@ if(snakemake@params[['ITSx']]=="add"){
   iadd <- 0
 }
 
-if(length(snakemake@input)>2+iadd){
+if(length(snakemake@input)>=2+iadd){
   print("reading taxonomy results")
   for(i in (2+iadd):length(snakemake@input)){
     cTax <- readRDS(snakemake@input[[i]])

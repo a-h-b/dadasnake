@@ -36,6 +36,12 @@ if(length(which(colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo
    seqMat <- seqTab[,colnames(seqTab) %in% ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),
                                                               rownames(sInfo))]
+   if(class(seqMat) == "integer"){
+     seqMat <- matrix(seqMat,ncol=1)
+     colnames(seqMat) <- intersect(colnames(seqTab), ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
+                                                             paste0("X",rownames(sInfo)),
+                                                              rownames(sInfo)))
+   }
    rownames(seqMat) <- seqTab$Row.names
    seqMeta <- seqTab[,!colnames(seqTab) %in% c(ifelse(grepl("^[[:digit:]]",rownames(sInfo)),
                                                              paste0("X",rownames(sInfo)),

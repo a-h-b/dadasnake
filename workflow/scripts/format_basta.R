@@ -17,7 +17,7 @@ basta <- read.delim(snakemake@input[[1]],stringsAsFactors=F,header=F)
 if(units=="ASV" & any(grepl("^OTU",basta[,1]))) basta[,1] <- gsub("OTU","ASV",basta[,1])
 if(ncol(basta) == 2) colnames(basta) <- c(units,"taxonomy") else colnames(basta) <- c(units,"taxonomy", "bestHit")
 rownames(basta) <- basta[,which(colnames(basta)==units)]
-basta$taxonomy <- sapply(basta$taxonomy,function(x) paste0(x,paste0(rep(";",7-lengths(regmatches(x, gregexpr(";", x)))),collapse="",sep="")))
+basta$taxonomy <- gsub(";$","",sapply(basta$taxonomy,function(x) paste0(x,paste0(rep(";",7-lengths(regmatches(x, gregexpr(";", x)))),collapse="",sep=""))))
 tmpTax <- data.frame(do.call(rbind, strsplit(basta$taxonomy, ";", fixed=TRUE)),stringsAsFactors = F)
 rankNum <- 7
 if(ncol(tmpTax)>= rankNum+1){

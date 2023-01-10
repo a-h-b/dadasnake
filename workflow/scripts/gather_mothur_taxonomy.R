@@ -10,6 +10,7 @@ if(snakemake@params[["what"]]=="ASV"){
 }else{
   units <- "OTU"
 }
+print(snakemake@input)
 
 print("reading mothur classifier result")
 for(mt in 1:length(snakemake@input)){
@@ -47,10 +48,10 @@ for(mt in 1:length(snakemake@input)){
     }
   }
   if(rankNum %in% c(6,7)){
-    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species","SH"),
                                                             ".mothur.",currName)
   }else{
-    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0("Level_",1:rankNum,
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0("Level_",1:(rankNum+1),
                                                             ".mothur.",currName)
    }
    colnames(mothTax)[colnames(mothTax)=="taxonomy.mothur"] <- paste0("taxonomy.mothur.",currName)
