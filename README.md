@@ -181,6 +181,15 @@ You can control the settings for each step in a config file.
 
 ![steps](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
 
+## The samples table
+Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If you have many (>500 samples), it is also useful to split them into runs for the analysis, as some of the most memory-intensive steps are done by run.  
+If several fastq files should end up in the same column of the ASV/OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final ASV/OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
+Example 1:
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
+Example 2:
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
+
+
 ## The configuration
 The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Explanations can be found in the config-file in config/config.default.yaml .
 
@@ -399,14 +408,6 @@ bigCores |  |  | "" | "" or a number | all | maximum number of high memory coput
 sessionKind |  |  | "" | a string | all | automatically set by dadasnake wrapper | keep "" 
 settingsLocked |  |  | false | a boolean or string | all | automatically set by dadasnake wrapper | it doesn't matter what you do
 
-
-## The samples table
-Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If you have many (>500 samples), it is also useful to split them into runs for the analysis, as some of the most memory-intensive steps are done by run.  
-If several fastq files should end up in the same column of the OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
-Example 1:
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
-Example 2:
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
 
 ## What if something goes wrong?
 If you gave dadasnake your email address and your system supports mailing (to that address), you will receive an email upon start and if the workflow encountered a problem or after the successful run. If there was a problem, you have to check the output and logs.
