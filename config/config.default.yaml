@@ -4,7 +4,7 @@ raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"
 # a tab-separated table with at least the library name, name of the first (and second) read file
 outputdir: "dadasnake_output"
-# where all the output goes
+# where all the output goes; each output directory can hold the results of one completed pipeline run only
 paired: true
 # set to false for single-end sequences, second read files will be ignored
 tmp_dir: "tmp"
@@ -12,13 +12,17 @@ tmp_dir: "tmp"
 big_data: false
 # set big_data to true, if you have several thousands of samples and can make use of big-mem computing nodes
 email: ""
-#  if your system can send emails, it will use this address to notify at the end of a run
+#  if your system can send emails, it will use this address to notify at the end of a run. Check spelling, it's not tested.
 
 # STEPS
 do_primers: true
+# should primers be cut or polyG tails removed?
 do_dada: true
+# should DADA2 be run?
 do_taxonomy: true
+# should taxonomic classification be done? 
 do_postprocessing: true
+# should some more steps be done (e.g. functional annotation)
 hand_off:
   biom: false
   phyloseq: true
@@ -75,6 +79,7 @@ downsampling:
   do: false
   number: 50000
   min: true
+# if false, lower samples are kept?
   seed: 123
   use_total: false
   total: 100000000
@@ -97,6 +102,7 @@ dada:
   mismatch: -5
   gap_penalty: -8
   errorEstimationFunction: loessErrfun
+# classical options: PacBioErrfun or noqualErrfun
 # alternatives are loessErrfun_mod1, loessErrfun_mod2, loessErrfun_mod3, loessErrfun_mod4
 # see https://github.com/ErnakovichLab/dada2_ernakovichlab
   use_quals: true
@@ -112,6 +118,7 @@ chimeras:
   remove: true
   remove_by_run: false
   method: consensus
+# can be consensus, pooled or per-sample
   minFoldParentOverAbundance: 2
   minParentAbundance: 8
   allowOneOff: false
@@ -272,8 +279,14 @@ postprocessing:
 
 # DON'T TOUCH THESE SETTINGS:
 sessionName: ""
+# only read, if you're not using the dadasnake wrapper
 normalMem: ""
+# size of the RAM of one core of your normal copute nodes (e.g. 8G) | may be fixed during installation, only necessary for cluster submission, usually set via VARIABLE_CONFIG
 bigMem: ""
+# size of the RAM of one core of your high memory copute nodes (e.g. 30G) | may be fixed during installation, only necessary for cluster submission; usually set via VARIABLE_CONFIG
 bigCores: ""
+#  maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
 sessionKind: ""
+# a string | all | automatically set by dadasnake wrapper | don't change
 settingsLocked: false
+# automatically set by dadasnake wrapper | it doesn't matter what you do - you can only change this in VARIABLE_CONFIG
