@@ -96,15 +96,17 @@ The dadasnake does not supply databases. I'd suggest to use the [SILVA database]
 * dadasnake can alternatively use the DADA2 implementation of the same classifier. You can find some databases maintained by Michael R. McLaren [here](https://zenodo.org/record/3986799). More information on the format is in the [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html).
 * In addition to the bayesian classifier, dadasnake implements [DECIPHER](http://www2.decipher.codes/Documentation.html). You can find decipher [databases](http://www2.decipher.codes/Downloads.html) on the decipher website or build them yourself. 
 * dadasnake can use [fungal traits](https://link.springer.com/article/10.1007/s13225-020-00466-2#data-availability) to assign traits to fungal genere. Download the latest table from [here](https://docs.google.com/spreadsheets/d/1cxImJWMYVTr6uIQXcTLwK1YNNzQvKJJifzzNpKCM6O0/edit#gid=492619054) - dadasnake has been tested with v1.2.
-* You can also use dadasnake to blast and to annotate fungal taxonomy with guilds via funguild, if you have suitable databases. Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
-* You can also use [tax4fun2](https://github.com/bwemheu/Tax4Fun2) within dadasnake, and you need to set up suitable databases, as described [here](https://github.com/bwemheu/Tax4Fun2#step-2-generate-your-own-reference-datasets).
+* You can also use dadasnake to blast and summarize results using [basta](https://github.com/timkahlke/BASTA). Have a look at the [NCBI's ftp](https://ftp.ncbi.nlm.nih.gov/blast/db/).
+* To annotate fungal taxonomy with guilds via funguild, if you have suitable databases. 
+* If you still have a tax4fun2 installation, you can also use it within dadasnake. The package and database were taken off github, so it's not part of defaut dadasnake anymore. 
+* You can now use [picrust2](https://github.com/picrust/picrust2/wiki/) within dadasnake.
 **You need to set the path to the databases of your choice in the config file.** By default, dadasnake looks for databases in the directory above where it was called. It makes sense to change this for your system in the config.default.yaml file upon installation, if all users access databases in the same place.
 
 9) Fasttree:
 dadasnake comes with fasttree for treeing, but if you have a decent number of sequences, it is likely to be relatively slow. If you have fasttreeMP, you can give the path to it in the config file.
 
 ## How to cite dadasnake
-[Christina Weißbecker, Beatrix Schnabel, Anna Heintz-Buschart, Dadasnake, a Snakemake implementation of DADA2 to process amplicon sequencing data for microbial ecology, GigaScience, Volume 9, Issue 12, December 2020, giaa135](https://doi.org/10.1093/gigascience/giaa135). Please also cite [DADA2](https://www.nature.com/articles/nmeth.3869): Callahan, B., McMurdie, P., Rosen, M. et al. DADA2: High-resolution sample inference from Illumina amplicon data. Nat Methods 13, 581–583 (2016), and any other tools you use within dadasnake, e.g. [mothur](https://mothur.org/wiki/frequently_asked_questions/#how-do-i-cite-mothur-how-about-the-individual-functions), [DECIPHER](http://www2.decipher.codes/Citation.html), [ITSx](https://microbiology.se/software/itsx), [Fasttree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490), [FUNGuild](https://www.sciencedirect.com/science/article/abs/pii/S1754504815000847), [BASTA](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13095), [tax4fun2](https://environmentalmicrobiome.biomedcentral.com/articles/10.1186/s40793-020-00358-7).
+[Christina Weißbecker, Beatrix Schnabel, Anna Heintz-Buschart, Dadasnake, a Snakemake implementation of DADA2 to process amplicon sequencing data for microbial ecology, GigaScience, Volume 9, Issue 12, December 2020, giaa135](https://doi.org/10.1093/gigascience/giaa135). Please also cite [DADA2](https://www.nature.com/articles/nmeth.3869): Callahan, B., McMurdie, P., Rosen, M. et al. DADA2: High-resolution sample inference from Illumina amplicon data. Nat Methods 13, 581–583 (2016), and any other tools you use within dadasnake, e.g. [mothur](https://mothur.org/wiki/frequently_asked_questions/#how-do-i-cite-mothur-how-about-the-individual-functions), [DECIPHER](http://www2.decipher.codes/Citation.html), [ITSx](https://microbiology.se/software/itsx), [Fasttree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490), [VSEARCH](https://doi.org/10.7717/peerj.2584), [FUNGuild](https://www.sciencedirect.com/science/article/abs/pii/S1754504815000847), [PICRUSt2](https://doi.org/10.1038/s41587-020-0548-6), [BASTA](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13095), [tax4fun2](https://environmentalmicrobiome.biomedcentral.com/articles/10.1186/s40793-020-00358-7).
 
 ##  
 
@@ -161,15 +163,16 @@ snakemake -j 50 -s Snakefile --cluster-config PATH/TO/SCHEDULER.config.yaml --cl
 Depending on your dataset and settings, and your cluster's queue, the workflow will take a few minutes to days to finish.
 
 ## What does the dadasnake do?
-* primer removal - using cutadapt
+* primer removal and removal of poly-G-tails - using cutadapt
 * quality filtering and trimming - using DADA2
 * optional downsampling of reads per sample - using [seqtk](https://github.com/lh3/seqtk) 
-* error estimation & denoising - using DADA2
+* error estimation & denoising - using DADA2, including Novaseq-enabled models
 * paired-ends assembly - using DADA2
-* OTU table generation - using DADA2
+* "OTU" table generation (it contains ASVs, of course) - using DADA2
 * chimera removal - using DADA2
+* clustering of ASVs at a user-set similarity (these are called OTU now)
 * taxonomic classification - using mothur and/or DECIPHER (& ITS detection - using ITSx & blastn + BASTA)
-* functional annotation - using funguild, fungalTraits, or tax4fun2
+* functional annotation - using funguild, fungalTraits, picrust2 (or tax4fun2)
 * length check - in R
 * treeing - using clustal omega and fasttree
 * hand-off in biom-format, as R object, as R phyloseq object, and as fasta and tab-separated tables
@@ -178,27 +181,34 @@ You can control the settings for each step in a config file.
 
 ![steps](https://github.com/a-h-b/dadasnake/blob/master/documentation/steps.png)
 
+## The samples table
+Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If you have many (>500 samples), it is also useful to split them into runs for the analysis, as some of the most memory-intensive steps are done by run.  
+If several fastq files should end up in the same column of the ASV/OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final ASV/OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
+Example 1:
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
+Example 2:
+![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
+
+
 ## The configuration
-The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Here are some explanations.
+The config file must be in .yaml format. The order within the yaml file does not matter, but the hierarchy has to be kept. Explanations can be found in the config-file in config/config.default.yaml .
 
 **top-level parameters** | **sub-parameters** | **subsub-parameters** | **default value** | **possible values** | **used in stage** | **explanation** | **comments / recommendations**
 ---|---|---|---|---|---|---|---
-email |  |  | "" | "" or a valid email address | all | email address for mail notification | keep empty if you don't want emails. Check spelling, it's not tested.
-sessionName |  |  | "" | "" or a single word | all | session name | only read, if you're not using the dadasnake wrapper
-normalMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your normal copute nodes (e.g. 8G) | may be fixed during installation, only necessary for cluster submission 
-bigMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your high memory copute nodes (e.g. 30G) | may be fixed during installation, only necessary for cluster submission
-bigCores |  |  | "" | "" or a number | all | maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
-sessionKind |  |  | "" | a string | all | automatically set by dadasnake wrapper | keep "" 
-settingsLocked |  |  | false | a boolean or string | all | automatically set by dadasnake wrapper | it doesn't matter what you do
+raw_directory |  |  | "testdata"| any one path where you might have your raw data | all | directory with all raw data | you will usually have this somewhere in a project folder
+sample_table |  |  | "testdata/samples.small.tsv" | any one location of your samples table | all | path to the samples table | the dadasnake will copy it to your output directory
+outputdir |  |  | "dadasnake_output" | any path that you have permissions for writing to | all | directory where all the output will go | change this; a scratch-type place works best; each output directory can hold the results of one completed pipeline run only
+paired||| true|true or false|primers and dada|do you want to use paired-end sequencing data?|if true, you have to give r1_file and r2_file in the samples table, if false only r1_file is read (if you want to use only R2 files from a paired-end sequencing run, put their name in the r1_file column)
+tmp_dir |  |  | "tmp" | any path that you have permissions for writing to | all | directory for temporary, intermediate files that shouldn't be kept | keep this in a temporary place so you don't need to worry about removing its contents
 big_data |  |  | false | a boolean | dada, taxonomy, post | whether to use big data settings | set to true, if you have extra high memory nodes and more than 1000 samples 
-tmp_dir |  |  | "/work/$USER/tmp" | any path that you have permissions for writing to | all | directory for temporary, intermediate files that shouldn't be kept | keep this in your /work so you don't need to worry about removing its contents
-raw_directory |  |  | "/work/$USER"| any one path where you might have your raw data | all | directory with all raw data | you will usually have this somewhere in a project folder
-sample_table |  |  | "/work/$USER/samples.tsv" | any one location of your samples table | all | path to the samples table | you can keep this in your /work, because the dadasnake will copy it to your output directory
-outputdir |  |  | "dadasnake_output" | any path that you have permissions for writing to | all | directory where all the output will go | change this; a scratch-type place works best (e.g. subdirectory of /work/$USER), but remember to move to a steady location afterwards; each output directory can hold the results of one completed pipeline run only
+email |  |  | "" | "" or a valid email address | all | email address for mail notification | keep empty if you don't want emails. Check spelling, it's not tested.
 do_primers |  |  | true | true or false | all | should primers be cut? | 
 do_dada |  |  | true | true or false | all | should DADA2 be run? | 
 do_taxonomy |  |  | true | true or false | all | should taxonomic classification be done? |
 do_postprocessing |  |  | true | true or false | all | should some more steps be done (e.g. functional annotation) | 
+hand_off|||||dada, taxonomy, postprocessing||settings deciding if additional formats should be given
+&nbsp;|  biom||false|true or false|dada, taxonomy|whether a biome format output should be written|biome contains ASV table or ASV table and taxonomy (if taxonomy was run); biome table is never filtered
+&nbsp;|  phyloseq||true|true or false|taxonomy, postprocessing|whether a phyloseq object (or two - for ASVs and OTUs) should be returned|contains ASV or OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU or ASV table, phyloseq object contains filtered dataset)
 primers |  |  |  |  | primers |  | information on primers
   &nbsp;| fwd |  |  |  | primers |  | information on forward primer
   &nbsp;|  | sequence | GTGYCAGCMGCCGCGGTAA | any sequence of IUPAC DNA code | primers | sequence of forward primer |
@@ -206,8 +216,6 @@ primers |  |  |  |  | primers |  | information on primers
 &nbsp;| rvs |  |  |  | primers |  | information on reverse primer
 &nbsp;||    sequence| GGACTACNVGGGTWTCTAAT|any sequence of IUPAC DNA code|primers|sequence of reverse primer|
 &nbsp;||    name| 806R|anything|primers|name of reverse primer|
-paired||| true|true or false|primers and dada|do you want to use paired-end sequencing data?|if true, you have to give r1_file and r2_file in the samples table, if false only r1_file is read (if you want to use only R2 files from a paired-end sequencing run, put their name in the r1_file column)
-sequencing_direction||| "unknown"|fwd_1, rvs_1 or unknown|primers| fwd_1: fwd primer in read 1; rvs_1: rvs primer in read 1; unknown: you don't know the sequencing direction or the direction is mixed |if you want to run single-end data and don't know the direction, dadasnake will re-orient the primers
 primer_cutting|||||primers||arguments for primer cutting by cutadapt
 &nbsp;|  overlap||10|1-length of primer|primers|minimum length of detected primer|
 &nbsp;|  count||2|a positive integer|primers|maximum number of primers removed from each end|
@@ -215,11 +223,13 @@ primer_cutting|||||primers||arguments for primer cutting by cutadapt
 &nbsp;|  perc_mismatch||0.2|0-1|primers|% mismatch between read and each primer|don't set this to 1
 &nbsp;|  indels||"--no-indels"|"--no-indels" or ""|primers|whether indels in the primer sequence are allowed|
 &nbsp;|  both_primers_in_read||false|false or true|primers|whether both primers are expected to be in the read| only used in single-end mode
+sequencing_direction||| "unknown"|fwd_1, rvs_1 or unknown|primers| fwd_1: fwd primer in read 1; rvs_1: rvs primer in read 1; unknown: you don't know the sequencing direction or the direction is mixed |if you don't know the direction, dadasnake will try to re-orient using the primers
+nextseq_novaseq||| false| true or false | primers| whether poly-G tails should be removed | set for Nextseq or Novaseq data
 filtering |  | | | | dada | | settings for quality / length filtering; note on terminology: for paired sequencing fwd read refers to reads that had fwd primer or were declared as such (if no primer cutting was done); for single-end workflow, only the fwd setting is used, no matter the sequencing direction
 &nbsp;|  trunc_length||||dada||length to truncate to (shorter reads are discarded)
 &nbsp;||    fwd|0|a positive integer|dada|length after which fwd read is cut - shorter reads are discarded|0: no truncation by length; if you've cut the primers, this number refers to the length left after primer cutting
 &nbsp;||    rvs|0|a positive integer|dada|length after which rvs read is cut - shorter reads are discarded|0: no truncation by length; ignored in single-ende mode; if you've cut the primers, this number refers to the length left after primer cutting
-&nbsp;|  trunc_qual||2|0-40|dada|reads are cut before the first position with this quality|
+&nbsp;|  trunc_qual||||dada||length to truncate to (shorter reads are discarded)
 &nbsp;| |    fwd|2|0-40|dada| fwd reads are cut before the first position with this quality| 
 &nbsp;| |    rvs|2|0-40|dada| rvs reads are cut before the first position with this quality|ignored in single-ende mode
 &nbsp;|  max_EE||||dada||filtering by maximum expected error after truncation: Expected errors are calculated from the nominal definition of the quality score: EE = sum(10^(-Q/10))
@@ -238,12 +248,14 @@ filtering |  | | | | dada | | settings for quality / length filtering; note on t
 &nbsp;||    fwd|0|0 or a positive number|dada|this many bases will be cut from the 5' end of fwd reads|filtered reads will have length truncLen-trimLeft
 &nbsp;||    rvs|0|0 or a positive number|dada|this many bases will be cut from the 5' end of rvs reads|filtered reads will have length truncLen-trimLeft
 &nbsp;|  rm_phix||true|true or false|dada|remove phiX|useful with Illumina sequencing
-error_seed|||100|any positive integer|dada|seed for error models|keep constant in re-runs
 downsampling|  | | | | dada | | 
 &nbsp;|do||false|true or false|dada|set to true if you want to downsample before DADA2 ASV construction|
 &nbsp;|number||50000|positive integer|dada|number of reads to keep per sample|
 &nbsp;|min||true|true or false|dada|true to keep only samples with that many reads|samples with less reads are discarded
+&nbsp;|use_total||false|true or false|dada|downsample to the fraction of a total number|useful for testing settings
+&nbsp;|total||100000000|positive integer|dada|total number of reads to keep over all samples|used only with use_total
 &nbsp;|seed||123|any positive integer|dada|seed for downsampling|keep constant in re-runs
+error_seed|||100|any positive integer|dada|seed for error models|keep constant in re-runs
 dada|||||dada||special DADA2 settings - default is good for Illumina
 &nbsp;|  band_size||16|a positive integer|dada|Banding restricts the net cumulative number of insertion of one sequence relative to the other. | default is good for Illumina; set to 32 for 454 or PacBio
 &nbsp;|  homopolymer_gap_penalty|| NULL|NULL or a negative integer|dada|The cost of gaps in homopolymer regions (>=3 repeated bases). Default is NULL, which causes homopolymer gaps to be treated as normal gaps.| default is good for Illumina; set to -1 for 454
@@ -254,7 +266,7 @@ dada|||||dada||special DADA2 settings - default is good for Illumina
 &nbsp;|  omega_C|| 1e-40|number between 0 and 1|dada|Threshold to start new partition based on quality in ASV finding.| Don't change unless you know what you're doing.
 &nbsp;|  selfConsist|| false|true or false|dada|Should DADA2 do multiple rounds of ASV inference based on the normal error estimation?| Don't change unless you know what you're doing.
 &nbsp;|  no_error_assumptions|| false|true or false|dada|If you've set selfConsist to true, you can make DADA2 not start from the normal error estimation.| Don't change unless you know what you're doing.
-&nbsp;|  errorEstimationFunction|| loessErrfun|loessErrfun, PacBioErrfun or noqualErrfun|dada|The error estimation method within the DADA2 inference step.| default is good for Illumina; set to PacBioErrfun for pacbio and possibly to noqualErrfun if your hacking data without real quality values
+&nbsp;|  errorEstimationFunction|| loessErrfun|loessErrfun, PacBioErrfun or noqualErrfun, or loessErrfun_mod1 to 4|dada|The error estimation method within the DADA2 inference step.| default is good for Illumina; set to PacBioErrfun for pacbio and possibly to noqualErrfun if your hacking data without real quality values; ErnakovichLab models for Novaseq data are also available as e.g. loessErrfun_mod4
 &nbsp;|  use_quals|| true|true or false|dada|DADA2 can be run without caring about quality.| Don't change unless you know what you're doing.
 &nbsp;|  gapless|| true|true or false|dada|In the pre-screening, Kmers are employed to find gaps.| Don't change unless you know what you're doing - might help with 454 data and the like.
 &nbsp;|  kdist_cutoff|| 0.42|a number between 0 and 1|dada|After the pre-screening, sequences of Kmers with this similarity are checked for actual matches.| Don't change unless you know what you're doing.
@@ -278,6 +290,7 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;|  dada||||taxonomy||settings for DADA2 implementation of bayesian classifier
 &nbsp;||    do| false|true or false|taxonomy|whether DADA2 should be used for taxonomic annotation| the DADA2 implementation may work less well than the mothur classifier, and it may be slower
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether the classifier should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
+&nbsp;||    run_on| list with ASV and cluster|list containing ASV and/or cluster|taxonomy|whether the classifier should be run on ASVs and or OTUs clustered from ASVs| 
 &nbsp;||    db_path|"../DBs/DADA2"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    refFasta|"silva_nr99_v138_train_set.fa.gz"||taxonomy|training database name|
 &nbsp;||    db_short_names|"silva_v138_nr99"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
@@ -290,6 +303,7 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;|  decipher||||taxonomy||settings for DECIPHER
 &nbsp;||    do| false|true or false|taxonomy|whether DECIPHER should be used for taxonomic annotation| DECIPHER can work better than the mothur classifier, but it is slower and we don't have many databases for this software; you can run both DECIPHER and mothur (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether DECIPHER should be run before or after ITSx| if you set this to true, you also have to set ITSx[do] to true; the DB isn't cut to a specific ITS region
+&nbsp;||    run_on| list with ASV and cluster|list containing ASV and/or cluster|taxonomy|whether the classifier should be run on ASVs and or OTUs clustered from ASVs| 
 &nbsp;||    db_path|"../DBs/decipher"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    tax_db|"SILVA_SSU_r138_2019.RData"||taxonomy|decipher database name|
 &nbsp;||    db_short_names|"SILVA_138_SSU"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
@@ -303,21 +317,22 @@ taxonomy|||||taxonomy||settings for taxonomic annotation
 &nbsp;|  mothur||||taxonomy||settings for Bayesian classifier (mothur implementation)
 &nbsp;||    do| true|true or false|taxonomy|whether mothur's classify.seqs should be used for taxonomix annotation|we have more and more specific databases for mothur (and can make new ones), it's faster than DECIPHER, but potentially less correct; you can run both mothur and DECIPHER (in parallel)
 &nbsp;||    post_ITSx| false|true or false|taxonomy|whether mothur's classify.seqs should be run before or after ITSx|if you set this to true, you also have to set ITSx[do] to true; use an ITSx-cut database if run afterwards
+&nbsp;||    run_on| list with ASV and cluster|list containing ASV and/or cluster|taxonomy|whether the classifier should be run on ASVs and or OTUs clustered from ASVs| 
 &nbsp;||    db_path|"../DBs/amplicon"||taxonomy|directory where the database sits|change when setting up dadasnake on a new system
 &nbsp;||    tax_db|"SILVA_138_SSURef_NR99_prok.515F.806R"||taxonomy|the beginning of the filename of a mothur-formatted database|don't add .taxonomy or .fasta
 &nbsp;||    db_short_names|"SILVA_138_SSU_NR99"||taxonomy|short name(s) to label database(s) in the output, separated by a whitespace; should be as many items as in ref_dbs_full|if your give less database names than databases, not all databases will be used
 &nbsp;||    ref_dbs_full|""||taxonomy|full path and database file name(s) (without suffix), separated by a whitespace|if your give less database names than databases, not all databases will be used
 &nbsp;||    cutoff|60|1-100|taxonomy|cut-off for classification|
 blast|||||taxonomy||
-&nbsp;|    do||false|true or false|taxonomy|whether blast should be run|
-&nbsp;|    db_path||"../DBs/ncbi_16SMicrobial"||taxonomy|path to blast database|
+&nbsp;|    do||true|true or false|taxonomy|whether blast should be run|
+&nbsp;||    run_on| list with ASV and cluster|list containing ASV and/or cluster|taxonomy|whether blast should be run on ASVs and or OTUs clustered from ASVs| 
+&nbsp;|    db_path||"../DBs/ncbi_16S_ribosomal_RNA"||taxonomy|path to blast database|
 &nbsp;|    tax_db||16S_ribosomal_RNA||taxonomy|name (without suffix) of blast database|
 &nbsp;|    e_val||0.01||taxonomy|e-value for blast|
 &nbsp;|    tax2id||""|"tax2id table or "none"|taxonomy|whether taxonomic data is available in a tax2id table|this also assumes there is a taxdb file in the db_path; you don't need it, if you have a blast5 database
 &nbsp;|    all||true||taxonomy|whether blastn should also be run on sequences that have been classified already|
 &nbsp;|    run_basta||true|true or false|taxonomy|whether BASTA should be run on the BLASTn output|
-&nbsp;|    basta_path||"../bin/basta"||taxonomy|path to the basta binary|basta needs to be installed manually
-&nbsp;|    basta_db||"../DBs/ncbi_taxonomy"||taxonomy|path to the NCBI-taxonomy database that is prepared when basta is installed|make sure you run these steps during installation of basta
+&nbsp;|    basta_db||"../DBs/ncbi_taxonomy"||taxonomy|path to the NCBI-taxonomy database that is prepared when basta is installed|
 &nbsp;|    basta_e_val||0.00001||taxonomy|e-value for hit selection|
 &nbsp;|    basta_alen||100||taxonomy|minimum alignment length of hits|
 &nbsp;|    basta_number||0|0 or a positive integer|taxonomy|maximum number of hits to use for classification|if set to 0 all hits will be considered
@@ -330,24 +345,51 @@ ITSx|||||taxonomy||settings for ITSx
 &nbsp;|  min_regions||1|1-4|taxonomy|minimum number of detected regions|counting includes SSU, LSU and 5.8 next to the ITS regions
 &nbsp;|  region|| ITS2|ITS1 or ITS2|taxonomy|which region to extract|
 &nbsp;|  e_val||1.00E-05|0-1|taxonomy|e-value for ITS detection|
-hand_off|||||dada, taxonomy, postprocessing||settings deciding if additional formats should be given
-&nbsp;|  biom||true|true or false|dada, taxonomy|whether a biome format output should be written|biome contains OTU table or OTU table and taxonomy (if taxonomy was run); biome table is never filtered
-&nbsp;|  phyloseq||false|true or false|taxonomy, postprocessing|whether a phyloseq object should be returned|contains OTU table and taxonomy and tree (if each was run; if tree is run on pruned OTU table, phyloseq object contains filtered dataset)
-final_table_filtering|||||postprocessing||settings for filtering the final OTU table (before postprocessing, if postprocessing is done)
-&nbsp;|do||true|true or false|postprocessing|whether a filtered version of the OTU table and sequences should be made and used for the post-processing steps|
-&nbsp;|  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings| done based on mothur and DECIPHER result; "." means all are kept; both taxstrings are searched, if both classifiers were used
-&nbsp;|target_min_length||0||postprocessing|minimal length sequence|doesn't care for ITSx results
-&nbsp;|target_max_length||Inf||postprocessing|maximum length of sequence|doesn't care for ITSx results
+&nbsp;|  query_taxa||.|a letter|taxonomy|Profile set to use for the search|ITSx's -t option, see [manual](https://microbiology.se/publ/itsx_users_guide.pdf) for list
+&nbsp;|  target_taxon||F|a letter|taxonomy|taxon output from ITSx to filter for|default is F for fungi
+postclustering|||||dada||settings for clustering ASVs into OTUs (since 0.11)
+&nbsp;|  do||true|true or false|dada|whether to do clustering, if no taxonomy is done|this is ignored if any of the taxonomy steps ask for clustered input
+&nbsp;|  cutoff||0.97|a value between 0.5 and 1|dada|similarity cut-off|
+&nbsp;|  method||vsearch|vsearch or deciperh|dada|clustering algorithm|
+&nbsp;|  strand||plus|plus or both|dada|which strand to use for vsearch clustering|only used by vsearch, plus is faster and should be appropriate unless sequencing direction is unknown and can't be determined
+final_table_filtering|||||postprocessing||settings for filtering the final ASV and/or OTU tables (before postprocessing, if postprocessing is done)
+&nbsp;|do||true|true or false|postprocessing|whether a filtered version of the ASV/OTU table and sequences should be made and used for the post-processing steps|
+&nbsp;|  keep_target_taxa||"."|"." or a regular expression for taxa to keep, e.g. "Bacteria"|postprocessing|pattern to look for in the taxstrings| done based on mothur and dada/DECIPHER result; "." means all are kept; all taxstrings are searched, if multiple classifiers were used - for clustered OTU tables, only the annotation of the OTUs is used, not the summary of ASV taxonomies
+&nbsp;|target_min_length||0||postprocessing|minimal length sequence|
+&nbsp;|target_max_length||Inf||postprocessing|maximum length of sequence|
 postprocessing|||||postprocessing||settings for postprocessing
 &nbsp;|  fungalTraits||||postprocessing||settings for fungalTraits
 &nbsp;||    do|false|true or false|postprocessing|whether fungalTraits should be assigned|
 &nbsp;||    db|"../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"||postprocessing|path to fungalTraits DB|change when setting up dadasnake on a new system
-&nbsp;||    classifier|mothur.SILVA_138_SSURef_NR99_cut||postprocessing|which classifier to use|can only be one
+&nbsp;||    classifier_db|mothur.SILVA_138_SSURef_NR99_cut||postprocessing|which classifier to use|can only be one
 &nbsp;|  funguild||||postprocessing||settings for funguild
 &nbsp;||    do|false|true or false|postprocessing|whether funguild should be run|
 &nbsp;||    funguild_db|"../DBs/functions/funguild_db.json"||postprocessing|path to funguild DB|change when setting up dadasnake on a new system
-&nbsp;||    classifier|mothur|mothur or decipher, depending on what was used|postprocessing|which classifier to use|can only be one
-&nbsp;|  tax4fun2||||postprocessing||settings for tax4fun2
+&nbsp;||    classifier_db|mothur.SILVA_138_SSURef_NR99_cut||postprocessing|which classifier to use|can only be one
+&nbsp;|  picrust2||||postprocessing||settings for PICRUSt2
+&nbsp;||    do|true|true or false|postprocessing|whether PICRUSt2 should be run|
+&nbsp;||    stratified|true|true or false|postprocessing|whether PICRUSt2 should return stratefied output|takes longer  
+&nbsp;||    per_sequence_contrib|true|true or false|postprocessing|whether PICRUSt2 should run per_sequence_contrib routine|takes longer
+&nbsp;||    skip_norm|false|true or false|postprocessing|whether PICRUSt2 should skip normalization of marker genes|
+&nbsp;||    max_nsti|2|integer|postprocessing|PICRUSt2 max_nsti setting| see PICRUSt2 documentation for details  
+&nbsp;||    do_nsti|true|true or false|postprocessing|whether PICRUSt2 should do NSTI| see PICRUSt2 documentation for details  
+&nbsp;||    do_minpath|true|true or false|postprocessing|PICRUSt2 minpath setting| see PICRUSt2 documentation for details  
+&nbsp;||    do_gapfill|true|true or false|postprocessing|PICRUSt2 gapfill setting| see PICRUSt2 documentation for details  
+&nbsp;||    do_coverage|false|true or false|postprocessing|PICRUSt2 coverage setting| see PICRUSt2 documentation for details  
+&nbsp;||    pathways|true|true or false|postprocessing|PICRUSt2 pathway setting| see PICRUSt2 documentation for details 
+&nbsp;||    min_reads|1|integer|postprocessing|minimum number of reads per ASV to filter before PICRUSt2| setting this higher will remove rare ASVs from calculation (quicker and potentially less noisy)
+&nbsp;||    min_samples|1|integer|postprocessing|minimum number of samples an ASV needs to be in before PICRUSt2| setting this higher will remove rare ASVs from calculation (quicker and potentially less noisy)
+&nbsp;||    placement_tool|epa-ng|epa-ng or sepp|postprocessing|PICRUSt2 placement_tool setting| see PICRUSt2 documentation for details  
+&nbsp;||    in_traits|EC,KO|comma-separated combination of COG, EC, KO, PFAM, TIGRFAM|postprocessing|PICRUSt2 in_traits setting| see PICRUSt2 documentation for details  
+&nbsp;||    hsp_method|mp|mp, emp_prob, pic, scp, or subtree_average|postprocessing|PICRUSt2 hsp_method setting| see PICRUSt2 documentation for details 
+&nbsp;||    edge_exponent|0.5|number|postprocessing|PICRUSt2 edge_exponent setting| see PICRUSt2 documentation for details  
+&nbsp;||    min_align|0|number|postprocessing|PICRUSt2 min_align setting| see PICRUSt2 documentation for details
+&nbsp;||    custom_trait_tables|''|string|postprocessing|PICRUSt2 custom_trait_tables setting| see PICRUSt2 documentation for details - not tested in dadasnake context yet
+&nbsp;||    marker_gene_table|''|string|postprocessing|PICRUSt2 marker_gene_table setting| see PICRUSt2 documentation for details - not tested in dadasnake context yet
+&nbsp;||    pathway_map|''|string|postprocessing|PICRUSt2 pathway_map setting| see PICRUSt2 documentation for details - not tested in dadasnake context yet
+&nbsp;||    reaction_func|''|string|postprocessing|PICRUSt2 reaction_func setting| see PICRUSt2 documentation for details - not tested in dadasnake context yet
+&nbsp;||    regroup_map|''|string|postprocessing|PICRUSt2 regroup_map setting| see PICRUSt2 documentation for details - not tested in dadasnake context yet
+&nbsp;|  tax4fun2||||postprocessing||settings for tax4fun2 - deprecated !
 &nbsp;||    do|false|true or false|postprocessing|whether tax4fun2 should be used|
 &nbsp;||    db|"../DBs/functions/Tax4Fun2_ReferenceData_v2"||postprocessing|path to tax4fun2 DB|change when setting up dadasnake on a new system
 &nbsp;||    database_mod|Ref99NR|Ref99NR or Ref100NR|postprocessing|which database to use|
@@ -360,15 +402,12 @@ postprocessing|||||postprocessing||settings for postprocessing
 &nbsp;||    do|true||postprocessing|whether a phylogenetic tree should be made|
 &nbsp;||    fasttreeMP|""||postprocessing|path to fasttreeMP executable|change when setting up dadasnake on a new system
 &nbsp;|  rarefaction_curve||true|true or false|postprocessing|whether a rarefaction curve should be made|
+sessionName |  |  | "" | "" or a single word | all | session name | only read, if you're not using the dadasnake wrappernormalMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your normal copute nodes (e.g. 8G) | may be fixed during installation, only necessary for cluster submission 
+bigMem |  |  | "" | "" or a number and letter | all | size of the RAM of one core of your high memory copute nodes (e.g. 30G) | may be fixed during installation, only necessary for cluster submission
+bigCores |  |  | "" | "" or a number | all | maximum number of high memory copute nodes to use (e.g. 4) | 0 means all nodes have the same (normal) size may be fixed during installation, only necessary for cluster submission
+sessionKind |  |  | "" | a string | all | automatically set by dadasnake wrapper | keep "" 
+settingsLocked |  |  | false | a boolean or string | all | automatically set by dadasnake wrapper | it doesn't matter what you do
 
-
-## The samples table
-Every samples table needs sample names (under header library) and file names (just the names, the path should be in the config file under header r1_file and potentially r2_file). Since DADA2 estimates run-specific errors, it can be helpful to give run IDs (under header run). If you have many (>500 samples), it is also useful to split them into runs for the analysis, as some of the most memory-intensive steps are done by run.  
-If several fastq files should end up in the same column of the OTU table, you can indicate this by giving these libraries the same sample name (under header sample). Libraries from different runs are combined in the final OTU table (example 1). Libraries from the same run are combined after primer-processing (example 2).
-Example 1:
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex1.png)
-Example 2:
-![overview](https://github.com/a-h-b/dadasnake/blob/master/documentation/samples_ex2.png)
 
 ## What if something goes wrong?
 If you gave dadasnake your email address and your system supports mailing (to that address), you will receive an email upon start and if the workflow encountered a problem or after the successful run. If there was a problem, you have to check the output and logs.
