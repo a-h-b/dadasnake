@@ -265,12 +265,12 @@ postprocessing:
   tax4fun2:
     do: false
 # I can't really recommend running tax4fun2 at this moment, as the package is unavailable
-    db: "../DBs/Functions/Tax4Fun2_ReferenceData_v2"
+    db: "../DBs/functions/Tax4Fun2_ReferenceData_v2"
     database_mode: "Ref99NR"
     normalize_by_copy_number: true 
     min_identity_to_reference: 0.97
     user_data: false
-    user_dir: "../DBs/Functions/GTDB_202_tax4fun2"
+    user_dir: "../DBs/functions/GTDB_202_tax4fun2"
     user_db: "GTDB_fun"
   treeing:
     do: true
