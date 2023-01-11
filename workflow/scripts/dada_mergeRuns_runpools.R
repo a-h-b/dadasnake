@@ -116,6 +116,7 @@ saveRDS(seqtab,snakemake@output[[1]])
 writeXStringSet(seqs,snakemake@output[[3]])
 print("Saving merged ASV table")
 seqtab <- data.frame(t(seqtab),stringsAsFactors=F)
+colnames(seqtab) <- sams
 seqtab$Row.names <- rownames(seqtab)
 seqtab$ASV <- names(seqs)
 saveRDS(seqtab[,c(ncol(seqtab)-1,1:(ncol(seqtab)-2),ncol(seqtab))],snakemake@output[[2]])
