@@ -1,28 +1,39 @@
+# GENERAL INFORMATION
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 outputdir: "/work/$USER/output16S_nanoporeChopseq"
-do_dada: true
-do_primers: true
-do_taxonomy: true
+# set these
+
 paired: false
-primer_cutting:
-  overlap: 12
-  perc_mismatch: 0.25
-  indels: ''
-  count: 1
-  both_primers_in_read: true
+
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
+do_primers: true
+do_dada: true
+do_taxonomy: true
+do_postprocessing: true
+hand_off:
+  biom: false
+  phyloseq: true
+# default output is tsv and RDS; get additional phyloseq object here
+
+# PRIMER REMOVAL SETTINGS
 primers:
-  fwd:
+  fwd: 
     sequence: AGRGTTTGATCMTGGCTCAG
     name: 8F
   rvs:
     sequence: GGGCGGWGTGTACAAG
     name: 1387R
-sequencing_direction: fwd_1
+sequencing_direction: "fwd_1"
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 0
-  trunc_qual: 
+  trunc_qual:
     fwd: 0
   max_EE:
     fwd: Inf
@@ -32,6 +43,9 @@ filtering:
     fwd: Inf
   minQ:
     fwd: 0
+
+# DADA2 SETTINGS
+error_seed: 100
 dada:
   pool: true
   band_size: 32
@@ -43,28 +57,62 @@ dada:
   no_error_assumptions: false
   errorEstimationFunction: noqualErrfun
   selfConsist: false
+
 chimeras:
   remove: true
-  method: pooled
-  minFoldParentOverAbundance: 3.5
-final_table_filtering:
-  do: false
-postprocessing:
-  funguild:
-    do: false
-  rarefaction_curve: true
-  treeing:
-    do: false
-ITSx:
-  run: false
+  method: poooled
+  minFoldParentOverAbundance: 2
+  minParentAbundance: 8
+  allowOneOff: false
+  minOneOffParentDistance: 4
+  maxShift: 16
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
 taxonomy:
+  dada:
+    do: false
   decipher:
     do: false
   mothur:
-    cutoff: 60
-    db_path: "../DBs/amplicon"
-    tax_db: "SILVA_138_SSURef_NR99_prok"
     do: true
-    post_ITSx: false
-tmp_dir: /work/$USER/tmp
-email: ''
+    run_on:
+      - ASV
+      - cluster
+    db_path: "../DBs/mothur"
+    tax_db: "SILVA_138_SSURef_NR99_prok"
+    db_short_names: "SILVA_138_SSURef_NR99"
+    cutoff: 60
+# set these paths!
+    
+blast:
+  do: true
+  run_on:
+    - ASV
+    - cluster
+  db_path: "../DBs/ncbi_16S_ribosomal_RNA"
+  tax_db: 16S_ribosomal_RNA
+  all: true
+  run_basta: true
+  basta_db: "../DBs/ncbi_taxonomy"
+# set these paths!
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+# I've never tested this
+
+# SETTINGS FOR POST-PROCESSING
+final_table_filtering:
+  do: true
+  keep_target_taxa: "."
+  target_min_length: 1000
+  target_max_length: 2000
+postprocessing:
+  rarefaction_curve: true
+  picrust2:
+    do: true
+    stratified: true
+    max_nsti: 2
+  treeing:
+    do: true

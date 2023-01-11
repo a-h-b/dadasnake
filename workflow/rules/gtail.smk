@@ -1,18 +1,20 @@
 def get_fastq(wildcards):
-    return RAW+"/"+samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    fastqs = config['raw_directory'] + "/" + samples.loc[(wildcards.library,wildcards.run), ["r1_file", "r2_file"]].dropna()
+    return fastqs
 
 def get_lib_perRunAndSample(wildcards,prefix,suffix):
     return prefix+samples.loc[(samples['run']==wildcards.run) & (samples['sample']==wildcards.sample), "library"].unique()+suffix
 
-localrules: primers_control
 
-rule primers_control:
+localrules: gtails_control
+
+rule gtails_control:
     input:
         expand("preprocessing/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"]),
         "reporting/readNumbers.tsv",
-        "reporting/primerNumbers_perSample.tsv"
+        "reporting/GtailsNumbers_perSample.tsv"
     output:
-        "copying_raw_files.done"
+        "gtails.done"
     shell:
         """
         touch {output}
@@ -20,7 +22,7 @@ rule primers_control:
 
 rule combine_or_rename:
     input:
-        "reporting/primerNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv",
         files = lambda wildcards: get_lib_perRunAndSample(wildcards,"preprocessing/{run}/",".{direction}.fastq.gz")    
     output:
         "preprocessing/{run}/{sample}.{direction}.fastq.gz"
@@ -58,13 +60,15 @@ rule input_numbers:
         SCRIPTSDIR+"report_readNumbers.R" 
 
 
-rule primer_numbers:
+rule gtails_numbers:
     input:
         "reporting/readNumbers.tsv",
         expand("preprocessing/{samples.run}/{samples.library}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
-        report("reporting/primerNumbers_perLibrary.tsv",category="Reads"),
-        report("reporting/primerNumbers_perSample.tsv",category="Reads")
+        "reporting/GtailsNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perSample.tsv"
+#        report("reporting/GtailsNumbers_perLibrary.tsv",category="Reads"),
+#        report("reporting/GtailsNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
         currentStep = "primers"
@@ -77,8 +81,9 @@ rule primer_numbers:
         SCRIPTSDIR+"report_readNumbers.R"
 
 
-if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] == "unknown":
-    rule copy_fwd:
+
+if config['sequencing_direction'] == "fwd_1":
+    rule cut_gtails_both:
         input:
             get_fastq
         output:
@@ -88,26 +93,19 @@ if config['sequencing_direction'] == "fwd_1" or config['sequencing_direction'] =
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
-        log: "logs/copying.{run}.{library}.log"
-        message: "Running copying {input} to {output}. Keeping forward and reverse reads."
+        params: 
+            nextseq="--nextseq-trim=2" 
+        conda: ENVDIR + "dadasnake_env.yml"
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Assuming forward read is read 1."
         shell:
             """
-            if [[ {input[0]} = *.gz ]]
-            then
-              cp {input[0]} {output[0]}
-            else
-              gzip -c {input[0]} > {output[0]}
-            fi
-            if [[ {input[1]} = *.gz ]]
-            then
-              cp {input[1]} {output[1]}
-            else
-              gzip -c {input[1]} > {output[1]}
-            fi
-            """
+            cutadapt {params.nextseq} -j {threads}\
+             -o {output[0]} -p {output[1]} {input} &> {log}
+             """
 
 elif config['sequencing_direction'] == "rvs_1":
-    rule copy_rvs:
+    rule cut_gtails_both:
         input:
             get_fastq
         output:
@@ -117,22 +115,42 @@ elif config['sequencing_direction'] == "rvs_1":
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
-        log: "logs/copying.{run}.{library}.log"
-        message: "Running copying {input} to {output}. Exchanging forward and reverse reads."
+        params: 
+            nextseq="--nextseq-trim=2" 
+        conda: ENVDIR + "dadasnake_env.yml"
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Assuming forward read is read 2."
         shell:
             """
-            if [[ {input[1]} = *.gz ]]
-            then
-              cp {input[1]} {output[0]}
-            else
-              gzip -c {input[1]} > {output[0]}
-            fi
-            if [[ {input[0]} = *.gz ]]
-            then
-              cp {input[0]} {output[1]}
-            else
-              gzip -c {input[0]} > {output[1]}
-            fi
+            TMPD=$(mktemp -d -t --tmpdir={TMPDIR} "XXXXXX")
+            zcat {input[0]} | fastx_reverse_complement -z -o $TMPD/{wildcards.library}.fwd.rc.fastq.gz &>> {log}\
+              || touch $TMPD/{wildcards.library}.fwd.rc.fastq.gz
+            zcat {input[1]} | fastx_reverse_complement -z -o $TMPD/{wildcards.library}.rvs.rc.fastq.gz &>> {log}\ 
+              || touch $TMPD/{wildcards.library}.rvs.rc.fastq.gz
+            cutadapt {params.nextseq} -j {threads} \
+             -o {output[1]} -p {output[0]} $TMPD/{wildcards.library}.fwd.rc.fastq.gz $TMPD/{wildcards.library}.rvs.rc.fastq.gz &>> {log}
+            """
+
+else:
+    rule cut_gtails_both:
+        input:
+            get_fastq
+        output:
+            "preprocessing/{run}/{library}.fwd.fastq.gz",
+            "preprocessing/{run}/{library}.rvs.fastq.gz"
+        threads: 1
+        resources:
+            runtime="12:00:00",
+            mem=config['normalMem']
+        params: 
+            nextseq="--nextseq-trim=2" 
+        conda: ENVDIR + "dadasnake_env.yml"
+        log: "logs/cutadapt.{run}.{library}.log"
+        message: "Running cutadapt on {input}. Assuming forward read is read 1, because we just don't know. \n Note that this step does not check for the direction, so if your libraries were not sequenced with the same direction, this will not turn them."
+        shell:
+            """
+            cutadapt {params.nextseq} -j {threads}\
+             -o {output[0]} -p {output[1]} {input} &> {log}
             """
 
 

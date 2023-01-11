@@ -1,6 +1,6 @@
-localrules: dada_control
+localrules: big_dada_control
 
-rule dada_control:
+rule big_dada_control:
     input:
         "sequenceTables/all.seqTab.RDS",
         "sequenceTables/all.seqs.fasta",
@@ -8,18 +8,14 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique()),
         expand("stats/multiqc_{step}.{run}_report.html",step=['1','filtered'],run=samples.run.unique()) 
     output:
-        "dada.done"
-    shell:
-        """
-        touch {output}
-        """
+        touch("dada.done")
 
 def get_sample_perRun(wildcards,prefix,suffix):
     return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -44,7 +40,8 @@ rule merged_numbers:
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "merged"
+        currentStep = "merged",
+        pool = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -87,12 +84,12 @@ rule dada_qc_filtered:
     script:
         SCRIPTSDIR+"dada_QC.single.R"
 
-rule fastqc_1:
+rule big_fastqc_1:
     input:
         lambda wildcards: get_sample_perRun(wildcards,"preprocessing/{run}/",".fastq.gz")
     output:
         directory('stats/fastqc_1/{run}')
-    threads: getThreads(4)
+    threads: getThreads(8)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -105,7 +102,7 @@ rule fastqc_1:
         fastqc --noextract -o {output[0]} -f fastq -t {threads} -d {TMPDIR} {input} >> {log} 2>&1
         """
 
-rule multiqc:
+rule big_multiqc:
     input:
         "stats/fastqc_{step}/{run}"
     output:
@@ -125,12 +122,12 @@ rule multiqc:
         multiqc -n {output[1]} {input} >> {log} 2>&1
         """
 
-rule fastqc_filtered:
+rule big_fastqc_filtered:
     input:
         lambda wildcards: get_sample_perRun(wildcards,"filtered/{run}/",".fastq.gz")
     output:
         directory('stats/fastqc_filtered/{run}')
-    threads: getThreads(4)
+    threads: getThreads(8)
     resources:
         runtime = "8:00:00",
         mem = config['normalMem']
@@ -183,6 +180,8 @@ if config['downsampling']['do']:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -199,6 +198,8 @@ else:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -219,6 +220,8 @@ if config['dada']['use_quals']:
         resources:
             runtime="24:00:00",
             mem=config['normalMem']
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_read2RDS.{run}.{sample}.log"
         message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."

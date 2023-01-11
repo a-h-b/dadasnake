@@ -5,15 +5,21 @@ sink(log, type="message")
 condap <- Sys.getenv("CONDA_PREFIX")
 .libPaths(paste0(condap,"/lib/R/library"))
 
+if(snakemake@params[["what"]]=="ASV"){
+  units <- "ASV"
+}else{
+  units <- "OTU"
+}
+print(snakemake@input)
 
 print("reading mothur classifier result")
 for(mt in 1:length(snakemake@input)){
-  currName <- gsub(".tsv$","",gsub("sequenceTables/tax.mothur.","",snakemake@input[[mt]]))
+  currName <- gsub(".tsv$","",gsub(".+Tables/tax.mothur.","",snakemake@input[[mt]]))
   mothTax <- read.delim(snakemake@input[[mt]],
                         stringsAsFactors = F,quote="",header=F)
-  colnames(mothTax) <- c("OTU","taxonomy.mothur")
+  colnames(mothTax) <- c(units,"taxonomy.mothur")
   mothTax$taxonomy.mothur <- gsub("^\"","",mothTax$taxonomy.mothur)
-  rownames(mothTax) <- mothTax$OTU
+  rownames(mothTax) <- mothTax[,which(colnames(mothTax)==units)]
   mothTax$taxonomy.mothur <- gsub("\\([[:digit:]]+\\)","",mothTax$taxonomy.mothur)
   mothTax$taxonomy.mothur[mothTax$taxonomy.mothur==""] <- ";"
   print("formatted")
@@ -27,7 +33,7 @@ for(mt in 1:length(snakemake@input)){
    mothTax <- cbind(mothTax,tmpTax[,1:dimCut],
                     matrix("",nrow=nrow(mothTax),
                            ncol=rankNum+1-dimCut,
-                           dimnames=list(mothTax$OTU,
+                           dimnames=list(mothTax[,which(colnames(mothTax)==units)],
                                      paste0("X",c((dimCut+1):(rankNum+1))))))
   }
   for(i in grep("^X",colnames(mothTax))){
@@ -42,14 +48,14 @@ for(mt in 1:length(snakemake@input)){
     }
   }
   if(rankNum %in% c(6,7)){
-    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species"),
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0(c("Domain","Phylum","Class","Order","Family","Genus","Species","SH"),
                                                             ".mothur.",currName)
   }else{
-    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0("Level_",1:rankNum,
+    colnames(mothTax)[grep("^X",colnames(mothTax))] <- paste0("Level_",1:(rankNum+1),
                                                             ".mothur.",currName)
    }
    colnames(mothTax)[colnames(mothTax)=="taxonomy.mothur"] <- paste0("taxonomy.mothur.",currName)
-  if(!"lastTab" %in% ls()) lastTab <- mothTax else lastTab <- merge(lastTab,mothTax,by="OTU", all=T)
+  if(!"lastTab" %in% ls()) lastTab <- mothTax else lastTab <- merge(lastTab,mothTax,by=units, all=T)
   lastTab[is.na(lastTab)] <- ""
 }
 

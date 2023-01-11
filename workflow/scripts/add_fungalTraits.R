@@ -10,17 +10,17 @@ seqTab <- readRDS(snakemake@input[[1]])
 ori_colnames <- colnames(seqTab)
 
 print("reading FungalTraits table")
-fun <- read.delim(snakemake@config[['postprocessing']][['fungalTraits']][['db']])
+fun <- read.delim(snakemake@params[['db']])
 colnames(fun) <- paste0(colnames(fun),".FungalTraits")
-print(snakemake@config[['postprocessing']][['fungalTraits']][['level']])
-if(is.character(snakemake@config[['postprocessing']][['fungalTraits']][['level']])){ 
-  levelOI <- snakemake@config[['postprocessing']][['fungalTraits']][['level']]
+print(snakemake@params[['level']])
+if(is.character(snakemake@params[['level']])){ 
+  levelOI <- snakemake@params[['level']]
 }else{
-  levelOI <- paste0("Level_",snakemake@config[['postprocessing']][['fungalTraits']][['level']])
+  levelOI <- paste0("Level_",snakemake@params[['level']])
 } 
 print(levelOI)
 colOI <- grep(paste0("^",levelOI,".",
-                            snakemake@config[['postprocessing']][['fungalTraits']][['classifier']]),
+                            snakemake@params[['classifier']]),
               colnames(seqTab),value=T)
 
 seqTab <- merge(seqTab,fun,

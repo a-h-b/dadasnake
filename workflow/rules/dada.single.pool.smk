@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -45,7 +45,7 @@ rule merged_numbers:
     threads: 1
     params:
         currentStep = "merged",
-        pooling = config['dada']['pool']
+        pool = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -185,6 +185,8 @@ if config['downsampling']['do']:
             "errors/models.RDS",
             "stats/error_models.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -205,7 +207,8 @@ if config['downsampling']['do']:
                 runtime="24:00:00",
                 mem=config['normalMem']
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             conda: ENVDIR + "dada2_env.yml"
             log: "logs/DADA2_read2RDS.log"
             message: "converting fastq to dada-RDS."
@@ -236,6 +239,8 @@ else:
             "errors/models.RDS",
             "stats/error_models.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -256,7 +261,8 @@ else:
                 runtime="24:00:00",
                 mem=config['normalMem']
             params:
-                pooling=config['dada']['pool']
+                pooling=config['dada']['pool'],
+                errorFunctions=SCRIPTSDIR+"errorFunctions.R"
             conda: ENVDIR + "dada2_env.yml"
             log: "logs/DADA2_read2RDS.log"
             message: "converting fastq to dada-RDS."

@@ -1,47 +1,62 @@
-email: ""
+# GENERAL INFORMATION
 raw_directory: "testdata"
 sample_table: "testdata/samples.small.tsv"
+outputdir: "test_output"
+paired: true
+tmp_dir: "tmp"
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
 do_primers: true
 do_dada: true
-do_taxonomy: false
+do_taxonomy: true
 do_postprocessing: true
-primers:
-  fwd: 
-    sequence: GTGYCAGCMGCCGCGGTAA
-    name: 515F
-  rvs: 
-    sequence: GGACTACNVGGGTWTCTAAT
-    name: 806R
-paired: true
-dada:
-  pool: false
-sequencing_direction: "unknown"
+hand_off:
+  biom: false
+  phyloseq: true
+
+# READ FILTERING SETTINGS
 filtering:
   trunc_length:
     fwd: 170
     rvs: 130
-  trunc_qual: 
+  trunc_qual:
     fwd: 13
     rvs: 13
   max_EE:
     fwd: 0.2
     rvs: 0.2
-  minLen:
-    fwd: 100
-    rvs: 100
-  maxLen:
-    fwd: Inf
-    rvs: Inf
-  minQ:
-    fwd: 0
-    rvs: 0
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
 downsampling:
   do: true
   number: 1000
-tmp_dir: "tmp"
-outputdir: "testoutput"
-final_table_filtering:
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+# nothing is actually done here, because the databases need to be installed by the user
+taxonomy:
+  dada:
+    do: false
+  decipher:
+    do: false
+  mothur:
+    do: false
+blast:
   do: false
-hand_off:
-  biom: true
-  phyloseq: true
+ITSx:
+  do: false
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+
+# SETTINGS FOR POST-PROCESSING
+final_table_filtering:
+  do: true
+postprocessing:
+  rarefaction_curve: true
+  picrust2:
+    do: true
+  treeing:
+    do: true

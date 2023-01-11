@@ -18,6 +18,7 @@ if(!require(dada2)){
   require(dada2)
 }
 
+source(snakemake@params[['errorFunctions']])
 
 filts <- unlist(snakemake@input)
 
@@ -37,20 +38,27 @@ if(length(filts)>0){
     drps <- vector("list", length(filts))
     filts <- sample(filts)
     for (i in seq_along(filts)) {
+      print(i)
+      print("derepFastq:")
       drps[[i]] <- derepFastq(filts[[i]])
       if(any( drps[[i]]$quals[!is.na(drps[[i]]$quals)]<0)) drps[[i]]$quals <- drps[[i]]$quals+31
       NREADS <- NREADS + sum(drps[[i]]$uniques)
       NBASES <- NBASES + sum(drps[[i]]$uniques * nchar(names(drps[[i]]$uniques)))
-      if (NBASES > 1e8) {
+      if (NBASES > as.numeric(snakemake@config[['dada']][['error_nbases']])) {
         break
       }
     }
     drps <- drps[1:i]
-    errs <- learnErrors(drps, multithread=snakemake@threads)
+    print("learnErrors:")
+    errs <- learnErrors(drps, multithread=snakemake@threads, 
+                         nbases=as.numeric(snakemake@config[['dada']][['error_nbases']]),
+                         MAX_CONSIST=as.numeric(snakemake@config[['dada']][['error_max_consist']]),
+                         OMEGA_C=as.numeric(snakemake@config[['dada']][['error_omega_C']]),
+                         errorEstimationFunction=match.fun(snakemake@config[['dada']][['errorEstimationFunction']]))
     saveRDS(errs,errfile)
-pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
-    print(plotErrors(errs, nominalQ=TRUE))
-dev.off()
+    pdf(snakemake@output[[2]],width=8,height=11,pointsize=7)
+       print(plotErrors(errs, nominalQ=TRUE))
+    dev.off()
 }else{
    stop("No reads in any of the input files for learning errors.")
 }

@@ -178,6 +178,20 @@ if config['do_dada']:
         PRELIM_STEPS += "taxonomy "
     if config['do_postprocessing']:
         PRELIM_STEPS += "postprocessing "
+if config['post_clustering']:
+    PRELIM_STEPS += "postclustering "
+else:
+    if config['do_taxonomy']:
+        if config['blast']['do'] and "cluster" in config['blast']['run_on']:
+            PRELIM_STEPS += "postclustering "
+        elif config['taxonomy']['dada']['do'] and "cluster" in config['taxonomy']['dada']['run_on']:
+            PRELIM_STEPS += "postclustering "
+        elif config['taxonomy']['mothur']['do'] and "cluster" in config['taxonomy']['mothur']['run_on']:
+            PRELIM_STEPS += "postclustering "
+        elif config['taxonomy']['decipher']['do'] and "cluster" in config['taxonomy']['decipher']['run_on']:
+            PRELIM_STEPS += "postclustering "
+        elif config['ITSx']['do'] and "cluster" in config['ITSx']['run_on']:
+            PRELIM_STEPS += "postclustering "
 
 STEPS = PRELIM_STEPS.split()
 

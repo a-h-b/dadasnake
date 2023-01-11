@@ -1,32 +1,39 @@
-email: ""
+# GENERAL INFORMATION
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 outputdir: "/work/$USER/AMF_output"
+# set these!
+
+paired: true
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
-taxonomy:
-  decipher:
-    do: false
-  mothur:
-    do: true
-    db_path: "../DBs/amplicon"
-    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
+hand_off:
+  biom: false
+  phyloseq: true
+
+# PRIMER REMOVAL SETTINGS
 primers:
   fwd: 
     sequence: TTGGAGGGCAAGTCTGGTGCC
     name: NS31
-  rvs: 
+  rvs:
     sequence: GAACCCAAACACTTTGGTTTCC
     name: AML2
-paired: true
 sequencing_direction: "unknown"
+nextseq_novaseq: false
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual:
+  trunc_qual: 
     fwd: 7
     rvs: 7
   max_EE:
@@ -35,23 +42,68 @@ filtering:
   minLen:
     fwd: 260
     rvs: 210
-  maxLen:
-    fwd: Inf
-    rvs: Inf
-  minQ:
-    fwd: 0
-    rvs: 0
-blast:
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
+downsampling:
   do: false
-hand_off:
-  biom: true
-  phyloseq: false
+
+# DADA2 SETTINGS
+error_seed: 100
+dada:
+  pool: false
+pair_merging:
+  min_overlap: 6
+  max_mismatch: 1
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  dada:
+    do: false
+  decipher:
+    do: false
+  mothur:
+    do: true
+    run_on:
+      - ASV
+      - cluster
+    db_path: "../DBs/mothur"
+    tax_db: "SILVA_138_SSURef_NR99_euk.NS31.AML2"
+    db_short_names: "SILVA_138_SSURef_NR99_euk_AMF"
+# set these paths/names
+    cutoff: 60
+    rank_number: 17
+blast:
+  do: true
+  run_on:
+    - ASV
+    - cluster
+  db_path: "../DBs/ncbi_18Sfungal"
+  tax_db: 18S_fungal_sequences
+  all: true
+  run_basta: true
+  basta_db: "../DBs/ncbi_taxonomy"
+# set these paths/names
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+
+# SETTINGS FOR POST-PROCESSING
 final_table_filtering:
   do: true
-  keep_target_taxa: "Glomeromycotina"
+  keep_target_taxa: "Glomeromyco"
 postprocessing:
   rarefaction_curve: true
   funguild:
-    do: false
+    do: true
+    funguild_db: "../DBs/functions/funguild_db.json"
+    classifier_db: mothur.SILVA_138_SSURef_NR99_euk_AMF
+  fungalTraits:
+    do: true
+    db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
+    classifier_db: mothur.SILVA_138_SSURef_NR99_euk_AMF
+    level: 13
+# set these paths/names/level
   treeing:
     do: true

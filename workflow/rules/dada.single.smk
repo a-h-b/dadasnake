@@ -8,18 +8,14 @@ rule dada_control:
         expand("stats/QC_{step}.{run}.pdf",step=['1','filtered'],run=samples.run.unique()),
         expand("stats/multiqc_{step}_report.html",step=['1','filtered']) 
     output:
-        "dada.done"
-    shell:
-        """
-        touch {output}
-        """
+        touch("dada.done")
 
 def get_sample_perRun(wildcards,prefix,suffix):
     return prefix+samples.loc[samples['run']==wildcards.run, "sample"].unique()+suffix
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.fastq.gz", samples=samples.itertuples())
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -44,7 +40,8 @@ rule merged_numbers:
         report("reporting/mergedNumbers_perSample.tsv",category="Reads")
     threads: 1
     params:
-        currentStep = "merged"
+        currentStep = "merged",
+        pool = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -184,6 +181,8 @@ if config['downsampling']['do']:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -200,6 +199,8 @@ else:
             "errors/models.{run}.RDS",
             "stats/error_models.{run}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -220,6 +221,8 @@ if config['dada']['use_quals']:
         resources:
             runtime="24:00:00",
             mem=config['normalMem']
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_read2RDS.{run}.{sample}.log"
         message: "converting fastq to dada-RDS for {wildcards.run} {wildcards.sample}."
@@ -273,7 +276,7 @@ if config["chimeras"]["remove"]:
             "sequenceTables/pre_chimera.seqTab.tsv"
         threads: 1
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
@@ -292,7 +295,7 @@ if config["chimeras"]["remove"]:
         params:
             currentStep = "chimera"
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countNonchimericReads.log"
@@ -310,7 +313,7 @@ else:
             "sequenceTables/all.seqTab.tsv"
         threads: 1
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeRuns.log"
@@ -328,7 +331,7 @@ else:
         params:
             currentStep = "table"
         resources:
-            runtime="120:00:00",
+            runtime="12:00:00",
             mem=config['normalMem']
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/countTabledReads.log"

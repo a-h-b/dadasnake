@@ -1,39 +1,40 @@
-email: ""
+# GENERAL INFORMATION
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 outputdir: "/work/$USER/outputITS1"
+# set these
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+paired: true
+
+# STEPS
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
-taxonomy:
-  decipher:
-    do: false
-  mothur:
-    do: true
-    post_ITSx: true
-    db_path: "../DBs/amplicon"
-    tax_db: "unite_8.2_fungi.ITS1"
+hand_off:
+  biom: false
+  phyloseq: true
+# default output is tsv and RDS; get additional phyloseq object here
+
+# PRIMER REMOVAL SETTINGS
 primers:
   fwd: 
     sequence: CTTGGTCATTTAGAGGAAGTAA
     name: ITS1f
-  rvs: 
+  rvs:
     sequence: GCTGCGTTCTTCATCGATGC 
     name: ITS2
-paired: true
 sequencing_direction: "unknown"
-primer_cutting:
-  overlap: 10
-  count: 2
-  filter_if_not_match: any
-  perc_mismatch: 0.2
-  indels: "--no-indels"
+nextseq_novaseq: false
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 0
     rvs: 0
-  trunc_qual:
+  trunc_qual: 
     fwd: 15
     rvs: 15
   max_EE:
@@ -45,38 +46,80 @@ filtering:
   maxLen:
     fwd: Inf
     rvs: Inf
-  minQ:
-    fwd: 0
-    rvs: 0
+
+# DOWNSAMPLING CAN BE DONE BETWEEN READ FILTERING AND DADA2
+downsampling:
+  do: false
+
+# DADA2 SETTINGS
 pair_merging:
   min_overlap: 20
   max_mismatch: 2
 chimeras:
   remove: true
-  method: consensus
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  dada:
+    do: false
+  decipher:
+    do: false
+  mothur:
+    do: true
+    run_on:
+      - ASV
+      - cluster
+    post_ITSx: false
+    db_path: "../DBs/mothur"
+    tax_db: "unite_8.2_fungi.ITS1"
+    db_short_names: "unite_8.2_fungi_ITS1"
+# set the paths and names here!
 blast:
-  do: false
-  e_val: 0.00001
+  do: true
+  run_on:
+    - ASV
+    - cluster
+  db_path: "../DBs/ncbi_ITS_RefSeq_Fungi"
+  tax_db: ITS_RefSeq_Fungi
+  all: true
+  run_basta: true
+  basta_db: "../DBs/ncbi_taxonomy"
+# set the paths and names here!
 ITSx:
   do: true
+  run_on:
+    - ASV
+    - cluster
   min_regions: 1
   region: ITS1
   e_val: 1e-5
-hand_off:
-  biom: true
-  phyloseq: false
+  query_taxa: .
+  target_taxon: F
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+
+# SETTINGS FOR POST-PROCESSING
 final_table_filtering:
   do: true
+# filtering is only done, if do_postprocessing is true
   keep_target_taxa: "Fungi"
 postprocessing:
   rarefaction_curve: true
   funguild:
-    do: false
-    funguild_db: "../DBs/amplicon/funguild_db.json"
-    classifier: mothur
+    do: true
+    funguild_db: "../DBs/functions/funguild_db.json"
+    classifier_db: mothur.unite_8.2_fungi_ITS1
+# set the paths and names here!
   fungalTraits:
-    do: false
+    do: true
     db: "../DBs/functions/FungalTraits_1.2_ver_16Dec_2020_V.1.2.tsv"
-    classifier: mothur
+    classifier_db: mothur.unite_8.2_fungi_ITS2
+    level: "Genus"
+# set the paths and names here!
+  picrust2:
+    do: false
   treeing:
     do: false

@@ -28,8 +28,12 @@ if config['paired']:
         include:
             "workflow/rules/cutadapt.smk"
     else:
-        include:
-            "workflow/rules/copying.smk"
+        if config['nextseq_novaseq']:
+            include:
+                "workflow/rules/gtail.smk"
+        else:
+            include:
+                "workflow/rules/copying.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             if not config['big_data']: 
@@ -50,8 +54,12 @@ else:
         include:
             "workflow/rules/cutadapt.single.smk"
     else:
-        include:
-            "workflow/rules/copying.single.smk"
+        if config['nextseq_novaseq']:
+            include:
+                "workflow/rules/gtail.single.smk"
+        else:
+            include:
+                "workflow/rules/copying.single.smk"
     if 'dada' in STEPS:
         if not config['dada']['pool']:
             if not config['big_data']:
@@ -71,15 +79,19 @@ if 'dada' in STEPS:
     if config['big_data']:
         include:
             "workflow/rules/bigdada.common.smk"
+        include:
+            "workflow/rules/bigpost_clustering.smk"
     else:
         include:
             "workflow/rules/dada.common.smk"
+        include:
+            "workflow/rules/post_clustering.smk"
 if 'taxonomy' in STEPS:
     if config['big_data']:
         include:
             "workflow/rules/bigtaxonomy.smk"
     else:
-        include:
+         include:
             "workflow/rules/taxonomy.smk"
 if 'postprocessing' in STEPS:
     if config['final_table_filtering']['do']:
@@ -101,8 +113,13 @@ if 'postprocessing' in STEPS:
 inputs = []
 if 'primers' in STEPS:
     inputs.append('primers.done')
+else:
+    if config['nextseq_novaseq']:
+        inputs.append('gtails.done')
 if 'dada' in STEPS:
     inputs.append('dada.done')
+    if config['post_clustering']['do']:
+        inputs.append('post_clustering.done')
 if 'taxonomy' in STEPS:
     inputs.append('taxonomy.done')
 if 'postprocessing' in STEPS:

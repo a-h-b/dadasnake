@@ -19,7 +19,7 @@ def get_sample_perRun(wildcards,prefix,suffix):
 
 rule filter_numbers:
     input:
-        "reporting/primerNumbers_perLibrary.tsv",
+        "reporting/GtailsNumbers_perLibrary.tsv" if  'primers' not in STEPS and config['nextseq_novaseq'] else "reporting/primerNumbers_perLibrary.tsv",
         expand("filtered/{samples.run}/{samples.sample}.{direction}.fastq.gz", samples=samples.itertuples(), direction=["fwd","rvs"])
     output:
         report("reporting/filteredNumbers_perLibrary.tsv",category="Reads"),
@@ -45,6 +45,7 @@ rule merged_numbers:
     threads: 1
     params:
         currentStep = "merged",
+        pool = config['dada']['pool']
     resources:
         runtime="12:00:00",
         mem=config['normalMem']
@@ -194,6 +195,8 @@ if config['downsampling']['do']:
             "errors/models.{run}.{direction}.RDS",
             "stats/error_models.{run}.{direction}.pdf"
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -210,6 +213,8 @@ else:
             "errors/models.{run}.{direction}.RDS",
             "stats/error_models.{run}.{direction}.pdf",
         threads: 1
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
@@ -232,6 +237,8 @@ if config['dada']['use_quals']:
         resources:
             runtime="12:00:00",
             mem=config['normalMem']
+        params:
+            errorFunctions=SCRIPTSDIR+"errorFunctions.R"
         conda: ENVDIR + "dada2_env.yml"
         log: "logs/DADA2_mergeReadPairs.{run}.{sample}.log"
         message: "merging reads for {wildcards.run} {wildcards.sample}."

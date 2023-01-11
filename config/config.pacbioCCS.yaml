@@ -1,37 +1,44 @@
-email: ""
+# GENERAL INFORMATION
 raw_directory: "/work/$USER"
 sample_table: "/work/$USER/samples.tsv"
 outputdir: "/work/$USER/output16S_pacbio"
-taxonomy:
-  mothur:
-    do: true
-    db_path: "../DBs/amplicon"
-    tax_db: "SILVA_138_SSURef_NR99_prok"
-  decipher:
-    do: false
+# set these!
+
+paired: false
+email: ""
+#  if your system can send emails, it will use this address to notify at the end of a run
+
+# STEPS
 do_primers: true
 do_dada: true
 do_taxonomy: true
 do_postprocessing: true
+hand_off:
+  biom: false
+  phyloseq: true
+# default output is tsv and RDS; get additional phyloseq object here
+
+# PRIMER REMOVAL SETTINGS
 primers:
-  fwd:
+  fwd: 
     sequence: AGRGTTYGATYMTGGCTCAG
     name: 27F
   rvs:
     sequence: RGYTACCTTGTTACGACTT
     name: 1492R
-paired: false
-sequencing_direction: "unknown"
 primer_cutting:
   overlap: 12
-  perc_mismatch: 0.2
-  indels: ''
   count: 2
+  perc_mismatch: 0.2
+  indels: ""
   both_primers_in_read: true
+sequencing_direction: "unknown"
+
+# READ FILTERING SETTINGS (in DADA2)
 filtering:
   trunc_length:
     fwd: 0
-  trunc_qual: 
+  trunc_qual:
     fwd: 0
   max_EE:
     fwd: 2
@@ -42,28 +49,67 @@ filtering:
   minQ:
     fwd: 3
   rm_phix: false
+
+# DADA2 SETTINGS
+error_seed: 100
 dada:
-  pool: true
   band_size: 32
   homopolymer_gap_penalty: -1
+  pool: true
   errorEstimationFunction: PacBioErrfun
 chimeras:
   remove: true
   method: consensus
   minFoldParentOverAbundance: 3.5
+
+# SETTINGS FOR TAXONOMIC ANNOTATION
+taxonomy:
+  dada:
+    do: false
+  decipher:
+    do: false
+  mothur:
+    do: true
+    run_on:
+      - ASV
+      - cluster
+    db_path: "../DBs/mothur"
+    tax_db: "SILVA_138_SSURef_NR99_prok"
+# set these paths!
+    db_short_names: "SILVA_138_SSURef_NR99"
+blast:
+  do: true
+  run_on:
+    - ASV
+    - cluster
+  db_path: "../DBs/ncbi_16S_ribosomal_RNA"
+  tax_db: 16S_ribosomal_RNA
+# set these paths/names!
+  all: true
+  run_basta: true
+  basta_db: "../DBs/ncbi_taxonomy"
+# set these paths/names!
+
+# SETTINGS FOR CLUSTERING ASV TABLE AT e.g. 97%
+post_clustering:
+  do: true
+  cutoff: 0.97
+# I've not tested this
+  method: vsearch
+  strand: both
+
+# SETTINGS FOR POST-PROCESSING
 final_table_filtering:
   do: true
-  keep_target_taxa: "Bacteria"
-  target_min_length: 0
-  target_max_length: Inf
-blast:
-  do: false
-hand_off:
-  biom: true
-  phyloseq: false
+  keep_target_taxa: "."
+  target_min_length: 1000
+  target_max_length: 2000
 postprocessing:
   rarefaction_curve: true
-  funguild:
-    do: false
+  picrust2:
+    do: true
+    stratified: true
+    skip_norm: false
+    max_nsti: 2
   treeing:
     do: true

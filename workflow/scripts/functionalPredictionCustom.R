@@ -67,11 +67,12 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   }
   #ref_blast_result_reduced
   otu_table <- readRDS(path_to_otu_table)
-  otu_table <- otu_table[,c(which(colnames(otu_table)=="OTU"),
+  if(any(colnames(otu_table)=="OTU")) colnames(otu_table)[which(colnames(otu_table)=="OTU")] <- "ASV"
+  otu_table <- otu_table[,c(which(colnames(otu_table)=="ASV"),
                           which(sapply(otu_table,class) %in% c("numeric","integer")))]
   otu_table_reduced <- merge(x = ref_blast_result_reduced, 
                             y = otu_table, by.x = "V1", 
-                            by.y = "OTU")[,-1]
+                            by.y = "ASV")[,-1]
   otu_table_reduced_aggregated <- aggregate(x = otu_table_reduced[,-1],
                                             by = list(otu_table_reduced[, 1]), 
                                             sum)
@@ -136,10 +137,10 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
   dimnames(reference_profile) <- list(otu_table_reduced_aggregated[,1],ko_list[,1])
   reference_profile_expanded <- merge(ref_blast_result_reduced,reference_profile,
                                       by.x=2,by.y=0)[,-1]
-  colnames(reference_profile_expanded)[1] <- "OTU"
+  colnames(reference_profile_expanded)[1] <- "ASV"
   write.table(reference_profile_expanded[order(reference_profile_expanded[,1]),],
               file = file.path(path_to_temp_folder, 
-                               "KOs_per_OTU.txt"), append = F, quote = F, 
+                               "KOs_per_ASV.txt"), append = F, quote = F, 
               sep = "\t", row.names = F, col.names = T)
   message("Generating functional profile for:")
   functional_prediction = NULL
@@ -205,7 +206,7 @@ makeFunctionalPredictionCustom <- function(path_to_otu_table,
              }})
   rownames(pathway_profile_expanded) <- reference_profile_expanded[,1]
   write.table(x = pathway_profile_expanded[order(rownames(pathway_profile_expanded)),], 
-              file = file.path(path_to_temp_folder, "pathway_per_OTU.txt"), 
+              file = file.path(path_to_temp_folder, "pathway_per_ASV.txt"), 
               append = F, quote = F, sep = "\t", 
               row.names = T, col.names = NA)
 }

@@ -18,6 +18,7 @@ if(!require(dada2)){
   BiocManager::install("GenomeInfoDbData",update=F,ask=F)
   require(dada2)
 }
+source(snakemake@params[['errorFunctions']])
 
 # File parsing
 errfile <- snakemake@input[[1]]

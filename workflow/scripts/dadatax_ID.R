@@ -21,14 +21,20 @@ if(!require(dada2)){
   require(dada2)
 }
 
+if(snakemake@params[["what"]]=="ASV"){
+  units <- "ASV"
+}else{
+  units <- "OTU"
+}
+
 print("finding training set:")
-theoPath <- paste0(snakemake@config[['taxonomy']][['dada']][['db_path']],"/",snakemake@config[['taxonomy']][['dada']][['refFasta']])
+theoPath <- snakemake@params[['DB']]
 if(file.exists(theoPath)){
   loadPath <- theoPath
 }else{
-  altPath <- paste0(snakemake@config[['taxonomy']][['decipher']][['db_path']],"/",
-                    list.files(path=snakemake@config[['taxonomy']][['dada']][['db_path']],
-                               pattern=snakemake@config[['taxonomy']][['dada']][['refFasta']]))
+  altPath <- paste0(snakemake@params[['db_path']],"/",
+                    list.files(path=snakemake@params[['db_path']],
+                               pattern=snakemake@params[['refFasta']]))
   if(length(altPath)==1) loadPath <- altPath else stop(paste0(theoPath," not found."))
 }
 print(loadPath)
@@ -36,14 +42,15 @@ ranks <- c("Kingdom","Phylum","Class","Order","Family","Genus")
 
 print(paste0("loading sequence ",snakemake@input))
 seqs <- readDNAStringSet(snakemake@input[[1]])
+if(units=="ASV" & any(grepl("^OTU",names(seqs)))) names(seqs) <- gsub("OTU_","ASV_",names(seqs))
 
 print("running classification")
-set.seed(snakemake@config[['taxonomy']][['dada']][['seed']])
-ids <- assignTaxonomy(as.character(seqs), loadPath, tryRC=snakemake@config[['taxonomy']][['dada']][['tryRC']],
-               minBoot=snakemake@config[['taxonomy']][['dada']][['minBoot']], 
+set.seed(snakemake@params[['seed']])
+ids <- assignTaxonomy(as.character(seqs), loadPath, tryRC=snakemake@params[['tryRC']],
+               minBoot=snakemake@params[['minBoot']], 
                multithread=parallel, taxLevels=ranks, verbose=T)
-if(snakemake@config[['taxonomy']][['dada']][['look_for_species']]){
-  ids <- addSpecies(ids,snakemake@config[['taxonomy']][['dada']][['spec_db']])
+if(snakemake@params[['do_species']]){
+  ids <- addSpecies(ids,snakemake@params[['SPEC']])
 }
 rownames(ids) <- names(seqs)
 ids <- ids[order(rownames(ids)),]

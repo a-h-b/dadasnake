@@ -1,36 +1,40 @@
 name: basta_env
 channels:
-  - timkahlke
   - bnoon
   - bioconda
-  - conda-forge/label/cf201901
-  - bioconda/label/cf201901
+  - timkahlke
   - defaults
-  - r
 dependencies:
-  - krona=2.8=pl526_0
-  - leveldb=1.15=1
-  - plyvel=0.8=py27_0
-  - snappy=1.1.1=0
-  - ca-certificates=2018.11.29=ha4d7672_0
-  - certifi=2018.11.29=py27_1000
-  - curl=7.49.1=0
-  - libffi=3.2.1=hfc679d8_5
-  - perl=5.26.2=h470a237_0
-  - pip=18.1=py27_1000
-  - setuptools=40.6.3=py27_0
-  - tk=8.6.9=ha92aebf_0
-  - wheel=0.32.3=py27_0
-  - zlib=1.2.11=h470a237_4
-  - _libgcc_mutex=0.1=main.conda
-  - libedit=3.1.20191231=h14c3975_1.conda
-  - libgcc-ng=9.1.0=hdf63c60_0.conda
-  - libstdcxx-ng=9.1.0=hdf63c60_0.conda
-  - ncurses=6.2=he6710b0_1.conda
-  - openssl=1.1.1i=h27cfd23_0.conda
-  - python=2.7.18=h02575d3_0.conda
-  - readline=8.1=h27cfd23_0.conda
-  - sqlite=3.33.0=h62c20be_0.conda
-  - wget=1.20.1=h20c2e04_0.conda
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=4.5=1_gnu
   - basta=1.3=py27_1
-
+  - c-ares=1.17.1=h27cfd23_0
+  - ca-certificates=2021.10.26=h06a4308_2
+  - certifi=2020.6.20=pyhd3eb1b0_3
+  - curl=7.78.0=h1ccaba5_0
+  - krb5=1.19.2=hac12032_0
+  - krona=2.8=pl5262hdfd78af_2
+  - leveldb=1.15=1
+  - libcurl=7.78.0=h0b77cf5_0
+  - libedit=3.1.20210910=h7f8727e_0
+  - libev=4.33=h7f8727e_1
+  - libffi=3.3=he6710b0_2
+  - libgcc-ng=9.3.0=h5101ec6_17
+  - libgomp=9.3.0=h5101ec6_17
+  - libnghttp2=1.41.0=hf8bcb03_2
+  - libssh2=1.9.0=h1ba5d50_1
+  - libstdcxx-ng=9.3.0=hd4cf53a_17
+  - ncurses=6.3=h7f8727e_2
+  - openssl=1.1.1l=h7f8727e_0
+  - perl=5.26.2=h14c3975_0
+  - pip=19.3.1=py27_0
+  - plyvel=0.8=py27_0
+  - python=2.7.18=ha1903f6_2
+  - readline=8.1=h27cfd23_0
+  - setuptools=44.0.0=py27_0
+  - snappy=1.1.1=0
+  - sqlite=3.36.0=hc218d9a_0
+  - tk=8.6.11=h1ccaba5_0
+  - wget=1.20.1=h20c2e04_0
+  - wheel=0.37.0=pyhd3eb1b0_1
+  - zlib=1.2.11=h7b6447c_3
