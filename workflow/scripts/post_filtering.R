@@ -27,6 +27,9 @@ if(snakemake@params[["what"]]=="ASV"){
 
 # File parsing
 seqs <- readDNAStringSet(snakemake@input[[1]])
+if(units=="ASV" & any(grepl("^OTU",names(seqs)))){
+  names(seqs) <- gsub("OTU_","ASV_",names(seqs))
+}
 seqTab <- readRDS(snakemake@input[[2]])
 if(units=="ASV" & any(colnames(seqTab)=="OTU")){
   seqTab$OTU <- gsub("OTU_","ASV_",seqTab$OTU)
