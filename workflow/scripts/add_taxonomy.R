@@ -26,7 +26,7 @@ if(snakemake@params[['ITSx']]=="add"){
   iadd <- 1
   if(as.numeric(file.info(snakemake@input[[2]])$size)>0){
     seqs <- readDNAStringSet(snakemake@input[[2]])
-    if(units=="ASV" & any(grepl("^OTU",names(seqTab)))){
+    if(units=="ASV" & any(grepl("^OTU",names(seqs)))){
       names(seqs) <- gsub("OTU_","ASV_",names(seqs))
     }
     seqTab$ITSx <- seqTab[,which(colnames(seqTab)==units)] %in% names(seqs)
