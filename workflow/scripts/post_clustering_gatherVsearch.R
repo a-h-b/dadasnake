@@ -19,12 +19,11 @@ clusters <- read.delim(snakemake@input[[3]],sep="\t", header=F)[,c(1,2,9)]
 clusters <- clusters[clusters$V1 != "S",c(2,3)]
 colnames(clusters) <- c("OTU","ASV")
 
-num_digits <- as.character(ceiling(log10(length(unique(clusters$OTU)))))
-clusters$OTU <- sprintf(paste0("OTU_%0",num_digits,"d"),clusters$OTU)
-
-
 print(paste0("loading cluster sequence ",snakemake@input[[1]]))
 clusSeqs <- readDNAStringSet(snakemake@input[[1]])
+
+num_digits <- as.character(max(ceiling(log10(length(unique(clusters$OTU)))),nchar(names(clusSeqs)[1])-4))
+clusters$OTU <- sprintf(paste0("OTU_%0",num_digits,"d"),clusters$OTU)
 
 
 print("calculate clustered table")
