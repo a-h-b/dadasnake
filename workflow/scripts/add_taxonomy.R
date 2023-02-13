@@ -40,9 +40,13 @@ if(length(snakemake@input)>=2+iadd){
   print("reading taxonomy results")
   for(i in (2+iadd):length(snakemake@input)){
     cTax <- readRDS(snakemake@input[[i]])
-    if(units=="ASV" & any(colnames(cTax)=="OTU")){
-      cTax$OTU <- gsub("OTU_","ASV_",cTax$OTU)
-      colnames(cTax)[which(colnames(cTax)=="OTU")] <- "ASV"
+    if(units=="ASV"){
+      if(any(colnames(cTax)=="OTU")){
+        cTax$OTU <- gsub("OTU_","ASV_",cTax$OTU)
+        colnames(cTax)[which(colnames(cTax)=="OTU")] <- "ASV"
+      }else{
+        if(any(grepl("^OTU",cTax$ASV))) cTax$ASV <- gsub("OTU_","ASV_",cTax$ASV)
+      }
     }
     seqTab <- merge(seqTab,cTax,by=units,all.x=T) 
   }
