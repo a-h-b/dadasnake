@@ -651,7 +651,7 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         shell:
             """
             if [ -s {input} ]; then
-              if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" ]
+              if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" -a ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nal" ]
                 then
                 makeblastdb -dbtype nucl -in {config[blast][db_path]}/{config[blast][tax_db]} \
                  -out {config[blast][db_path]}/{config[blast][tax_db]} &> {log}
@@ -733,7 +733,7 @@ if config['blast']['tax2id'] == "" or config['blast']['tax2id'] == "none":
         shell:
             """
             if [ -s {input} ]; then
-              if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" ]
+              if [ ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nin" -a ! -f "{config[blast][db_path]}/{config[blast][tax_db]}.nal" ]
                 then
                 makeblastdb -dbtype nucl -in {config[blast][db_path]}/{config[blast][tax_db]} \
                  -out {config[blast][db_path]}/{config[blast][tax_db]} &> {log}
