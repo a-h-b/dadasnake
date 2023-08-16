@@ -99,7 +99,7 @@ if config['sequencing_direction'] == "fwd_1":
         shell:
             """
             TMPD=$(mktemp -d -t --tmpdir={TMPDIR} 'XXXXXX') 
-            FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
+            FWD_RC=`echo {config[primers][fwd][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
             RVS_RC=`echo {config[primers][rvs][sequence]} | tr '[ATUGCYRSWKMBDHNatugcyrswkbdhvn]' '[TAACGRYSWMKVHDBNtaacgryswmkvhdbn]' |rev`
                 
             cutadapt -g {config[primers][fwd][sequence]} -G {config[primers][rvs][sequence]} \
