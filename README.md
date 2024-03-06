@@ -54,7 +54,7 @@ conda install -c conda-forge mamba
 mkdir -p conda
 mamba create --prefix $PWD/conda/snakemake_env
 conda activate $PWD/conda/snakemake_env
-mamba install -c conda-forge -c bioconda snakemake=6.9.1 mamba
+mamba install -c conda-forge -c bioconda snakemake=6.9.1 mamba tabulate=0.8
 conda deactivate
 ```
 Alternatively, if the above does not work, you can install a fixed snakemake version without mamba like so:
